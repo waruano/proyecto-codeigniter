@@ -1,3 +1,10 @@
-<strong>&copy; This is footer</strong>
+
+
+
+
+<div class="footer">
+2014 &copy; Ruano'Soft    
+</div>
+</div>
 </body>
 </html>
