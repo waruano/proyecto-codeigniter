@@ -3,7 +3,7 @@
 
 
 <div class="footer">
-2014 &copy; Ruano'Soft    
+Copyright &copy; 2014 Ruano'Soft    
 </div>
 </div>
 </body>
