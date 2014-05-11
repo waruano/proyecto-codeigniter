@@ -2,8 +2,24 @@
 
 class Home extends CI_Controller {
 
-	public function index()
+	function __construct()
 	{
-		$this->load->view('pages/home');
+		parent::__construct();
+	}
+
+	function index()
+	{
+		if (!$this->tank_auth->is_logged_in()) {
+			redirect('/auth/login/');
+		} else {
+			$data['user_id']	= $this->tank_auth->get_user_id();
+			$data['username']	= $this->tank_auth->get_username();
+                        //Configuracion de la Plantilla
+                        $this->template->write_view('login',$this->tank_auth->get_login(),$data);
+                        $this->template->write('title','Previmed');
+                        $this->template->write_view('sidebar',$this->tank_auth->get_sidebar());
+                        $this->template->write_view('content','pages/home');
+                        $this->template->render();
+		}
 	}
 }
