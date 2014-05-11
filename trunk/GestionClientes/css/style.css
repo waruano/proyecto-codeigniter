@@ -1,0 +1,16 @@
+#logo {
+    /*background: url(../images/logo_mini_previemed.png) top center no-repeat;*/
+    background: #4F5155;
+}
+#header{
+    position: absolute;
+    height: 30%;
+    width: 100%;
+    background: green;
+    display: block;
+}
+#sp-header{
+    background: #3366cc;
+    margin-top: 5%;
+    margin-bottom: 5%;
+}
