@@ -7,17 +7,6 @@
     <script src="<?php echo $file; ?>"></script>
 <?php endforeach; ?>
 <div>
-    <div class="flexigrid" style='width: 100%;'>
-        <div class="tDiv">
-                <a href='http://localhost/GestionClientes/auth/register' title='Añadir Usuarios' class='add-anchor add_button'>
-                    <div class="fbutton">
-                        <div>
-                            <span class="add">Añadir Usuarios</span>
-                        </div>
-                    </div>
-                </a>
-        </div>
-    </div>
     <?php
     echo $output;
     ?>
