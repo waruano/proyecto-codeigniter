@@ -14,7 +14,7 @@ class Home extends CI_Controller {
             //Configuracion de la Plantilla
             $this->template->write_view('login',$this->tank_auth->get_login(),$data);
             $this->template->write('title','Previmed');
-            $this->template->write_view('sidebar',$this->tank_auth->get_sidebar(), $currentOption);
+            $this->template->write_view('sidebar',$this->tank_auth->get_sidebar());
             $this->template->write_view('content','pages/home');
             $this->template->render();
 	}
