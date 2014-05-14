@@ -133,11 +133,12 @@ create table PERSONA
 /*==============================================================*/
 create table PLAN
 (
+   ID                   bigint not null,
+   NOMBRE               varchar(50),
    FORMAPAGO            int,
    PERIODICIDAD         int,
    TIPOPLAN             int,
    NOMBRECONVENIO       varchar(30),
-   ID                   bigint not null,
    primary key (ID)
 );
 
