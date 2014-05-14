@@ -94,7 +94,7 @@ class Auth extends CI_Controller
                         $this->template->write_view('login','auth/login_form',$data);
                         $this->template->write('title','Previmed');
                         $this->template->write_view('sidebar','pages/sidebar_home');
-                        $this->template->write_view('content','pages/home');
+                        $this->template->write_view('content','pages/login_page');
                         $this->template->render();
 		}
 	}

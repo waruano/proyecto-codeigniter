@@ -59,7 +59,7 @@ class Administrador extends CI_Controller {
 
         //Configuracion de la Plantilla
         $this->template->write_view('login', $this->tank_auth->get_login(), $data);
-        $this->template->write('title', 'Previmed');
+        $this->template->write('title', 'Usuarios');
         $this->template->write_view('sidebar', $this->tank_auth->get_sidebar());
         $this->template->write_view('content', 'Administrador/usuarios', $output);
         $this->template->render();
@@ -78,5 +78,44 @@ class Administrador extends CI_Controller {
                 $data['errors'][$k] = $this->lang->line($v);
         }
     }
+    
+    function planes()
+    {
+        //informacion de Usuario
+        $data['user_id'] = $this->tank_auth->get_user_id();
+        $data['username'] = $this->tank_auth->get_username();
+        
+        //Configuracion Grocery_CRUD listado de usuarios
+        $crud = new Grocery_CRUD();
+        $crud->set_table('plan');
+        $crud->set_subject("planes");        
+        $crud->columns('NOMBRE','FORMAPAGO', 'PERIODICIDAD', 'TIPOPLAN', 'NOMBRECONVENIO');
+        $crud->display_as('NOMBRE', 'Nombre Plan');
+        $crud->display_as('FORMAPAGO', 'Forma de Pago');
+        $crud->display_as('PERIODICIDAD', 'Periodicidad');
+        $crud->display_as('TIPOPLAN', 'Tipo de Plan');
+        $crud->display_as('NOMBRECONVENIO', 'Nombre de Convenio');
+        $crud->edit_fields('NOMBRE', 'FORMAPAGO', 'PERIODICIDAD', 'TIPOPLAN', 'NOMBRECONVENIO');        
+        $crud->required_fields('NOMBRE', 'FORMAPAGO', 'PERIODICIDAD', 'TIPOPLAN');
+        $crud->add_fields('NOMBRE','FORMAPAGO', 'PERIODICIDAD', 'TIPOPLAN', 'NOMBRECONVENIO');
+        $crud->unset_read();
+        $crud->unique_fields('NOMBRE');
+                
+        $crud->field_type('FORMAPAGO','dropdown',array('1' => 'Domicilio', '2' => 'Debito Automático','3' => 'Convenio' ));
+        $crud->field_type('PERIODICIDAD','dropdown',array('1' => 'Mensual', '2' => 'Trimestral','3' => 'Semestral','4' => 'Anual' ));
+        $crud->field_type('TIPOPLAN','dropdown',array('1' => 'Individual', '2' => 'Familiar','3' => 'Convenio'));
+        
+        $crud->unset_back_to_list();
+        $output = $crud->render();
+
+        //Configuracion de la Plantilla
+        $this->template->write_view('login', $this->tank_auth->get_login(), $data);
+        $this->template->write('title', 'Planes');
+        $this->template->write_view('sidebar', $this->tank_auth->get_sidebar());
+        $this->template->write_view('content', 'Administrador/planes', $output);
+        $this->template->render();
+    }
+    
+    
 
 }
