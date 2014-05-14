@@ -16,7 +16,7 @@ class Auth extends CI_Controller
                     $this->load->view('masterPage',$data);
                     //$this->load->view('auth/general_message', array('message' => $message));
 		} else {
-			redirect('/auth/login/');
+			redirect('/auth/login/');                        
 		}
 	}
 
