@@ -11,8 +11,10 @@
     </head>
     <body>
         <div class="container">       
-            <div>&nbsp;</div>
-            <div class="row" >
+            <div class='login' style="float: right;">
+                    <?php echo $login?>
+                </div>
+            <div class="row"  >
                 <div class="col-md-4">
                     <a href="<?php echo base_url()?>" ><img src="<?php echo base_url()?>images/logo.png"></img> </a>              
                 </div>
@@ -20,9 +22,7 @@
                     <div class='sidebar'>
                     <?php echo $sidebar?>
                     </div>
-                    <div class='login'>
-                    <?php echo $login?>
-                    </div>
+                
                 </div>
             </div>
             <div class="masthead">
