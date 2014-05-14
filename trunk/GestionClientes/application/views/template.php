@@ -10,7 +10,7 @@
         <?php echo link_tag('js/bootstrap.min.js')?>
     </head>
     <body>
-        <div class="container">       
+        <div class="container" style="padding-top: 10px;">       
             <div class='login' style="float: right;">
                     <?php echo $login?>
                 </div>
