@@ -1,15 +1,34 @@
 /*==============================================================*/
 /* DBMS name:      MySQL 5.0                                    */
-/* Created on:     11/05/2014 0:41:20                           */
+/* Created on:     13/05/2014 22:33:29                          */
 /*==============================================================*/
+
+
+drop table if exists BENEFICIARIO;
+
+drop table if exists CONTACTO;
+
+drop table if exists CONTRATO;
+
+drop table if exists COSTOPLAN;
+
+drop table if exists DOCUMENTO;
+
+drop table if exists PAGO;
+
+drop table if exists PERSONA;
+
+drop table if exists PLAN;
+
+drop table if exists TITULAR;
 
 /*==============================================================*/
 /* Table: BENEFICIARIO                                          */
 /*==============================================================*/
 create table BENEFICIARIO
 (
-   ID                   int(11) not null,
-   TITID                int(11),
+   ID                   bigint not null,
+   TITID                bigint,
    FECHANACIMIENTO      date,
    GENERO               int,
    ESTRATODOMICILIO     int,
@@ -36,7 +55,7 @@ create table CONTACTO
    INDICATIVO           varchar(5),
    TELDOMICILIO         varchar(15),
    TELMOVIL             varchar(15),
-   ID                   int(11) not null,
+   ID                   bigint not null,
    primary key (ID)
 );
 
@@ -45,9 +64,9 @@ create table CONTACTO
 /*==============================================================*/
 create table CONTRATO
 (
-   ID                   int(11) not null,
-   TITID                int(11),
-   PLANID               int(11),
+   ID                   bigint not null,
+   TITID                bigint,
+   PLANID               bigint,
    TIPOCONTRATO         int,
    FECHA                date,
    TIPOPLAN             int,
@@ -59,10 +78,10 @@ create table CONTRATO
 /*==============================================================*/
 create table COSTOPLAN
 (
-   ID                   int(11) not null,
-   PLANID               int(11),
-   COSTOAFILIACION      int(11),
-   COSTOPAGO            int(11),
+   ID                   bigint not null,
+   PLANID               bigint,
+   COSTOAFILIACION      bigint,
+   COSTOPAGO            bigint,
    FECHADESDE           date,
    FECHAHASTA           date,
    primary key (ID)
@@ -73,9 +92,9 @@ create table COSTOPLAN
 /*==============================================================*/
 create table DOCUMENTO
 (
-   ID                   int(11) not null,
-   EMPID                int(11),
-   NUMERO               int(11) not null,
+   ID                   bigint not null,
+   EMPID                bigint,
+   NUMERO               bigint not null,
    TIPO                 int not null,
    primary key (ID)
 );
@@ -85,11 +104,27 @@ create table DOCUMENTO
 /*==============================================================*/
 create table PAGO
 (
-   ID                   int(11) not null,
-   RECID                int(11) not null,
-   TITID                int(11),
-   VALOR                int(11),
+   ID                   bigint not null,
+   RECID                bigint not null,
+   TITID                bigint,
+   VALOR                bigint,
    FECHA                date,
+   primary key (ID)
+);
+
+/*==============================================================*/
+/* Table: PERSONA                                               */
+/*==============================================================*/
+create table PERSONA
+(
+   ID                   bigint not null,
+   NOMBRES              varchar(50),
+   APELLIDOS            varchar(50),
+   TIPODOC              int,
+   NODOCUMENTO          varchar(20),
+   TELMOVIL             varchar(15),
+   EMAIL                varchar(50),
+   TIPOPERSONA          int,
    primary key (ID)
 );
 
@@ -102,7 +137,7 @@ create table PLAN
    PERIODICIDAD         int,
    TIPOPLAN             int,
    NOMBRECONVENIO       varchar(30),
-   ID                   int(11) not null,
+   ID                   bigint not null,
    primary key (ID)
 );
 
@@ -111,7 +146,7 @@ create table PLAN
 /*==============================================================*/
 create table TITULAR
 (
-   ID                   int(11) not null,
+   ID                   bigint not null,
    PAIS                 varchar(30),
    CIUDAD               varchar(30),
    BENEFICIARIO         bool,
@@ -138,30 +173,41 @@ create table TITULAR
    primary key (ID)
 );
 
+alter table BENEFICIARIO add constraint FK_PERSONABENEFICIARIO foreign key (ID)
+      references PERSONA (ID) on delete restrict on update restrict;
 
--- phpMyAdmin SQL Dump
--- version 3.5.1
--- http://www.phpmyadmin.net
---
--- Servidor: localhost
--- Tiempo de generaciÃ³n: 11-05-2014 a las 16:18:53
--- VersiÃ³n del servidor: 5.5.24-log
--- VersiÃ³n de PHP: 5.3.13
+alter table BENEFICIARIO add constraint FK_TITULARBENEFICIARIO foreign key (TITID)
+      references TITULAR (ID) on delete restrict on update restrict;
 
-SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
-SET time_zone = "+00:00";
+alter table CONTACTO add constraint FK_TITULARCONTACTO foreign key (ID)
+      references TITULAR (ID) on delete restrict on update restrict;
 
+alter table CONTRATO add constraint FK_CONTRATOTITULAR foreign key (TITID)
+      references TITULAR (ID) on delete restrict on update restrict;
 
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
-/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8 */;
+alter table CONTRATO add constraint FK_DOCUMENTOCONTRATO foreign key (ID)
+      references DOCUMENTO (ID) on delete restrict on update restrict;
 
---
--- Base de datos: `clientes`
---
+alter table CONTRATO add constraint FK_PLANCONVENIO foreign key (PLANID)
+      references PLAN (ID) on delete restrict on update restrict;
 
--- --------------------------------------------------------
+alter table COSTOPLAN add constraint FK_PLANCOSTO foreign key (PLANID)
+      references PLAN (ID) on delete restrict on update restrict;
+
+alter table DOCUMENTO add constraint FK_PERSONADOCUMENTO foreign key (EMPID)
+      references PERSONA (ID) on delete restrict on update restrict;
+
+alter table PAGO add constraint FK_DOCUMENTOPAGO foreign key (RECID)
+      references DOCUMENTO (ID) on delete restrict on update restrict;
+
+alter table PAGO add constraint FK_TITULARPAGO foreign key (TITID)
+      references TITULAR (ID) on delete restrict on update restrict;
+
+alter table TITULAR add constraint FK_PERSONATITULAR foreign key (ID)
+      references PERSONA (ID) on delete restrict on update restrict;
+
+	  
+	  -- --------------------------------------------------------
 
 --
 -- Estructura de tabla para la tabla `ci_sessions`
@@ -236,13 +282,8 @@ CREATE TABLE IF NOT EXISTS `users` (
   `last_login` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   `modified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-   NOMBRES              varchar(50),
-   APELLIDOS            varchar(50),
-   TIPODOC              int,
-   NODOCUMENTO          varchar(20),
-   TELMOVIL             varchar(15),
-   TIPOPERSONA          int,
-  PRIMARY KEY (`id`),
+  perId bigint,
+   PRIMARY KEY (`id`),
   KEY `fk_roles_to_users` (`identificadorRol`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=52 ;
 
@@ -298,47 +339,8 @@ INSERT INTO `user_profiles` (`id`, `user_id`, `country`, `website`) VALUES
 --
 ALTER TABLE `users`
   ADD CONSTRAINT `fk_roles_to_users` FOREIGN KEY (`identificadorRol`) REFERENCES `roles` (`identificadorRol`);
-
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
-
-
-
-alter table BENEFICIARIO add constraint FK_usersBENEFICIARIO foreign key (ID)
-      references users (ID) on delete restrict on update restrict;
-
-alter table DOCUMENTO add constraint FK_usersDOCUMENTO foreign key (EMPID)
-      references users (ID) on delete restrict on update restrict;
-
-alter table TITULAR add constraint FK_usersTITULAR foreign key (ID)
-      references users (ID) on delete restrict on update restrict;
-	  
-alter table BENEFICIARIO add constraint FK_TITULARBENEFICIARIO foreign key (TITID)
-      references TITULAR (ID) on delete restrict on update restrict;
-
-alter table CONTACTO add constraint FK_TITULARCONTACTO foreign key (ID)
-      references TITULAR (ID) on delete restrict on update restrict;
-
-alter table CONTRATO add constraint FK_CONTRATOTITULAR foreign key (TITID)
-      references TITULAR (ID) on delete restrict on update restrict;
-
-alter table CONTRATO add constraint FK_DOCUMENTOCONTRATO foreign key (ID)
-      references DOCUMENTO (ID) on delete restrict on update restrict;
-
-alter table CONTRATO add constraint FK_PLANCONVENIO foreign key (PLANID)
-      references PLAN (ID) on delete restrict on update restrict;
-
-alter table COSTOPLAN add constraint FK_PLANCOSTO foreign key (PLANID)
-      references PLAN (ID) on delete restrict on update restrict;
-
-
-	  
-alter table PAGO add constraint FK_DOCUMENTOPAGO foreign key (RECID)
-      references DOCUMENTO (ID) on delete restrict on update restrict;
-
-alter table PAGO add constraint FK_TITULARPAGO foreign key (TITID)
-      references TITULAR (ID) on delete restrict on update restrict;
-
+  
+alter table users add constraint fk_users_persona foreign key (perID)
+      references PERSONA (ID) on delete restrict on update restrict;
 
 
