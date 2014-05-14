@@ -27,7 +27,7 @@ drop table if exists TITULAR;
 /*==============================================================*/
 create table BENEFICIARIO
 (
-   ID                   bigint not null,
+   ID                   bigint not null AUTO_INCREMENT,
    TITID                bigint,
    FECHANACIMIENTO      date,
    GENERO               int,
@@ -55,7 +55,7 @@ create table CONTACTO
    INDICATIVO           varchar(5),
    TELDOMICILIO         varchar(15),
    TELMOVIL             varchar(15),
-   ID                   bigint not null,
+   ID                   bigint not null AUTO_INCREMENT,
    primary key (ID)
 );
 
@@ -64,7 +64,7 @@ create table CONTACTO
 /*==============================================================*/
 create table CONTRATO
 (
-   ID                   bigint not null,
+   ID                   bigint not null AUTO_INCREMENT,
    TITID                bigint,
    PLANID               bigint,
    TIPOCONTRATO         int,
@@ -78,7 +78,7 @@ create table CONTRATO
 /*==============================================================*/
 create table COSTOPLAN
 (
-   ID                   bigint not null,
+   ID                   bigint not null AUTO_INCREMENT,
    PLANID               bigint,
    COSTOAFILIACION      bigint,
    COSTOPAGO            bigint,
@@ -92,7 +92,7 @@ create table COSTOPLAN
 /*==============================================================*/
 create table DOCUMENTO
 (
-   ID                   bigint not null,
+   ID                   bigint not null AUTO_INCREMENT,
    EMPID                bigint,
    NUMERO               bigint not null,
    TIPO                 int not null,
@@ -104,7 +104,7 @@ create table DOCUMENTO
 /*==============================================================*/
 create table PAGO
 (
-   ID                   bigint not null,
+   ID                   bigint not null AUTO_INCREMENT,
    RECID                bigint not null,
    TITID                bigint,
    VALOR                bigint,
@@ -117,7 +117,7 @@ create table PAGO
 /*==============================================================*/
 create table PERSONA
 (
-   ID                   bigint not null,
+   ID                   bigint not null AUTO_INCREMENT,
    NOMBRES              varchar(50),
    APELLIDOS            varchar(50),
    TIPODOC              int,
@@ -133,7 +133,7 @@ create table PERSONA
 /*==============================================================*/
 create table PLAN
 (
-   ID                   bigint not null,
+   ID                   bigint not null AUTO_INCREMENT,
    NOMBRE               varchar(50),
    FORMAPAGO            int,
    PERIODICIDAD         int,
@@ -147,7 +147,7 @@ create table PLAN
 /*==============================================================*/
 create table TITULAR
 (
-   ID                   bigint not null,
+   ID                   bigint NOT NULL AUTO_INCREMENT,
    PAIS                 varchar(30),
    CIUDAD               varchar(30),
    BENEFICIARIO         bool,
