@@ -8,7 +8,7 @@
 <?php endforeach; ?>
 <div>
     <div>
-        <h4> Titular: <strong><?php echo $titularFullName ?>    </strong> </h4>
+        <h4> Contactos de <strong><?php echo $titularFullName ?>    </strong> </h4>
     </div>
     
     <?php
