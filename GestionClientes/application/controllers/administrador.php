@@ -71,8 +71,7 @@ class Administrador extends CI_Controller {
         $crud->set_rules('email', 'Email', 'required|trim|xss_clean|valid_email|max_length[100]');
         $crud->unique_fields('username', 'email');
         $crud->callback_insert(array($this, 'registrar_usuario_callback'));
-        $crud->unset_back_to_list();
-        $crud->add_action('Costos', 'Costos', 'Administrador/contactos');
+        $crud->unset_back_to_list();        
         $output = $crud->render();
 
         //Configuracion de la Plantilla
@@ -147,7 +146,6 @@ class Administrador extends CI_Controller {
         $data['selectedoption'] = 2;  
         
         $valTitId = $titularId;
-        
         $query = $this->db->query("SELECT NOMBRES, APELLIDOS, NODOCUMENTO FROM PERSONA WHERE ID = " . $valTitId );
         if ($query->num_rows() > 0)
         {   
@@ -172,17 +170,15 @@ class Administrador extends CI_Controller {
         $crud->display_as('TELMOVIL', 'Teléfono móvil');
         $crud->edit_fields('NOMBRECOMPLETO', 'PARENTESCO', 'INDICATIVO', 'TELDOMICILIO', 'TELMOVIL','TITID');
         $crud->required_fields('NOMBRECOMPLETO', 'PARENTESCO', 'TELMOVIL');
-        $crud->add_fields('NOMBRECOMPLETO', 'PARENTESCO', 'INDICATIVO', 'TELDOMICILIO', 'TELMOVIL');
+        $crud->add_fields('NOMBRECOMPLETO', 'PARENTESCO', 'INDICATIVO', 'TELDOMICILIO', 'TELMOVIL','TITID');
         $crud->unset_read();
         $crud->field_type('TITID', 'hidden', $valTitId);
-       
-        $crud->unset_back_to_list();
-        
+        $crud->buttons_form('sinGuardar');
         $output = $crud->render();
 
         //Configuracion de la Plantilla
         $this->template->write_view('login', $this->tank_auth->get_login(), $data);
-        $this->template->write('title', 'Planes');
+        $this->template->write('title', 'Contactos');
         $this->template->write_view('sidebar', $this->tank_auth->get_sidebar());
         $this->template->write_view('content', 'Administrador/contactos', $output);
         $this->template->render();
@@ -235,5 +231,5 @@ class Administrador extends CI_Controller {
         $this->template->write_view('content', 'Administrador/costosplan', $output);
         $this->template->render();
     }
-
+    
 }
