@@ -72,6 +72,24 @@ $this->set_js_lib($this->default_javascript_path . '/jquery_plugins/config/jquer
                 </div>
                 <?php
                 break;
+            case 'sinGuardar':
+                    ?>                   
+                    <?php if (!$this->unset_back_to_list) { ?>
+                        <div class='form-button-box'>
+                            <input type='button' value='<?php echo $this->l('form_save_and_go_back'); ?>' id="save-and-go-back-button"  class="btn btn-large"/>
+                        </div>
+                    <?php } ?>
+                    <div class='form-button-box'>
+                        <div class='small-loading' id='FormLoading'><?php echo $this->l('form_insert_loading'); ?></div>
+                    </div>
+                    <div class='form-button-box'>
+                        <input type='button' value='<?php echo $this->l('form_cancel'); ?>' class="btn btn-large" id="cancel-button" />
+                    </div>
+                    <div class='clear'></div>
+                </div>
+                <?php
+                break;    
+            
             case 'siguienteTitular':
                 ?>
                 <div class='form-button-box'>
