@@ -138,7 +138,9 @@ class Administrador extends CI_Controller {
         return 'costosplan/' . $primary_key;
     }
     
-    function contactos($titularId) {
+    function contactos() {
+        session_start();
+        $titularId=$_SESSION['_aux_var'];
         //informacion de Usuario
         $data['user_id'] = $this->tank_auth->get_user_id();
         $data['username'] = $this->tank_auth->get_username();
