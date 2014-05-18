@@ -27,7 +27,7 @@ drop table if exists TITULAR;
 /*==============================================================*/
 create table BENEFICIARIO
 (
-   ID                   bigint not null AUTO_INCREMENT,
+   ID                   bigint not null,
    TITID                bigint,
    FECHANACIMIENTO      date,
    GENERO               int,
