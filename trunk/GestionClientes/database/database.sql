@@ -18,7 +18,7 @@ drop table if exists PAGO;
 
 drop table if exists PERSONA;
 
-drop table if exists PLAN;
+drop table if exists PLAN; 
 
 drop table if exists TITULAR;
  
@@ -69,8 +69,8 @@ create table CONTRATO
    TITID                bigint,
    PLANID               bigint,
    TIPOCONTRATO         int,
-   FECHA                date,
-   TIPOPLAN             int,
+   FECHAINICIO          date,
+   ESTADO               int,
    primary key (ID)
 );
 
@@ -209,7 +209,7 @@ alter table TITULAR add constraint FK_PERSONATITULAR foreign key (ID)
       references PERSONA (ID) on delete restrict on update restrict;
 
 	  
-	  -- --------------------------------------------------------
+-- --------------------------------------------------------
 
 --
 -- Estructura de tabla para la tabla `ci_sessions`
