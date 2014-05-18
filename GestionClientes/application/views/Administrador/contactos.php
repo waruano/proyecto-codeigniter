@@ -8,8 +8,9 @@
 <?php endforeach; ?>
 <div>
     <div>
-        <h3> Planes de afiliación </h3>
-    </div> 
+        <h4> Titular: <strong><?php echo $titularFullName ?>    </strong> </h4>
+    </div>
+    
     <?php
     echo $output;
     ?>

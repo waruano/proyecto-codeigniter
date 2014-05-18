@@ -6,10 +6,10 @@
 
     <script src="<?php echo $file; ?>"></script>
 <?php endforeach; ?>
-<div>
+<div>    
     <div>
-        <h3> Planes de afiliación </h3>
-    </div> 
+        <h3> Tarifas el plan <strong>"<?php echo $planFullName ?>"</strong> </h3>
+    </div>   
     <?php
     echo $output;
     ?>
