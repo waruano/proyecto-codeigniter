@@ -36,7 +36,7 @@
 
 	$lang['form_upload_a_file'] 	= 'Subir un archivo';
 	$lang['form_upload_delete'] 	= 'eliminar';
-	$lang['form_button_clear'] 		= 'Resetear';
+	$lang['form_button_clear'] 		= 'Limpiar';
 
 	$lang['delete_success_message'] = 'Tus datos han sido eliminados correctamente de la base de datos.';
 	$lang['delete_error_message'] 	= 'Tus datos no han sido eliminados de la base de datos.';
