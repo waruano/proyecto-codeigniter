@@ -147,7 +147,7 @@ create table PLAN
 /*==============================================================*/
 create table TITULAR
 (
-   ID                   bigint NOT NULL AUTO_INCREMENT,
+   ID                   bigint NOT NULL,
    PAIS                 varchar(30),
    CIUDAD               varchar(30),
    BENEFICIARIO         bool,

@@ -23,7 +23,7 @@
 	$lang['form_edit'] 				= 'Editar';
 	$lang['form_back_to_list'] 		= 'Volver a la lista';
 	$lang['form_update_changes'] 	= 'Actualizar cambios';
-	$lang['form_cancel'] 			= 'Cancelar';
+	$lang['form_cancel'] 			= 'Regresar';
 	$lang['form_update_loading'] 	= 'Cargando, actualizando cambios...';
 	$lang['update_success_message'] = 'Tus datos han sido actualizado correcatamente.';
 	$lang['form_go_back_to_list'] 	= 'Volver a la lista';
@@ -42,8 +42,8 @@
 	$lang['delete_error_message'] 	= 'Tus datos no han sido eliminados de la base de datos.';
 
 	/* Javascript messages */
-	$lang['alert_add_form']			= 'Los datos que intentas añadir no se han guardado.\\nEstas seguro que quieres volver a la lista?';
-	$lang['alert_edit_form']		= 'Los datos que intentas actualizar no se han guardado.\\nEstas seguro que quieres volver a la lista?';
+	$lang['alert_add_form']			= 'Estas seguro que quieres volver a la lista?';
+	$lang['alert_edit_form']		= 'Estas seguro que quieres volver a la lista?';
 	$lang['alert_delete']			= 'Estas seguro que queres eliminar este registro?';
 
 	$lang['insert_error']			= 'Ocurrio un error al añadir.';

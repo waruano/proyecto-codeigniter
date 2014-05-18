@@ -33,25 +33,41 @@ class Administrador extends CI_Controller {
 
         //Configuracion Grocery_CRUD listado de usuarios
         $crud = new Grocery_CRUD();
+        //configuracion de la tabla
         $crud->set_table('users');
         $crud->set_subject("Usuarios");
+        //relacion Usuario tiene Rol
         $crud->set_relation('identificadorRol', 'roles', 'nombreRol');
-        $crud->columns('username', 'email', 'created', 'identificadorRol');
+        //renombrado de atributos
         $crud->display_as('identificadorRol', 'Rol');
         $crud->display_as('created', 'Fecha Creacion');
         $crud->display_as('conf_password', 'Confirmar Contraseña');
         $crud->display_as('password', 'Contraseña');
-        $crud->edit_fields('username', 'email', 'identificadorRol');        
-        $crud->field_type('password', 'password');
-        $crud->field_type('conf_password', 'password');
-        $crud->required_fields('username', 'password', 'conf_password', 'email','identificadorRol');
-        $crud->add_fields('username', 'password', 'conf_password', 'email', 'identificadorRol');
-        $crud->unset_read();
+        //obtenemos la accion a ejecutar (add,edit,view)
+        $state = $crud->getState();
+        switch ($state) {
+            case 'add':
+                //atributos que se podran ingresar
+                $crud->add_fields('username', 'password', 'conf_password', 'email', 'identificadorRol');
+                $crud->field_type('password', 'password');
+                $crud->field_type('conf_password', 'password');
+                $crud->set_rules('password', 'Contraseña', 'required|trim|xss_clean|max_length[255]|matches[conf_password]');
+                $crud->set_rules('conf_password', 'Confirmar Contraseña', 'required|trim|xss_clean|max_length[255]');
+                break;
+            case 'list':
+                //Columnas a mostrar en la lista
+                $crud->columns('username', 'email', 'created', 'identificadorRol');
+                break;
+            default:
+                //atributos que se podran editar y visualizar
+                $crud->edit_fields('username', 'email', 'identificadorRol');
+                break;
+        }
+        $crud->required_fields('username', 'password', 'conf_password', 'email', 'identificadorRol');
+        $crud->unset_back_to_list();
         $crud->unique_fields('username', 'email');
         $crud->set_rules('username', 'Username', 'required|trim|xss_clean|min_length[6]|max_length[50]');
         $crud->set_rules('email', 'Email', 'required|trim|xss_clean|valid_email|max_length[100]');
-        $crud->set_rules('password', 'Contraseña', 'required|trim|xss_clean|max_length[255]|matches[conf_password]');
-        $crud->set_rules('conf_password', 'Confirmar Contraseña', 'required|trim|xss_clean|max_length[255]');
         $crud->unique_fields('username', 'email');
         $crud->callback_insert(array($this, 'registrar_usuario_callback'));
         $crud->unset_back_to_list();
@@ -78,33 +94,32 @@ class Administrador extends CI_Controller {
                 $data['errors'][$k] = $this->lang->line($v);
         }
     }
-    
-    function planes()
-    {
+
+    function planes() {
         //informacion de Usuario
         $data['user_id'] = $this->tank_auth->get_user_id();
         $data['username'] = $this->tank_auth->get_username();
-        
+
         //Configuracion Grocery_CRUD listado de usuarios
         $crud = new Grocery_CRUD();
         $crud->set_table('plan');
-        $crud->set_subject("planes");        
-        $crud->columns('NOMBRE','FORMAPAGO', 'PERIODICIDAD', 'TIPOPLAN', 'NOMBRECONVENIO');
+        $crud->set_subject("planes");
+        $crud->columns('NOMBRE', 'FORMAPAGO', 'PERIODICIDAD', 'TIPOPLAN', 'NOMBRECONVENIO');
         $crud->display_as('NOMBRE', 'Nombre Plan');
         $crud->display_as('FORMAPAGO', 'Forma de Pago');
         $crud->display_as('PERIODICIDAD', 'Periodicidad');
         $crud->display_as('TIPOPLAN', 'Tipo de Plan');
         $crud->display_as('NOMBRECONVENIO', 'Nombre de Convenio');
-        $crud->edit_fields('NOMBRE', 'FORMAPAGO', 'PERIODICIDAD', 'TIPOPLAN', 'NOMBRECONVENIO');        
+        $crud->edit_fields('NOMBRE', 'FORMAPAGO', 'PERIODICIDAD', 'TIPOPLAN', 'NOMBRECONVENIO');
         $crud->required_fields('NOMBRE', 'FORMAPAGO', 'PERIODICIDAD', 'TIPOPLAN');
-        $crud->add_fields('NOMBRE','FORMAPAGO', 'PERIODICIDAD', 'TIPOPLAN', 'NOMBRECONVENIO');
+        $crud->add_fields('NOMBRE', 'FORMAPAGO', 'PERIODICIDAD', 'TIPOPLAN', 'NOMBRECONVENIO');
         $crud->unset_read();
         $crud->unique_fields('NOMBRE');
-                
-        $crud->field_type('FORMAPAGO','dropdown',array('1' => 'Domicilio', '2' => 'Debito Automático','3' => 'Convenio' ));
-        $crud->field_type('PERIODICIDAD','dropdown',array('1' => 'Mensual', '2' => 'Trimestral','3' => 'Semestral','4' => 'Anual' ));
-        $crud->field_type('TIPOPLAN','dropdown',array('1' => 'Individual', '2' => 'Familiar','3' => 'Convenio'));
-        
+
+        $crud->field_type('FORMAPAGO', 'dropdown', array('1' => 'Domicilio', '2' => 'Debito Automático', '3' => 'Convenio'));
+        $crud->field_type('PERIODICIDAD', 'dropdown', array('1' => 'Mensual', '2' => 'Trimestral', '3' => 'Semestral', '4' => 'Anual'));
+        $crud->field_type('TIPOPLAN', 'dropdown', array('1' => 'Individual', '2' => 'Familiar', '3' => 'Convenio'));
+
         $crud->unset_back_to_list();
         $output = $crud->render();
 
@@ -115,7 +130,5 @@ class Administrador extends CI_Controller {
         $this->template->write_view('content', 'Administrador/planes', $output);
         $this->template->render();
     }
-    
-    
 
 }
