@@ -21,7 +21,7 @@ drop table if exists PERSONA;
 drop table if exists PLAN; 
 
 drop table if exists TITULAR;
- 
+  
 /*==============================================================*/
 /* Table: BENEFICIARIO                                          */
 /*==============================================================*/
@@ -68,6 +68,7 @@ create table CONTRATO
    ID                   bigint not null AUTO_INCREMENT,
    TITID                bigint,
    PLANID               bigint,
+   DOCID                bigint,
    TIPOCONTRATO         int,
    FECHAINICIO          date,
    ESTADO               int,
@@ -187,10 +188,10 @@ alter table CONTACTO add constraint FK_TITULARCONTACTO foreign key (TITID)
 alter table CONTRATO add constraint FK_CONTRATOTITULAR foreign key (TITID)
       references TITULAR (ID) on delete restrict on update restrict;
 
-alter table CONTRATO add constraint FK_DOCUMENTOCONTRATO foreign key (ID)
+alter table CONTRATO add constraint FK_DOCUMENTOCONTRATO foreign key (DOCID)
       references DOCUMENTO (ID) on delete restrict on update restrict;
 
-alter table CONTRATO add constraint FK_PLANCONVENIO foreign key (PLANID)
+alter table CONTRATO add constraint FK_PLANCONTRATO foreign key (PLANID)
       references PLAN (ID) on delete restrict on update restrict;
 
 alter table COSTOPLAN add constraint FK_PLANCOSTO foreign key (PLANID)
