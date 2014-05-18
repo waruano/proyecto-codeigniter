@@ -1,3 +1,12 @@
+<div>
+    <div>
+    <h3>Bienvenido al sistema de administración de "PREVIMED"</h3>
+    <p>
+        Mediante el presente sistema podrá administrar información de Titulares, Beneficiarios, Contratos, Papelería y Cartera de <strong>Previmed</strong>. 
+        Es necesario que cuente con un usuario y contraseña suministrado por el administrador de la aplicación.
+    </p>
+    </div>
+</div>
 <?php
 $login = array(
 	'name'	=> 'login',
@@ -44,12 +53,11 @@ $captcha = array(
 		<div style="color: red;"><?php echo form_error($password['name']); ?><?php echo isset($errors[$password['name']])?$errors[$password['name']]:''; ?></div>
 	</div>
 	<div>
-		<td colspan="3">
-			<?php echo form_checkbox($remember); ?>
-			<?php echo form_label('Recordarme', $remember['id']); ?>
-			<?php echo anchor('/auth/forgot_password/', 'Recuperar Contraseña'); ?>
-			<?php if ($this->config->item('allow_registration', 'tank_auth')) echo anchor('/auth/register/', 'Register'); ?>
-		</td>
+                <?php echo form_checkbox($remember); ?>
+                <?php echo form_label('Recordarme', $remember['id']); ?>
+                <?php echo anchor('/auth/forgot_password/', 'Recuperar Contraseña'); ?>
+                <?php if ($this->config->item('allow_registration', 'tank_auth')) echo anchor('/auth/register/', 'Register'); ?>
+		
 	</div>
 </div>
 <?php echo form_submit('submit', 'Entrar'); ?>
