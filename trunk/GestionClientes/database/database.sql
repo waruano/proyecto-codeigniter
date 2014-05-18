@@ -20,7 +20,7 @@ drop table if exists PERSONA;
 
 drop table if exists PLAN; 
 
-drop table if exists TITULAR;
+drop table if exists TITULAR; 
   
 /*==============================================================*/
 /* Table: BENEFICIARIO                                          */
@@ -98,6 +98,7 @@ create table DOCUMENTO
    EMPID                bigint,
    NUMERO               bigint not null,
    TIPO                 int not null,
+   ESTADO               int not null,
    primary key (ID)
 );
 
