@@ -34,10 +34,16 @@ class Consultor extends CI_Controller {
         $crud->set_model('Custom_query_model');
         $crud->set_table('persona'); //Change to your table name
         $crud->basic_model->set_query_str(
-           "select 'Estado', documento.Numero as NumeroContrato, persona.Nombres + ' ' + persona.Apellidos as NombreTitular, 
-            persona.NoDocumento as Identificacion, contrato.FechaInicio as FechaAfiliacion
-            from persona inner join contrato on contrato.TITID = persona.ID inner join documento on documento.ID = contrato.DOCID
-            where contrato.ESTADO = 0"); //Query text here
+           "select 'Estado' as Estado, documento.Numero as NumeroContrato, CONCAT(persona.Nombres, ' ', persona.Apellidos) as NombreTitular, 
+            persona.NoDocumento as Identificacion, contrato.FechaInicio as FechaAfiliacion, documento.Numero as ID
+            from persona left join contrato on contrato.TITID = persona.ID left join documento on documento.ID = contrato.DOCID" );
+            //where contrato.ESTADO = 0"); //Query text here
+         $crud->columns('Estado', 'NumeroContrato', 'NombreTitular', 'Identificacion', 'FechaAfiliacion');
+         $crud->unset_add();
+         $crud->unset_edit();
+         $crud->unset_delete();
+         $crud->unset_read();
+         $crud->add_action('Detalles', base_url() . 'images/magnifier.png', 'Detalles','',array($this,'direccion_contratos'));
         $output = $crud->render();
         
         //Configuracion de la Plantilla
@@ -46,5 +52,10 @@ class Consultor extends CI_Controller {
         $this->template->write_view('sidebar', $this->tank_auth->get_sidebar());
         $this->template->write_view('content', 'consultor/consulta', $output);
         $this->template->render();
+    }
+    
+    function direccion_contratos($primary_key , $row)
+    {
+        return 'costosplan/' . $primary_key;
     }
 }
