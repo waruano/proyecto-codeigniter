@@ -21,7 +21,7 @@ drop table if exists PERSONA;
 drop table if exists PLAN;
 
 drop table if exists TITULAR;
-
+ 
 /*==============================================================*/
 /* Table: BENEFICIARIO                                          */
 /*==============================================================*/
@@ -56,6 +56,7 @@ create table CONTACTO
    TELDOMICILIO         varchar(15),
    TELMOVIL             varchar(15),
    ID                   bigint not null AUTO_INCREMENT,
+   TITID                bigint,
    primary key (ID)
 );
 
@@ -180,7 +181,7 @@ alter table BENEFICIARIO add constraint FK_PERSONABENEFICIARIO foreign key (ID)
 alter table BENEFICIARIO add constraint FK_TITULARBENEFICIARIO foreign key (TITID)
       references TITULAR (ID) on delete restrict on update restrict;
 
-alter table CONTACTO add constraint FK_TITULARCONTACTO foreign key (ID)
+alter table CONTACTO add constraint FK_TITULARCONTACTO foreign key (TITID)
       references TITULAR (ID) on delete restrict on update restrict;
 
 alter table CONTRATO add constraint FK_CONTRATOTITULAR foreign key (TITID)
