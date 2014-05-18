@@ -339,9 +339,7 @@ class Contratos extends CI_Controller {
         $titular["NOHIJOS"] = $post_array["NOHIJOS"];
         $titular["OCUPACION"] = $post_array["OCUPACION"];
         $titular["ESTADOCIVIL"] = $post_array["ESTADOCIVIL"];
-        $this->contratosModel->add_beneficiario($titular);
-        session_start();
-        $_SESSION['_aux_var'] = $titular['ID'];
+        $this->contratosModel->add_beneficiario($titular);                
         return $titular['ID'];
     }
 
