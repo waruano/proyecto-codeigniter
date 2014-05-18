@@ -121,7 +121,7 @@ class Administrador extends CI_Controller {
         $crud->field_type('PERIODICIDAD', 'dropdown', array('1' => 'Mensual', '2' => 'Trimestral', '3' => 'Semestral', '4' => 'Anual'));
         $crud->field_type('TIPOPLAN', 'dropdown', array('1' => 'Individual', '2' => 'Familiar', '3' => 'Convenio'));
         //$crud->add_action('Costos', '', 'Administrador/costosplan');
-        $crud->add_action('Tarifas', base_url() . 'images/magnifier.png', 'Costos', '', array($this, 'direccion_planes'));
+        $crud->add_action('Tarifas', base_url() . 'images/money.png', 'Costos','',array($this,'direccion_planes'));
         $output = $crud->render();
 
         //Configuracion de la Plantilla
