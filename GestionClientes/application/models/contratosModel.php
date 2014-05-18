@@ -39,6 +39,11 @@ class contratosModel extends CI_Model {
         $id = $this->db->insert_id();
         return $id;
     }
+    public function add_beneficiario($data) {
+        $this->db->insert('beneficiario', $data);
+        $id = $this->db->insert_id();
+        return $id;
+    }
 
     public function update_persona($data, $primaryKey) {
         return $this->db->update('persona', $data, array('ID' => $primaryKey));
@@ -46,6 +51,9 @@ class contratosModel extends CI_Model {
 
     public function update_titular($data, $primaryKey) {
         return $this->db->update('titular', $data, array('ID' => $primaryKey));
+    }
+    public function update_beneficiario($data, $primaryKey) {
+        return $this->db->update('beneficiario', $data, array('ID' => $primaryKey));
     }
     public function delete_persona($primaryKey){
         echo'<script>alert("borrando persona"'.$primaryKey.');</script>';

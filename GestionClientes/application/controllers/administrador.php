@@ -30,7 +30,7 @@ class Administrador extends CI_Controller {
     function Usuarios() {
         //informacion de Usuario
         $data['user_id'] = $this->tank_auth->get_user_id();
-        $data['username'] = $this->tank_auth->get_username();               
+        $data['username'] = $this->tank_auth->get_username();
         $data['selectedoption'] = 1;
         //Configuracion Grocery_CRUD listado de usuarios
         $crud = new Grocery_CRUD();
@@ -71,7 +71,7 @@ class Administrador extends CI_Controller {
         $crud->set_rules('email', 'Email', 'required|trim|xss_clean|valid_email|max_length[100]');
         $crud->unique_fields('username', 'email');
         $crud->callback_insert(array($this, 'registrar_usuario_callback'));
-        $crud->unset_back_to_list();        
+        $crud->unset_back_to_list();
         $output = $crud->render();
 
         //Configuracion de la Plantilla
@@ -116,12 +116,12 @@ class Administrador extends CI_Controller {
         $crud->add_fields('NOMBRE', 'FORMAPAGO', 'PERIODICIDAD', 'TIPOPLAN', 'NOMBRECONVENIO');
         $crud->unset_read();
         $crud->unique_fields('NOMBRE');
-        
+
         $crud->field_type('FORMAPAGO', 'dropdown', array('1' => 'Domicilio', '2' => 'Debito Automático', '3' => 'Convenio'));
         $crud->field_type('PERIODICIDAD', 'dropdown', array('1' => 'Mensual', '2' => 'Trimestral', '3' => 'Semestral', '4' => 'Anual'));
         $crud->field_type('TIPOPLAN', 'dropdown', array('1' => 'Individual', '2' => 'Familiar', '3' => 'Convenio'));
         //$crud->add_action('Costos', '', 'Administrador/costosplan');
-        $crud->add_action('Tarifas', base_url() . 'images/magnifier.png', 'Costos','',array($this,'direccion_planes'));
+        $crud->add_action('Tarifas', base_url() . 'images/magnifier.png', 'Costos', '', array($this, 'direccion_planes'));
         $output = $crud->render();
 
         //Configuracion de la Plantilla
@@ -131,32 +131,28 @@ class Administrador extends CI_Controller {
         $this->template->write_view('content', 'Administrador/planes', $output);
         $this->template->render();
     }
-    
-    function direccion_planes($primary_key , $row)
-    {
+
+    function direccion_planes($primary_key, $row) {
         return 'costosplan/' . $primary_key;
     }
-    
+
     function contactos() {
         session_start();
-        $titularId=$_SESSION['_aux_var'];
+        $titularId = $_SESSION['_aux_var'];
         //informacion de Usuario
         $data['user_id'] = $this->tank_auth->get_user_id();
         $data['username'] = $this->tank_auth->get_username();
-        $data['selectedoption'] = 2;  
-        
+        $data['selectedoption'] = 2;
+
         $valTitId = $titularId;
-        $query = $this->db->query("SELECT NOMBRES, APELLIDOS, NODOCUMENTO FROM PERSONA WHERE ID = " . $valTitId );
-        if ($query->num_rows() > 0)
-        {   
+        $query = $this->db->query("SELECT NOMBRES, APELLIDOS, NODOCUMENTO FROM PERSONA WHERE ID = " . $valTitId);
+        if ($query->num_rows() > 0) {
             $row = $query->row(0);
             $data['titularFullName'] = $row->NOMBRES . ' ' . $row->APELLIDOS;
-        }
-        else
-        {
+        } else {
             $data['titularFullName'] = 'Titular sin definir o no existe';
         }
-                
+
         //Configuracion Grocery_CRUD listado de usuarios
         $crud = new Grocery_CRUD();
         $crud->set_table('contacto');
@@ -168,9 +164,9 @@ class Administrador extends CI_Controller {
         $crud->display_as('INDICATIVO', 'Indicativo');
         $crud->display_as('TELDOMICILIO', 'Teléfono domicilio');
         $crud->display_as('TELMOVIL', 'Teléfono móvil');
-        $crud->edit_fields('NOMBRECOMPLETO', 'PARENTESCO', 'INDICATIVO', 'TELDOMICILIO', 'TELMOVIL','TITID');
+        $crud->edit_fields('NOMBRECOMPLETO', 'PARENTESCO', 'INDICATIVO', 'TELDOMICILIO', 'TELMOVIL', 'TITID');
         $crud->required_fields('NOMBRECOMPLETO', 'PARENTESCO', 'TELMOVIL');
-        $crud->add_fields('NOMBRECOMPLETO', 'PARENTESCO', 'INDICATIVO', 'TELDOMICILIO', 'TELMOVIL','TITID');
+        $crud->add_fields('NOMBRECOMPLETO', 'PARENTESCO', 'INDICATIVO', 'TELDOMICILIO', 'TELMOVIL', 'TITID');
         $crud->unset_read();
         $crud->field_type('TITID', 'hidden', $valTitId);
         $crud->buttons_form('sinGuardar');
@@ -183,24 +179,21 @@ class Administrador extends CI_Controller {
         $this->template->write_view('content', 'Administrador/contactos', $output);
         $this->template->render();
     }
-    
-      function costosplan($planid) {
+
+    function costosplan($planid) {
         //informacion de Usuario
         $data['user_id'] = $this->tank_auth->get_user_id();
         $data['username'] = $this->tank_auth->get_username();
-        $data['selectedoption'] = 2;  
-        
-        $query = $this->db->query("SELECT NOMBRE FROM PLAN WHERE ID = " . $planid );
-        if ($query->num_rows() > 0)
-        {   
+        $data['selectedoption'] = 2;
+
+        $query = $this->db->query("SELECT NOMBRE FROM PLAN WHERE ID = " . $planid);
+        if ($query->num_rows() > 0) {
             $row = $query->row(0);
-            $data['planFullName'] = $row->NOMBRE ;
-        }
-        else
-        {
+            $data['planFullName'] = $row->NOMBRE;
+        } else {
             $data['planFullName'] = 'Plan sin definir o no existe';
         }
-                
+
         //Configuracion Grocery_CRUD listado de usuarios
         $crud = new Grocery_CRUD();
         $crud->set_table('costoplan');
@@ -210,18 +203,18 @@ class Administrador extends CI_Controller {
         $crud->display_as('COSTOAFILIACION', 'Costo afiliación');
         $crud->display_as('COSTOPAGO', 'Costo pago');
         $crud->display_as('FECHADESDE', 'Aplica desde');
-        $crud->display_as('FECHAHASTA', 'Aplica hasta');      
-        $crud->edit_fields('COSTOAFILIACION', 'COSTOPAGO', 'FECHADESDE', 'FECHAHASTA','PLANID');
+        $crud->display_as('FECHAHASTA', 'Aplica hasta');
+        $crud->edit_fields('COSTOAFILIACION', 'COSTOPAGO', 'FECHADESDE', 'FECHAHASTA', 'PLANID');
         $crud->required_fields('COSTOAFILIACION', 'COSTOPAGO', 'FECHADESDE', 'FECHAHASTA');
-        $crud->add_fields('COSTOAFILIACION', 'COSTOPAGO', 'FECHADESDE', 'FECHAHASTA','PLANID');
+        $crud->add_fields('COSTOAFILIACION', 'COSTOPAGO', 'FECHADESDE', 'FECHAHASTA', 'PLANID');
         $crud->unset_read();
         $crud->field_type('PLANID', 'hidden', $planid);
         $crud->field_type('COSTOAFILIACION', 'integer');
         $crud->field_type('COSTOPAGO', 'integer');
         $crud->field_type('FECHADESDE', 'date');
         $crud->field_type('FECHAHASTA', 'date');
-       
-                     
+
+
         $output = $crud->render();
 
         //Configuracion de la Plantilla
@@ -231,5 +224,5 @@ class Administrador extends CI_Controller {
         $this->template->write_view('content', 'Administrador/costosplan', $output);
         $this->template->render();
     }
-    
 }
+
