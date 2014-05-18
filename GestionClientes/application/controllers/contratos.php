@@ -5,7 +5,7 @@ if (!defined('BASEPATH'))
 
 class Contratos extends CI_Controller {
 
-    function __construct() {
+   function __construct() {
         parent::__construct();
         if (!$this->tank_auth->is_logged_in()) {
             redirect('/auth/login/');
@@ -23,6 +23,13 @@ class Contratos extends CI_Controller {
         //configuracion de la tabla
         $crud->set_table('titular');
         $crud->set_subject("Titulares");
+        if ($state == 'add')
+            $crud->buttons_form("siguienteTitular");
+        session_start();
+        if (isset($_SESSION['success']) && $_SESSION['success'] = true) {
+            unset($_SESSION['success']);
+            redirect('administrador/contactos/');
+        }
         //definicion de los campos
         $crud->fields('NOMBRES', 'APELLIDOS', 'TIPODOC', 'NODOCUMENTO', 'TELMOVIL', 'EMAIL', 'TIPOPERSONA', 'PAIS', 'CIUDAD', 'BENEFICIARIO', 'FECHANACIMIENTO', 'GENERO', 'COBRODIRECCION', 'COBROBARRIO', 'COBROMUNICIPIO', 'COBRODEPTO', 'DOMIDIRECCION', 'DOMIBARRIO', 'DOMIMUNICIPIO', 'DOMIDEPTO', 'TELDOMICILIO', 'TELOFICINA', 'NOHIJOS', 'NODEPENDIENTES', 'ESTRATO', 'ESTADOCIVIL', 'OCUPACION', 'EPS', 'COMOUBICOSERVICIO', 'PERMITEUSODATOS');
         //renombrado de los campos
@@ -75,8 +82,9 @@ class Contratos extends CI_Controller {
         $crud->callback_edit_field('TIPOPERSONA', array($this, '_callback_field_tipopersona'));
         //definicion de tipos de los campos
         $crud->field_type('TIPODOC', 'dropdown', array(0 => 'Cedula de Ciudadnia', 1 => 'Tarjeta de Identidad', 2 => 'Cedula Extrangera'));
+        //definicion de las reglas
+        $crud->required_fields('NOMBRES');
         //Rederizacion del CRUD
-        $crud->unset_back_to_list();
         $output = $crud->render();
         //configuracion de la plantilla
         $this->template->write_view('login', $this->tank_auth->get_login(), $data);
@@ -120,7 +128,10 @@ class Contratos extends CI_Controller {
         $titular["EPS"] = $post_array["EPS"];
         $titular["COMOUBICOSERVICIO"] = $post_array["COMOUBICOSERVICIO"];
         $titular["PERMITEUSODATOS"] = $post_array["PERMITEUSODATOS"];
-        return $this->contratosModel->add_titular($titular);
+        $this->contratosModel->add_titular($titular);
+        session_start();
+        $_SESSION['_aux_var']=$titular['ID'];
+        return $titular['ID'];
     }
 
     function _callback_actualizar_titular($post_array, $primaryKey) {
@@ -227,4 +238,5 @@ class Contratos extends CI_Controller {
     }
 
 }
+
 ?>

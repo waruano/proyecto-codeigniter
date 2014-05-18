@@ -1493,8 +1493,10 @@ class grocery_CRUD_Layout extends grocery_CRUD_Model_Driver
 	protected $js_files					= array();
 	protected $js_lib_files				= array();
 	protected $js_config_files			= array();
+        //variable utilizada para controlar los botones de la vista add
+        protected $buttons_form ='default';
 
-	protected function set_basic_Layout()
+        protected function set_basic_Layout()
 	{
 		if(!file_exists($this->theme_path.$this->theme.'/views/list_template.php'))
 		{
@@ -1502,7 +1504,6 @@ class grocery_CRUD_Layout extends grocery_CRUD_Model_Driver
 			die();
 		}
 	}
-
 	protected function showList($ajax = false, $state_info = null)
 	{
 		$data = $this->get_common_data();
@@ -1782,7 +1783,8 @@ class grocery_CRUD_Layout extends grocery_CRUD_Model_Driver
 		$data->unset_back_to_list	= $this->unset_back_to_list;
 		$data->unique_hash			= $this->get_method_hash();
 		$data->is_ajax 			= $this->_is_ajax();
-
+                //carga de configuracion de botones
+                $data->buttons_form=  $this->buttons_form;
 		$this->_theme_view('add.php',$data);
 		$this->_inline_js("var js_date_format = '".$this->js_date_format."';");
 
@@ -1897,6 +1899,8 @@ class grocery_CRUD_Layout extends grocery_CRUD_Model_Driver
 		}
 		else
 		{
+                        session_start();
+                        $_SESSION['success']=true;
 			$success_message = '<p>'.$this->l('insert_success_message');
 
 			if(!$this->unset_back_to_list && !empty($insert_result) && !$this->unset_edit)
@@ -3439,9 +3443,13 @@ class Grocery_CRUD extends grocery_CRUD_States
 
 		return $this;
 	}
+        //funcion utilizada para definir los botones del formulario
+        public function buttons_form($data){
+            $this->buttons_form=$data;
+            return $this;
+        }
 
-
-	/**
+        /**
 	 * Set Validation Rules
 	 *
 	 * Important note: If the $field is an array then no automated crud fields will take apart
