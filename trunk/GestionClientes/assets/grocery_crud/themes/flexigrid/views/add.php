@@ -8,9 +8,9 @@ $this->set_js_lib($this->default_javascript_path . '/jquery_plugins/config/jquer
 ?>
 <div class="flexigrid crud-form" style='width: 100%;' data-unique-hash="<?php echo $unique_hash; ?>">
     
-    <div class="row mDiv" style="border: 1px solid; text-align: center; color: #444;
+    <div class="row " style="border: 1px solid #69bd43; padding-left: 10px; color: #fff; background-color: #69bd43;
          font-size: 18px; padding-top: 5px; padding-bottom: 5px; border-radius: 6px 6px 0px 0px; ">
-        <p><?php echo $this->l('form_add'); ?> <?php echo $subject ?></p>
+        <strong><?php echo $this->l('form_add'); ?> <?php echo $subject ?></strong>
     </div>
     <div id='main-table-box'>
         <?php echo form_open($insert_url, 'method="post" id="crudForm" autocomplete="off" enctype="multipart/form-data"'); ?>
@@ -23,7 +23,7 @@ $this->set_js_lib($this->default_javascript_path . '/jquery_plugins/config/jquer
                 ?>
                 <?php 
                 if($counter % 2 == 0){ 
-                    echo '<div class="row" style="border-left: 1px solid;  border-right: 1px solid;">';                     
+                    echo '<div class="row" style="border-left: 1px solid #ccc;  border-right: 1px solid #ccc;">';                     
                 }  
                 ?>
             
@@ -56,14 +56,14 @@ $this->set_js_lib($this->default_javascript_path . '/jquery_plugins/config/jquer
             <!-- End of hidden inputs -->
             <?php if ($is_ajax) { ?><input type="hidden" name="is_ajax" value="true" /><?php } ?>
             
-            <div class="row" style="border-left: 1px solid; border-right: 1px solid;">
+            <div class="row" style="border-left: 1px solid #ccc; border-right: 1px solid #ccc;">
                 <div class="col-md-6">
                     <div id='report-error' class='report-div error'></div>
                     <div id='report-success' class='report-div success'></div>
                 </div>
             </div>
         </div>
-        <div class="row" style="border: 1px solid; border-top: 0px;  text-align: center; font-size: 18px; 
+        <div class="row" style="border: 1px solid #ccc; border-top: 0px;  text-align: center; font-size: 18px; 
              padding-bottom: 10px; border-radius: 0px 0px 6px 6px; ">
             <?php
             switch ($buttons_form) {
