@@ -47,35 +47,35 @@ if($success_message !== null){?>
 	<div id='main-table-box' class="main-table-box" >
 
 	<?php if(!$unset_add || !$unset_export || !$unset_print){?>
-	<div class="tDiv" style="border-radius: 6px 6px 0px 0px;">
+	<div style="background-color: #69bd43; border-radius: 6px 6px 0px 0px; color: #fff; ">
 		<?php if(!$unset_add){?>
 		<div class="tDiv2">
         	<a href='<?php echo $add_url?>' title='<?php echo $this->l('list_add'); ?> <?php echo $subject?>' class='add-anchor add_button'>
-			<div class="fbutton">
-					<span class="add" style="font-size: 14px;" ><?php echo $this->l('list_add'); ?> <?php echo $subject?></span>				
+			<div class="fbutton" style="color: #fff; padding-left: 10px;">
+					<span class="add" style="font-size: 18px; font-weight: bold;" ><?php echo $this->l('list_add'); ?> <?php echo $subject?></span>				
 			</div>
                 </a>
 		</div>
 		<?php }?>
-		<div class="tDiv3">
+		<div class="tDiv3" >
 			<?php if(!$unset_export) { ?>
-        	<a class="export-anchor" data-url="<?php echo $export_url; ?>" target="_blank">
-				<div class="fbutton">
-					<div>
-						<span class="export"><?php echo $this->l('list_export');?></span>
-					</div>
-				</div>
-            </a>
-			<div class="btnseparator"></div>
-			<?php } ?>
-			<?php if(!$unset_print) { ?>
-        	<a class="print-anchor" data-url="<?php echo $print_url; ?>">
-				<div class="fbutton">
-					<div>
-						<span class="print"><?php echo $this->l('list_print');?></span>
-					</div>
-				</div>
-            </a>
+                            <a class="export-anchor" style="color: #fff;" data-url="<?php echo $export_url; ?>" target="_blank">
+                                            <div class="fbutton">
+                                                    <div>
+                                                            <span class="export"><?php echo $this->l('list_export');?></span>
+                                                    </div>
+                                            </div>
+                             </a>
+                                    <div class="btnseparator"></div>
+                                    <?php } ?>
+                                    <?php if(!$unset_print) { ?>
+                            <a class="print-anchor" style="color: #fff;" data-url="<?php echo $print_url; ?>">
+                                            <div class="fbutton">
+                                                    <div>
+                                                            <span class="print"><?php echo $this->l('list_print');?></span>
+                                                    </div>
+                                            </div>
+                            </a>
 			
 			<?php }?>
 		</div>
