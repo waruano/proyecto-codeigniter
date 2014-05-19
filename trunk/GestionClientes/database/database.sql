@@ -68,7 +68,7 @@ create table CONTRATO
    ID                   bigint not null AUTO_INCREMENT,
    TITID                bigint,
    PLANID               bigint,
-   DOCID                bigint,
+   DOCID                bigint, 
    TIPOCONTRATO         int,
    FECHAINICIO          date,
    ESTADO               int,
