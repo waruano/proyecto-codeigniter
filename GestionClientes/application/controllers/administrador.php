@@ -224,5 +224,39 @@ class Administrador extends CI_Controller {
         $this->template->write_view('content', 'Administrador/costosplan', $output);
         $this->template->render();
     }
+    
+    
+    function empleados() {
+        //informacion de Usuario
+        $data['user_id'] = $this->tank_auth->get_user_id();
+        $data['username'] = $this->tank_auth->get_username();
+        $data['selectedoption'] = 7;
+        //Configuracion Grocery_CRUD listado de usuarios
+        $crud = new Grocery_CRUD();
+        $crud->set_table('persona');
+        $crud->where('TIPOPERSONA', '2');
+        $crud->set_subject("Empleados");
+        $crud->columns('NOMBRES', 'APELLIDOS', 'TIPODOC', 'NODOCUMENTO', 'TELMOVIL','EMAIL');
+        $crud->display_as('NOMBRES', 'Nombres');
+        $crud->display_as('APELLIDOS', 'Apellidos');
+        $crud->display_as('TIPODOC', 'Tipo documento');
+        $crud->display_as('NODOCUMENTO', 'No documento');
+        $crud->display_as('TELMOVIL', 'Teléfono móvil');
+        $crud->display_as('EMAIL', 'E-mail');
+        $crud->edit_fields('NOMBRES', 'APELLIDOS', 'TIPODOC', 'NODOCUMENTO', 'TELMOVIL','EMAIL','TIPOPERSONA');
+        $crud->required_fields('NOMBRES', 'APELLIDOS', 'TIPODOC', 'NODOCUMENTO', 'TELMOVIL','EMAIL');
+        $crud->add_fields('NOMBRES', 'APELLIDOS', 'TIPODOC', 'NODOCUMENTO', 'TELMOVIL','EMAIL','TIPOPERSONA');
+        $crud->unset_read();
+        $crud->field_type('TIPOPERSONA', 'hidden', '2');
+        $crud->field_type('TIPODOC', 'dropdown', array(0 => 'Cedula de Ciudadnia', 1 => 'Tarjeta de Identidad', 2 => 'Cedula Extrangera'));
+        $output = $crud->render();
+
+        //Configuracion de la Plantilla
+        $this->template->write_view('login', $this->tank_auth->get_login(), $data);
+        $this->template->write('title', 'Planes');
+        $this->template->write_view('sidebar', $this->tank_auth->get_sidebar());
+        $this->template->write_view('content', 'Administrador/empleados', $output);
+        $this->template->render();
+    }
 }
 
