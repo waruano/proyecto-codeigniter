@@ -8,7 +8,7 @@
 <?php endforeach; ?>
 <div>
     <div>
-        <h3> Planes de afiliación </h3>
+        <h3>Contratos </h3>
     </div> 
     <?php
     echo $output;
