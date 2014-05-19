@@ -8,11 +8,10 @@
 <?php endforeach; ?>
 <div>
     <div>
-        <h4> Titular: <strong><?php echo $titularFullName ?>    </strong> </h4>
-    </div>
-    
+        <h3> Planes de afiliación </h3>
+    </div> 
     <?php
     echo $output;
     ?>
-    <input type="button" onclick="window.location='<?php echo base_url()."/contratos/titulares"; ?>'" value="Terminar"/>        
 </div>
+

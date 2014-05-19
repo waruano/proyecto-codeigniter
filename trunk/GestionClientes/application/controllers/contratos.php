@@ -14,6 +14,36 @@ class Contratos extends CI_Controller {
     }
 
     function index() {
+        //informacion de Usuario
+        $session_rol = $this->tank_auth->get_rol();
+        $data['user_id'] = $this->tank_auth->get_user_id();
+        $data['username'] = $this->tank_auth->get_username();
+        //creacion  del crud
+        $crud = new Grocery_CRUD();
+        $state = $crud->getState();
+        //configuracion de la tabla
+        $crud->set_table('contrato');
+        $crud->set_subject("Contrato");
+        $crud->set_relation('TITID', 'persona','{NOMBRES}{APELLIDOS}-{NODOCUMENTO}');
+        $crud->set_relation('PLANID', 'plan', '{NOMBRE}-{FORMAPAGO}');
+        $crud->set_relation('DOCID', 'documento', 'NUMERO');
+        //Renombrado de los campos
+        $crud->display_as('TITID','Titular');
+        $crud->display_as('PLANID','Plan');
+        $crud->display_as('TIPOCONTRATO','Tipo de Contrato');
+        $crud->display_as('FECHAINICIO','Fecha de Inicio');
+        $crud->display_as('DOCID','Documento');
+        $crud->display_as('ESTADO','Estado');
+        $output = $crud->render();
+        //configuracion de la plantilla
+        $this->template->write_view('login', $this->tank_auth->get_login(), $data);
+        $this->template->write('title', 'Titulares');
+        $this->template->write_view('sidebar', $this->tank_auth->get_sidebar());
+        $this->template->write_view('content', 'Administrador/titulares', $output);
+        $this->template->render();
+    }
+
+    function titulares() {
         $session_rol = $this->tank_auth->get_rol();
         //informacion de Usuario
         $data['user_id'] = $this->tank_auth->get_user_id();
@@ -253,7 +283,7 @@ class Contratos extends CI_Controller {
         $crud->set_table('beneficiario');
         $crud->set_subject("Beneficiarios");
         $crud->where('TITID', $valTitId);
-        
+
         //definicion de los botones del form
         $crud->buttons_form('sinGuardar');
 
