@@ -39,7 +39,7 @@ class Contratos extends CI_Controller {
         $this->template->write_view('login', $this->tank_auth->get_login(), $data);
         $this->template->write('title', 'Titulares');
         $this->template->write_view('sidebar', $this->tank_auth->get_sidebar());
-        $this->template->write_view('content', 'Administrador/titulares', $output);
+        $this->template->write_view('content', 'Administrador/contratos', $output);
         $this->template->render();
     }
 
