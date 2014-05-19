@@ -1,6 +1,6 @@
 <?php
 	/** Translated by: Hector Cyc and neocastelli*/
-	$lang['list_add'] 				= 'Añadir';
+	$lang['list_add'] 				= 'Adicionar';
 	$lang['list_actions'] 			= 'Acciones';
 	$lang['list_page'] 				= 'Pagina';
 	$lang['list_paging_of'] 		= 'de';
@@ -11,7 +11,7 @@
 	$lang['list_zero_entries']		= 'Mostrando 0 a 0 de 0 registros';
 	$lang['list_search'] 			= 'Buscar';
 	$lang['list_search_all'] 		= 'Buscar todo';
-	$lang['list_clear_filtering'] 	= 'Resetear filtro';
+	$lang['list_clear_filtering'] 	= 'Limpiar filtro';
 	$lang['list_delete'] 			= 'Eliminar';
 	$lang['list_edit'] 				= 'Editar';
 	$lang['list_paging_first'] 		= 'Primero';
@@ -25,17 +25,17 @@
 	$lang['form_update_changes'] 	= 'Actualizar cambios';
 	$lang['form_cancel'] 			= 'Regresar';
 	$lang['form_update_loading'] 	= 'Cargando, actualizando cambios...';
-	$lang['update_success_message'] = 'Tus datos han sido actualizado correcatamente.';
+	$lang['update_success_message'] = 'Tus datos han sido actualizados correctamente.';
 	$lang['form_go_back_to_list'] 	= 'Volver a la lista';
 
-	$lang['form_add'] 				= 'Añadir';
+	$lang['form_add'] 				= 'Adicionar';
 	$lang['insert_success_message'] = 'Sus datos han sido guardados correctamente.';
 	$lang['form_or']				= 'o';
 	$lang['form_save'] 				= 'Guardar';
 	$lang['form_insert_loading'] 	= 'Cargando, guardando los datos...';
 
 	$lang['form_upload_a_file'] 	= 'Subir un archivo';
-	$lang['form_upload_delete'] 	= 'eliminar';
+	$lang['form_upload_delete'] 	= 'Eliminar';
 	$lang['form_button_clear'] 		= 'Limpiar';
 
 	$lang['delete_success_message'] = 'Tus datos han sido eliminados correctamente de la base de datos.';
@@ -46,7 +46,7 @@
 	$lang['alert_edit_form']		= 'Estas seguro que quieres volver a la lista?';
 	$lang['alert_delete']			= 'Estas seguro que queres eliminar este registro?';
 
-	$lang['insert_error']			= 'Ocurrio un error al añadir.';
+	$lang['insert_error']			= 'Ocurrio un error al adicionar.';
 	$lang['update_error']			= 'Ocurrio un error al actualizar.';
 
 	/* Added in version 1.2.1 */
