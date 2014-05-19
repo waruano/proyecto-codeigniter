@@ -7,6 +7,7 @@
     <script src="<?php echo $file; ?>"></script>
 <?php endforeach; ?>
 <div>
+    <div><h3>Documentos</h3></div>
     <?php
     echo $output;
     ?>
