@@ -20,7 +20,7 @@ class digitador extends CI_Controller {
         //informacion de Usuario
         $data['user_id'] = $this->tank_auth->get_user_id();
         $data['username'] = $this->tank_auth->get_username();
-        $data['selectedoption'] = 5;
+        $data['selectedoption'] = 6;
         //Configuracion Grocery_CRUD listado de usuarios
         $crud = new Grocery_CRUD();
         $crud->set_table('documento');

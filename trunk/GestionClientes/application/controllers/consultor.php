@@ -21,10 +21,10 @@ class Consultor extends CI_Controller {
     
     function consultar()
     {        
-        // se obtienen los datos del filtro
         $data['validentificacion'] = $this->input->post('identificacion');
-        $data['valnocontrato'] = $this->input->post('numeroContrato');
+        $data['valnocontrato'] = $this->input->post('numeroContrato');        
         $data['valtitular'] = $this->input->post('nombreTitular');
+        
         //informacion de Usuario
         $data['user_id'] = $this->tank_auth->get_user_id();
         $data['username'] = $this->tank_auth->get_username();
@@ -33,17 +33,35 @@ class Consultor extends CI_Controller {
         $crud = new grocery_CRUD();
         $crud->set_model('Custom_query_model');
         $crud->set_table('persona'); //Change to your table name
-        $crud->basic_model->set_query_str(
-           "select 'Estado' as Estado, documento.Numero as NumeroContrato, CONCAT(persona.Nombres, ' ', persona.Apellidos) as NombreTitular, 
+        
+        $strSQL = "select 'Estado' as Estado, documento.Numero as NumeroContrato, CONCAT(persona.Nombres, ' ', persona.Apellidos) as NombreTitular, 
             persona.NoDocumento as Identificacion, contrato.FechaInicio as FechaAfiliacion, documento.Numero as ID
-            from persona left join contrato on contrato.TITID = persona.ID left join documento on documento.ID = contrato.DOCID" );
-            //where contrato.ESTADO = 0"); //Query text here
-         $crud->columns('Estado', 'NumeroContrato', 'NombreTitular', 'Identificacion', 'FechaAfiliacion');
-         $crud->unset_add();
-         $crud->unset_edit();
-         $crud->unset_delete();
-         $crud->unset_read();
-         $crud->add_action('Detalles', base_url() . 'images/magnifier.png', 'Detalles','',array($this,'direccion_contratos'));
+            from persona left join contrato on contrato.TITID = persona.ID left join documento on documento.ID = contrato.DOCID
+            where contrato.ESTADO = 0";
+       
+        if($data['valtitular'] != '' )
+        {
+            $strSQL = $strSQL . " AND CONCAT(persona.Nombres, ' ', persona.Apellidos) like '%" . $data['valtitular'] . "%' ";
+        }        
+        
+        if($data['validentificacion'] != '' )
+        {
+            $strSQL = $strSQL . " AND persona.NoDocumento like '%" . $data['validentificacion'] . "%' ";
+        }  
+        
+        if( is_numeric($data['valnocontrato']))
+        {
+            $strSQL = $strSQL . " AND documento.Numero = " . $data['valnocontrato'] . " ";
+        }
+                
+        $crud->basic_model->set_query_str( $strSQL  ); //Query text here
+        $crud->columns('Estado', 'NumeroContrato', 'NombreTitular', 'Identificacion', 'FechaAfiliacion');
+        $crud->unset_add();
+        $crud->unset_edit();
+        $crud->unset_delete();
+        $crud->unset_read();
+        $crud->add_action('Detalles', base_url() . 'images/magnifier.png', 'Detalles','',array($this,'direccion_contratos'));
+        $crud->unset_jquery();
         $output = $crud->render();
         
         //Configuracion de la Plantilla
