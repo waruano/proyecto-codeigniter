@@ -43,29 +43,18 @@ if($success_message !== null){?>
 ?></div>
 <div class="flexigrid" style='width: 100%;' data-unique-hash="<?php echo $unique_hash; ?>">
 	<div id="hidden-operations" class="hidden-operations"></div>
-	<div class="mDiv">
-		<div class="ftitle">
-			&nbsp;
-		</div>
-		<div title="<?php echo $this->l('minimize_maximize');?>" class="ptogtitle">
-			<span></span>
-		</div>
-	</div>
-	<div id='main-table-box' class="main-table-box">
+	
+	<div id='main-table-box' class="main-table-box" >
 
 	<?php if(!$unset_add || !$unset_export || !$unset_print){?>
-	<div class="tDiv">
+	<div class="tDiv" style="border-radius: 6px 6px 0px 0px;">
 		<?php if(!$unset_add){?>
 		<div class="tDiv2">
         	<a href='<?php echo $add_url?>' title='<?php echo $this->l('list_add'); ?> <?php echo $subject?>' class='add-anchor add_button'>
 			<div class="fbutton">
-				<div>
-					<span class="add"><?php echo $this->l('list_add'); ?> <?php echo $subject?></span>
-				</div>
+					<span class="add" style="font-size: 14px;" ><?php echo $this->l('list_add'); ?> <?php echo $subject?></span>				
 			</div>
-            </a>
-			<div class="btnseparator">
-			</div>
+                </a>
 		</div>
 		<?php }?>
 		<div class="tDiv3">
@@ -87,7 +76,7 @@ if($success_message !== null){?>
 					</div>
 				</div>
             </a>
-			<div class="btnseparator"></div>
+			
 			<?php }?>
 		</div>
 		<div class='clear'></div>
@@ -113,7 +102,7 @@ if($success_message !== null){?>
         	<input type="button" value="<?php echo $this->l('list_clear_filtering');?>" id='search_clear' class="search_clear">
         </div>
 	</div>
-	<div class="pDiv">
+	<div class="pDiv" style="border-radius:0px 0px 6px 6px ;">
 		<div class="pDiv2">
 			<div class="pGroup">
 				<div class="pSearch pButton quickSearchButton" id='quickSearchButton' title="<?php echo $this->l('list_search');?>">
