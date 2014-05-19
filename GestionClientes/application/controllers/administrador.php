@@ -133,7 +133,7 @@ class Administrador extends CI_Controller {
     }
 
     function direccion_planes($primary_key, $row) {
-        return 'costosplan/' . $primary_key;
+        return base_url() . 'administrador/costosplan/' . $primary_key;
     }
 
     function contactos() {
