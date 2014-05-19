@@ -29,7 +29,7 @@ class digitador extends CI_Controller {
         $crud->display_as('EMPID', 'Asignado a');
         $crud->display_as('NUMERO', 'Número');
         $crud->display_as('TIPO', 'Tipo');
-        $crud->set_relation('EMPID','Persona','{Nombres} {Apellidos}');        
+        $crud->set_relation('EMPID','Persona','{Nombres} {Apellidos}', array('TIPOPERSONA' => '2'));        
         $crud->edit_fields('EMPID', 'NUMERO', 'TIPO', 'ESTADO');
         $crud->required_fields('NUMERO', 'TIPO', 'ESTADO');
         $crud->add_fields('EMPID', 'NUMERO', 'TIPO', 'ESTADO');        
