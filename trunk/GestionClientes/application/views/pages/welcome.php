@@ -1,1 +1,1 @@
-Hola, estas en el sistema como <strong><?php echo $username; ?></strong>! <?php echo anchor('/auth/logout/', 'Salir'); ?>
+<div style="color: #444;" <p>Hola, estas en el sistema como <strong><?php echo $username; ?></strong>! <?php echo anchor('/auth/logout/', 'Salir'); ?></p></div>
