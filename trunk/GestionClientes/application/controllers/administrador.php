@@ -136,21 +136,48 @@ class Administrador extends CI_Controller {
         return base_url() . 'administrador/costosplan/' . $primary_key;
     }
 
-    function contactos() {
+    function contactosEdit($titularId)
+    {
         session_start();
-        $titularId = $_SESSION['_aux_var'];
+        $_SESSION['_aux_var'] = $titularId;
+        $_SESSION['_aux_wizard'] = false;
+        $this->contactos();
+    }
+    
+    function is_session_started()
+    {
+        if ( php_sapi_name() !== 'cli' ) {
+            if ( version_compare(phpversion(), '5.4.0', '>=') ) {
+                return session_status() === PHP_SESSION_ACTIVE ? TRUE : FALSE;
+            } else {
+                return session_id() === '' ? FALSE : TRUE;
+            }
+        }
+        return FALSE;
+    }
+    
+    function contactos() {    
+        if ( $this->is_session_started() === FALSE ) session_start();
+                
+        $titularId = $_SESSION['_aux_var'];            
         //informacion de Usuario
         $data['user_id'] = $this->tank_auth->get_user_id();
         $data['username'] = $this->tank_auth->get_username();
-        $data['selectedoption'] = 2;
+        $data['selectedoption'] = 3;
 
         $valTitId = $titularId;
-        $query = $this->db->query("SELECT NOMBRES, APELLIDOS, NODOCUMENTO FROM PERSONA WHERE ID = " . $valTitId);
+        $query = $this->db->query("SELECT NOMBRES, APELLIDOS, NODOCUMENTO, documento.numero 
+                                   FROM PERSONA Left Join CONTRATO on Contrato.TitId = Persona.ID   and contrato.estado = 1
+                                   left join documento on documento.id = contrato.docId   WHERE Persona.ID = " . $valTitId);
         if ($query->num_rows() > 0) {
             $row = $query->row(0);
             $data['titularFullName'] = $row->NOMBRES . ' ' . $row->APELLIDOS;
+            $data['titularIdentificacion'] = $row->NODOCUMENTO;
+            $data['titularContrato'] = $row->numero;
         } else {
             $data['titularFullName'] = 'Titular sin definir o no existe';
+            $data['titularIdentificacion'] = '';
+            $data['titularContrato'] =  '';
         }
 
         //Configuracion Grocery_CRUD listado de usuarios
