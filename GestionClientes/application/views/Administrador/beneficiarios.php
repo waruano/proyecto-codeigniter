@@ -26,9 +26,9 @@
         if(isset($_SESSION['to_contratos']) && $_SESSION['to_contratos']){
                 unset($_SESSION['to_contratos']); ?>
             ?>
-                <input type="button" onclick="window.location='<?php echo base_url()."contratos/index/add"; ?>'" value="Terminar"/>        
+                <input type="button" class="btn btn-large"  onclick="window.location='<?php echo base_url()."contratos/index/add"; ?>'" value="Terminar"/>        
             <?php }else {?>
-            <input type="button" onclick="window.location='<?php echo base_url()."contratos/titulares"; ?>'" value="Terminar"/>        
+            <input type="button" class="btn btn-large"  onclick="window.location='<?php echo base_url()."contratos/titulares"; ?>'" value="Terminar"/>        
         <?php }
         } ?>
 </div>
