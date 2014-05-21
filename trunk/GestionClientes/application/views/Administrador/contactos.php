@@ -16,12 +16,15 @@
         </table>
     </div>
     <br/>
+    
+    
     <?php
     echo $output;
     ?>
+    
     <?php
         if(isset($_SESSION['_aux_wizard']) && $_SESSION['_aux_wizard'] == true) { ?>
-            <input type="button" onclick="window.location='<?php echo base_url()."contratos/beneficiarios"; ?>'" value="Siguiente"/>        
+            <input type="button" class="btn btn-large" onclick="window.location='<?php echo base_url()."contratos/beneficiarios"; ?>'" value="Continuar "/>        
         <?php }
             ?>
 </div>
