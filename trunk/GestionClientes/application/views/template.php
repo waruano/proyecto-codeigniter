@@ -28,7 +28,8 @@
             <div class="masthead">
                 <?php echo $content?>
             </div>
-            <div class="footer">
+            <div class="footer" style="font-size: 10px;">
+                <br/><br/>
                 2014 &copy; Ruano'Soft    
             </div>
         </div>

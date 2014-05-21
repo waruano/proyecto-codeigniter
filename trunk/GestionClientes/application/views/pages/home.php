@@ -1,3 +1,4 @@
+<?php if ($this->tank_auth->is_logged_in() != true) {	?><br/><br/><?php  } ?>
 <div>
     <div>
     <h3>Bienvenido al sistema de administración de "PREVIMED"</h3>
