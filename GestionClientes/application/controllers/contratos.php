@@ -24,16 +24,21 @@ class Contratos extends CI_Controller {
         //configuracion de la tabla
         $crud->set_table('contrato');
         $crud->set_subject("Contrato");
-        $crud->set_relation('TITID', 'persona','{NOMBRES}{APELLIDOS}-{NODOCUMENTO}');
+        $crud->set_relation('TITID', 'persona', '{NOMBRES}{APELLIDOS}-{NODOCUMENTO}');
         $crud->set_relation('PLANID', 'plan', '{NOMBRE}-{FORMAPAGO}');
-        $crud->set_relation('DOCID', 'documento', 'NUMERO');
+        $crud->set_relation('DOCID', 'documento', 'NUMERO', array('TIPO' => '1', 'ESTADO' => '1'));
         //Renombrado de los campos
-        $crud->display_as('TITID','Titular');
-        $crud->display_as('PLANID','Plan');
-        $crud->display_as('TIPOCONTRATO','Tipo de Contrato');
-        $crud->display_as('FECHAINICIO','Fecha de Inicio');
-        $crud->display_as('DOCID','Documento');
-        $crud->display_as('ESTADO','Estado');
+        $crud->display_as('TITID', 'Titular');
+        $crud->display_as('PLANID', 'Plan');
+        $crud->display_as('TIPOCONTRATO', 'Tipo de Contrato');
+        $crud->display_as('FECHAINICIO', 'Fecha de Inicio');
+        $crud->display_as('DOCID', 'Documento');
+        $crud->display_as('ESTADO', 'Estado');
+        $crud->display_as('Opciones', 'Para Crear Un Nuevo Titular');
+        //add fields
+        $crud->add_fields('TITID','Opciones','PLANID','TIPOCONTRATO','FECHAINICIO','DOCID','ESTADO');
+        //callbacks
+        $crud->callback_add_field('Opciones', array($this, '_callback_add_field_Titular'));
         $output = $crud->render();
         //configuracion de la plantilla
         $this->template->write_view('login', $this->tank_auth->get_login(), $data);
@@ -43,7 +48,17 @@ class Contratos extends CI_Controller {
         $this->template->render();
     }
 
-    function titulares() {
+    function _callback_add_field_Titular() {
+        return '<input class="btn btn-large" type="button" onclick="window.location='."'".base_url().'contratos/titulares/true'."'".'" value="Click Aqui"/>';
+    }
+
+    function titulares($contratos=false) {
+        if($contratos){
+            $_SESSION['to_contratos']=true;
+        }else{
+            if(isset($_SESSION['to_contratos']))
+            unset($_SESSION['to_contratos']);
+        }
         $session_rol = $this->tank_auth->get_rol();
         //informacion de Usuario
         $data['user_id'] = $this->tank_auth->get_user_id();
@@ -369,7 +384,7 @@ class Contratos extends CI_Controller {
         $titular["NOHIJOS"] = $post_array["NOHIJOS"];
         $titular["OCUPACION"] = $post_array["OCUPACION"];
         $titular["ESTADOCIVIL"] = $post_array["ESTADOCIVIL"];
-        $this->contratosModel->add_beneficiario($titular);                
+        $this->contratosModel->add_beneficiario($titular);
         return $titular['ID'];
     }
 
