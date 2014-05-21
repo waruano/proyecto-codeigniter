@@ -18,27 +18,30 @@ class Contratos extends CI_Controller {
         $session_rol = $this->tank_auth->get_rol();
         $data['user_id'] = $this->tank_auth->get_user_id();
         $data['username'] = $this->tank_auth->get_username();
+        $data['selectedoption'] = 5;
         //creacion  del crud
         $crud = new Grocery_CRUD();
         $state = $crud->getState();
         //configuracion de la tabla
         $crud->set_table('contrato');
         $crud->set_subject("Contrato");
-        $crud->set_relation('TITID', 'persona', '{NOMBRES}{APELLIDOS}-{NODOCUMENTO}');
-        $crud->set_relation('PLANID', 'plan', '{NOMBRE}-{FORMAPAGO}');
+        $crud->set_relation('TITID', 'persona', '{NOMBRES}{APELLIDOS} - {NODOCUMENTO}', array('TIPOPERSONA' => '0'));        
+        $crud->set_relation('PLANID', 'plan', '{NOMBRE} - {FORMAPAGO}');
         $crud->set_relation('DOCID', 'documento', 'NUMERO', array('TIPO' => '1', 'ESTADO' => '1'));
         //Renombrado de los campos
-        $crud->display_as('TITID', 'Titular');
+        $crud->display_as('TITID', 'Titular ');
         $crud->display_as('PLANID', 'Plan');
         $crud->display_as('TIPOCONTRATO', 'Tipo de Contrato');
         $crud->display_as('FECHAINICIO', 'Fecha de Inicio');
         $crud->display_as('DOCID', 'Documento');
         $crud->display_as('ESTADO', 'Estado');
-        $crud->display_as('Opciones', 'Para Crear Un Nuevo Titular');
+        //$crud->display_as('Opciones', 'Para Crear Un Nuevo Titular');
         //add fields
-        $crud->add_fields('TITID','Opciones','PLANID','TIPOCONTRATO','FECHAINICIO','DOCID','ESTADO');
+        $crud->add_fields('TITID','PLANID','TIPOCONTRATO','FECHAINICIO','DOCID','ESTADO');        
         //callbacks
-        $crud->callback_add_field('Opciones', array($this, '_callback_add_field_Titular'));
+        $crud->field_type('TIPOCONTRATO', 'dropdown', array(0 => 'Nuevo', 1 => 'Adición', 2 => 'Reactivación', 3 => 'Reemplazo'));
+        $crud->field_type('ESTADO', 'dropdown', array(0 => 'Inactivo', 1 => 'Activo'));
+        //$crud->callback_add_field('Opciones', array($this, '_callback_add_field_Titular'));
         $output = $crud->render();
         //configuracion de la plantilla
         $this->template->write_view('login', $this->tank_auth->get_login(), $data);
@@ -53,6 +56,7 @@ class Contratos extends CI_Controller {
     }
 
     function titulares($contratos=false) {
+        $data['selectedoption'] = 3;
         if($contratos){
             $_SESSION['to_contratos']=true;
         }else{
@@ -79,7 +83,14 @@ class Contratos extends CI_Controller {
             redirect('administrador/contactos/');
         }
         //definicion de los campos
-        $crud->fields('NOMBRES', 'APELLIDOS', 'TIPODOC', 'NODOCUMENTO', 'TELMOVIL', 'EMAIL', 'PAIS', 'CIUDAD', 'BENEFICIARIO', 'FECHANACIMIENTO', 'GENERO', 'COBRODIRECCION', 'COBROBARRIO', 'COBROMUNICIPIO', 'COBRODEPTO', 'DOMIDIRECCION', 'DOMIBARRIO', 'DOMIMUNICIPIO', 'DOMIDEPTO', 'TELDOMICILIO', 'TELOFICINA', 'NOHIJOS', 'NODEPENDIENTES', 'ESTRATO', 'ESTADOCIVIL', 'OCUPACION', 'EPS', 'COMOUBICOSERVICIO', 'PERMITEUSODATOS');
+        $crud->fields('TIPODOC', 'NODOCUMENTO', 'FECHANACIMIENTO', 'GENERO', 
+                'NOMBRES', 'APELLIDOS', 
+                'COBRODIRECCION', 'COBROBARRIO', 'COBROMUNICIPIO', 'COBRODEPTO', 'DOMIDIRECCION', 'DOMIBARRIO', 'DOMIMUNICIPIO', 'DOMIDEPTO', 
+                'TELDOMICILIO', 'TELOFICINA', 'TELMOVIL', 
+                'EMAIL', 
+                'BENEFICIARIO',
+                'NOHIJOS', 'NODEPENDIENTES', 
+                'ESTRATO', 'ESTADOCIVIL', 'OCUPACION', 'EPS', 'COMOUBICOSERVICIO', 'PERMITEUSODATOS');
         //renombrado de los campos
         $crud->display_as('NOMBRES', 'Nombres');
         $crud->display_as('APELLIDOS', 'Apellidos');
@@ -89,17 +100,17 @@ class Contratos extends CI_Controller {
         $crud->display_as('EMAIL', 'Email');
         $crud->display_as('PAIS', 'Pais');
         $crud->display_as('CIUDAD', 'Ciudad');
-        $crud->display_as('BENEFICIARIO', 'Beneficiario');
+        $crud->display_as('BENEFICIARIO', 'Es Beneficiario');
         $crud->display_as('FECHANACIMIENTO', 'Fecha de Nacimiento');
-        $crud->display_as('GENERO', 'Genero');
-        $crud->display_as('COBRODIRECCION', 'Dirección de Cobro');
-        $crud->display_as('COBROBARRIO', 'Barrio de Cobro');
-        $crud->display_as('COBROMUNICIPIO', 'Municipio de Cobro');
-        $crud->display_as('COBRODEPTO', 'Departamento de Cobro');
+        $crud->display_as('GENERO', 'Género');
+        $crud->display_as('COBRODIRECCION', 'Dirección de Cobro / Correspondencia');
+        $crud->display_as('COBROBARRIO', 'Barrio');
+        $crud->display_as('COBROMUNICIPIO', 'Municipio');
+        $crud->display_as('COBRODEPTO', 'Departamento');
         $crud->display_as('DOMIDIRECCION', 'Dirección de Domicilio');
-        $crud->display_as('DOMIBARRIO', 'Barrio de Domicilio');
-        $crud->display_as('DOMIMUNICIPIO', 'Municipio de Domicilio');
-        $crud->display_as('DOMIDEPTO', 'Departamento de Domicilio');
+        $crud->display_as('DOMIBARRIO', 'Barrio');
+        $crud->display_as('DOMIMUNICIPIO', 'Municipio');
+        $crud->display_as('DOMIDEPTO', 'Departamento');
         $crud->display_as('TELDOMICILIO', 'Telefono de Domicilio');
         $crud->display_as('TELOFICINA', 'Telefono de Oficina');
         $crud->display_as('NOHIJOS', 'Numero de Hijos');
@@ -127,9 +138,18 @@ class Contratos extends CI_Controller {
         $crud->callback_edit_field('TELMOVIL', array($this, '_callback_field_telmovil'));
         $crud->callback_edit_field('EMAIL', array($this, '_callback_field_email'));
         //definicion de tipos de los campos
-        $crud->field_type('TIPODOC', 'dropdown', array(0 => 'Cedula de Ciudadnia', 1 => 'Tarjeta de Identidad', 2 => 'Cedula Extrangera'));
+        $crud->field_type('TIPODOC', 'dropdown', array(0 => 'Cédula de Ciudadanía', 1 => 'Tarjeta de Identidad', 2 => 'Cedula Extrangera'));
+        $crud->field_type('GENERO', 'dropdown', array(0 => 'Masculino', 1 => 'Femenino'));       
+        
+        $crud->field_type('ESTADOCIVIL', 'dropdown', array(0 => 'Soltero', 1 => 'Casado', 2 => 'Divorciado', 3 => 'Unión Libre', 4 => 'Viudo'));
+        $crud->field_type('OCUPACION', 'dropdown', array(0 => 'Empleado', 1 => 'Independiente', 2 => 'Jubilado', 3 => 'Ama de Casa', 4 => 'Estudiante', 5 => 'Desempleado'));
+        $crud->field_type('COMOUBICOSERVICIO', 'dropdown', array(0 => 'Referido', 1 => 'Eventos', 2 => 'Convenio Especial', 3 => 'Directorio Telefónico', 4 => 'Servicio Médico Atendido', 5 => 'Medios de Comunicación'));
         //definicion de las reglas
         $crud->required_fields('NOMBRES');
+        
+        $crud->add_action('Contactos', base_url() . 'images/phone.png', 'Contactos','',array($this,'direccion_contactos'));
+        $crud->add_action('Beneficiarios', base_url() . 'images/people.png', 'Beneficiarios','',array($this,'direccion_beneficiarios'));
+        
         //Rederizacion del CRUD
         $output = $crud->render();
         //configuracion de la plantilla
@@ -138,6 +158,19 @@ class Contratos extends CI_Controller {
         $this->template->write_view('sidebar', $this->tank_auth->get_sidebar());
         $this->template->write_view('content', 'Administrador/titulares', $output);
         $this->template->render();
+    }
+    
+    function direccion_contactos($primary_key, $row) {
+        return base_url() . 'administrador/contactosEdit/' . $primary_key;
+    }
+    function direccion_beneficiarios($primary_key, $row) {
+        return base_url() . 'contratos/beneficiariosEdit/' . $primary_key;
+    }
+    
+    function add_field_callback_1()
+    {
+            return ' <input type="radio" name="sex" value="0" /> Masculino
+                     <input type="radio" name="sex" value="1" /> Femenino';
     }
 
     function _callback_guardar_titular($post_array) {
@@ -177,6 +210,7 @@ class Contratos extends CI_Controller {
         $this->contratosModel->add_titular($titular);
         session_start();
         $_SESSION['_aux_var'] = $titular['ID'];
+        $_SESSION['_aux_wizard'] = true;
         return $titular['ID'];
     }
 
@@ -238,7 +272,7 @@ class Contratos extends CI_Controller {
     }
 
     function _callback_field_tipodoc($value, $primaryKey) {
-        $opciones = array(0 => 'Cedula de Ciudadnia', 1 => 'Tarjeta de Identidad', 2 => 'Cedula Extrangera');
+        $opciones = array(0 => 'Cédula de Ciudadanía', 1 => 'Tarjeta de Identidad', 2 => 'Cédula Extrangera');
         $propiedades = 'id="field-TIPODOC" class="chosen-select" data-placeholder= "Seleccionar Tipo Documento"';
         $persona = $this->contratosModel->get_persona($primaryKey);
         $result = form_dropdown("TIPODOC", $opciones, $persona->TIPODOC, $propiedades);
@@ -275,21 +309,49 @@ class Contratos extends CI_Controller {
         return $persona->NODOCUMENTO;
     }
 
+     function beneficiariosEdit($titularId)
+    {
+        session_start();
+        $_SESSION['_aux_var'] = $titularId;
+        $_SESSION['_aux_wizard'] = false;
+        $this->beneficiarios();
+    }
+    
+    function is_session_started()
+    {
+        if ( php_sapi_name() !== 'cli' ) {
+            if ( version_compare(phpversion(), '5.4.0', '>=') ) {
+                return session_status() === PHP_SESSION_ACTIVE ? TRUE : FALSE;
+            } else {
+                return session_id() === '' ? FALSE : TRUE;
+            }
+        }
+        return FALSE;
+    }
+    
     function beneficiarios() {
+        $data['selectedoption'] = 3;
         //informacion de Usuario
         $session_rol = $this->tank_auth->get_rol();
         $data['user_id'] = $this->tank_auth->get_user_id();
         $data['username'] = $this->tank_auth->get_username();
         //informacion del titular
-        session_start();
+        if ( $this->is_session_started() === FALSE ) session_start();
         $titularId = $_SESSION['_aux_var'];
         $valTitId = $titularId;
-        $query = $this->db->query("SELECT NOMBRES, APELLIDOS, NODOCUMENTO FROM PERSONA WHERE ID = " . $valTitId);
+                
+        $query = $this->db->query("SELECT NOMBRES, APELLIDOS, NODOCUMENTO, documento.numero 
+                                   FROM PERSONA Left Join CONTRATO on Contrato.TitId = Persona.ID and contrato.estado = 1
+                                   left join documento on documento.id = contrato.docId   WHERE Persona.ID = " . $valTitId);
         if ($query->num_rows() > 0) {
             $row = $query->row(0);
             $data['titularFullName'] = $row->NOMBRES . ' ' . $row->APELLIDOS;
+            $data['titularIdentificacion'] = $row->NODOCUMENTO;
+            $data['titularContrato'] = $row->numero;
         } else {
             $data['titularFullName'] = 'Titular sin definir o no existe';
+            $data['titularIdentificacion'] = '';
+            $data['titularContrato'] =  '';
         }
         //creacion  del crud
         $crud = new Grocery_CRUD();
