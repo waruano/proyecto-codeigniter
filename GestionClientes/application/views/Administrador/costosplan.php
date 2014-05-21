@@ -8,7 +8,7 @@
 <?php endforeach; ?>
 <div>    
     <div>
-        <h3> Tarifas el plan <strong>"<?php echo $planFullName ?>"</strong> </h3>
+        <h3> Tarifas para el Plan <strong>"<?php echo $planFullName ?>"</strong> </h3>
     </div>   
     <?php
     echo $output;
