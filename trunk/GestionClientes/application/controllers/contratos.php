@@ -408,6 +408,13 @@ class Contratos extends CI_Controller {
 
         //definicion de tipos de los campos
         $crud->field_type('TITID', 'hidden', $valTitId);
+        $crud->field_type('TIPODOC', 'dropdown', array(0 => 'Cédula de Ciudadanía', 1 => 'Tarjeta de Identidad', 2 => 'Cedula Extrangera'));
+        $crud->field_type('GENERO', 'dropdown', array(0 => 'Masculino', 1 => 'Femenino'));       
+        
+        $crud->field_type('ESTADOCIVIL', 'dropdown', array(0 => 'Soltero', 1 => 'Casado', 2 => 'Divorciado', 3 => 'Unión Libre', 4 => 'Viudo'));
+        $crud->field_type('OCUPACION', 'dropdown', array(0 => 'Empleado', 1 => 'Independiente', 2 => 'Jubilado', 3 => 'Ama de Casa', 4 => 'Estudiante', 5 => 'Desempleado'));
+        
+        
         //definicion de las reglas
         $crud->required_fields('NOMBRES');
 
