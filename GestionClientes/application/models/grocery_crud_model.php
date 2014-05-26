@@ -484,6 +484,8 @@ class grocery_CRUD_Model  extends CI_Model  {
     function db_insert($post_array)
     {
     	$insert = $this->db->insert($this->table_name,$post_array);
+        $str=$this->db->last_query();
+        echo "<script>alert('Query".$str."');</script>";
     	if($insert)
     	{
     		return $this->db->insert_id();

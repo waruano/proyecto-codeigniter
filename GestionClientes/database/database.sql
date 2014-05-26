@@ -27,7 +27,14 @@ drop table if exists TITULAR;
 /*==============================================================*/
 create table BENEFICIARIO
 (
-   ID                   bigint not null,
+    ID                   bigint not null AUTO_INCREMENT,
+   NOMBRES              varchar(50),
+   APELLIDOS            varchar(50),
+   TIPODOC              int,
+   NODOCUMENTO          varchar(20),
+   TELMOVIL             varchar(15),
+   EMAIL                varchar(50),
+   TIPOPERSONA          int,
    TITID                bigint,
    FECHANACIMIENTO      date,
    GENERO               int,
@@ -150,7 +157,14 @@ create table PLAN
 /*==============================================================*/
 create table TITULAR
 (
-   ID                   bigint NOT NULL,
+   ID                   bigint not null AUTO_INCREMENT,
+   NOMBRES              varchar(50),
+   APELLIDOS            varchar(50),
+   TIPODOC              int,
+   NODOCUMENTO          varchar(20),
+   TELMOVIL             varchar(15),
+   EMAIL                varchar(50),
+   TIPOPERSONA          int,
    PAIS                 varchar(30),
    CIUDAD               varchar(30),
    BENEFICIARIO         bool,
@@ -176,9 +190,6 @@ create table TITULAR
    PERMITEUSODATOS      bool,
    primary key (ID)
 );
-
-alter table BENEFICIARIO add constraint FK_PERSONABENEFICIARIO foreign key (ID)
-      references PERSONA (ID) on delete restrict on update restrict;
 
 alter table BENEFICIARIO add constraint FK_TITULARBENEFICIARIO foreign key (TITID)
       references TITULAR (ID) on delete restrict on update restrict;
@@ -206,10 +217,6 @@ alter table PAGO add constraint FK_DOCUMENTOPAGO foreign key (RECID)
 
 alter table PAGO add constraint FK_TITULARPAGO foreign key (TITID)
       references TITULAR (ID) on delete restrict on update restrict;
-
-alter table TITULAR add constraint FK_PERSONATITULAR foreign key (ID)
-      references PERSONA (ID) on delete restrict on update restrict;
-
 	  
 -- --------------------------------------------------------
 

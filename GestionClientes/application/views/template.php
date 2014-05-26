@@ -10,15 +10,7 @@
         <?php echo link_tag('js/bootstrap.min.js')?>        
     </head>
     <body>
-        <div class="container" style="padding-top: 10px;">       
-                        
-            
-            <div class="dropdown">
-                <a data-toggle="dropdown" href="#">Dropdown trigger</a>
-                <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
-                  ...
-                </ul>
-              </div>
+        <div class="container" style="padding-top: 10px;">             
             <div class='login' style="float: right;">
                     <?php echo $login?>
                 </div>
