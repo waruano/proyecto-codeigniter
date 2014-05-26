@@ -44,6 +44,7 @@ class Administrador extends CI_Controller {
         $crud->display_as('created', 'Fecha Creacion');
         $crud->display_as('conf_password', 'Confirmar Contraseña');
         $crud->display_as('password', 'Contraseña');
+        $crud->columns('username', 'email', 'created', 'identificadorRol');
         //obtenemos la accion a ejecutar (add,edit,view)
         $state = $crud->getState();
         switch ($state) {
@@ -57,7 +58,6 @@ class Administrador extends CI_Controller {
                 break;
             case 'list':
                 //Columnas a mostrar en la lista
-                $crud->columns('username', 'email', 'created', 'identificadorRol');
                 break;
             default:
                 //atributos que se podran editar y visualizar
@@ -164,9 +164,10 @@ class Administrador extends CI_Controller {
         $data['user_id'] = $this->tank_auth->get_user_id();
         $data['username'] = $this->tank_auth->get_username();
         $data['selectedoption'] = 3;
+        $data['step_wizard']=0;
 
         $valTitId = $titularId;
-        $query = $this->db->query("SELECT NOMBRES, APELLIDOS, NODOCUMENTO, documento.numero 
+        $query = $this->db->query("SELECT  NOMBRES, APELLIDOS, NODOCUMENTO, documento.numero 
                                    FROM PERSONA Left Join CONTRATO on Contrato.TitId = Persona.ID   and contrato.estado = 1
                                    left join documento on documento.id = contrato.docId   WHERE Persona.ID = " . $valTitId);
         if ($query->num_rows() > 0) {
@@ -179,12 +180,11 @@ class Administrador extends CI_Controller {
             $data['titularIdentificacion'] = '';
             $data['titularContrato'] =  '';
         }
-
         //Configuracion Grocery_CRUD listado de usuarios
         $crud = new Grocery_CRUD();
         $crud->set_table('contacto');
         $crud->where('TITID', $valTitId);
-        $crud->set_subject("contactos");
+        $crud->set_subject("Contactos");
         $crud->columns('NOMBRECOMPLETO', 'PARENTESCO', 'INDICATIVO', 'TELDOMICILIO', 'TELMOVIL');
         $crud->display_as('NOMBRECOMPLETO', 'Nombre completo');
         $crud->display_as('PARENTESCO', 'Parentesco');
@@ -197,6 +197,7 @@ class Administrador extends CI_Controller {
         $crud->unset_read();
         $crud->field_type('TITID', 'hidden', $valTitId);
         $crud->buttons_form('sinGuardar');
+        $crud->unset_back_to_list();
         $output = $crud->render();
 
         //Configuracion de la Plantilla

@@ -8,27 +8,28 @@
 <?php endforeach; ?>
 <div>
     <h3>Beneficiarios</h3>
-    <div  style="padding-left: 30px;">
-        <table>
-            <tr><th>Titular:</th><td style="font-size: 20px; font-weight: bold;" ><?php echo $titularFullName ?>    </td></tr>
-            <tr><th>Identificación:</th><td><?php echo $titularIdentificacion ?></td></tr>
-            <tr><th>No Contrato:</th><td><?php echo $titularContrato ?></td></tr>
-        </table>
+    <div  style="padding-left: 30px; display: inline-block">
+        <div style="float:left; width: 50%;">
+            <table>
+                <tr><th>Titular:</th><td style="font-size: 20px; font-weight: bold;" ><?php echo $titularFullName ?>    </td></tr>
+                <tr><th>Identificación:</th><td><?php echo $titularIdentificacion ?></td></tr>
+                <tr><th>No Contrato:</th><td><?php echo $titularContrato ?></td></tr>
+            </table>
+        </div>
+        <div style="float: right; width: 50%;">
+            <?php $this->load->view('Administrador/sidebar_add_titular');?>
+        </div>
     </div>
     <br/>
-    
-    <?php
-    echo $output;
-    //zona pendiente por confirmar
-     
-        if(isset($_SESSION['_aux_wizard']) && $_SESSION['_aux_wizard'] == true) { 
-    
-        if(isset($_SESSION['to_contratos']) && $_SESSION['to_contratos']){
-                unset($_SESSION['to_contratos']); ?>
-            ?>
-                <input type="button" class="btn btn-large"  onclick="window.location='<?php echo base_url()."contratos/index/add"; ?>'" value="Terminar"/>        
-            <?php }else {?>
-            <input type="button" class="btn btn-large"  onclick="window.location='<?php echo base_url()."contratos/titulares"; ?>'" value="Terminar"/>        
-        <?php }
-        } ?>
+<?php
+echo $output;
+?>
+
+<?php if (isset($_SESSION['_aux_wizard']) && $_SESSION['_aux_wizard'] == true) { ?>
+        <input type="button" class="btn btn-large" onclick="window.location = '<?php echo base_url() . "contratos/index"; ?>'" value="Continuar "/>   
+        <input type="button" class="btn btn-large" onclick="window.location = '<?php echo base_url() . "administrador/contactos"; ?>'" value="Regresar a Contactos "/>   
+<?php } else {
+    ?>
+        <input type="button" class="btn btn-large"  onclick="window.location = '<?php echo base_url() . "contratos/titulares"; ?>'" value="Regresar a Titulares"/>  
+<?php } ?>
 </div>
