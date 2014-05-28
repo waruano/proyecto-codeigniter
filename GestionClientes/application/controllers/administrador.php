@@ -167,9 +167,9 @@ class Administrador extends CI_Controller {
         $data['step_wizard']=0;
 
         $valTitId = $titularId;
-        $query = $this->db->query("SELECT  NOMBRES, APELLIDOS, NODOCUMENTO, documento.numero 
-                                   FROM PERSONA Left Join CONTRATO on Contrato.TitId = Persona.ID   and contrato.estado = 1
-                                   left join documento on documento.id = contrato.docId   WHERE Persona.ID = " . $valTitId);
+       $query = $this->db->query("SELECT NOMBRES, APELLIDOS, NODOCUMENTO, documento.numero 
+                                   FROM Titular Left Join CONTRATO on Contrato.TitId = Titular.ID   and contrato.estado = 1
+                                   left join documento on documento.id = contrato.docId   WHERE Titular.ID = " . $valTitId);
         if ($query->num_rows() > 0) {
             $row = $query->row(0);
             $data['titularFullName'] = $row->NOMBRES . ' ' . $row->APELLIDOS;
@@ -185,15 +185,14 @@ class Administrador extends CI_Controller {
         $crud->set_table('contacto');
         $crud->where('TITID', $valTitId);
         $crud->set_subject("Contactos");
-        $crud->columns('NOMBRECOMPLETO', 'PARENTESCO', 'INDICATIVO', 'TELDOMICILIO', 'TELMOVIL');
+        $crud->columns('NOMBRECOMPLETO', 'PARENTESCO', 'TELDOMICILIO', 'TELMOVIL');
         $crud->display_as('NOMBRECOMPLETO', 'Nombre completo');
-        $crud->display_as('PARENTESCO', 'Parentesco');
-        $crud->display_as('INDICATIVO', 'Indicativo');
+        $crud->display_as('PARENTESCO', 'Parentesco');        
         $crud->display_as('TELDOMICILIO', 'Teléfono domicilio');
         $crud->display_as('TELMOVIL', 'Teléfono móvil');
-        $crud->edit_fields('NOMBRECOMPLETO', 'PARENTESCO', 'INDICATIVO', 'TELDOMICILIO', 'TELMOVIL', 'TITID');
+        $crud->edit_fields('NOMBRECOMPLETO', 'PARENTESCO', 'TELDOMICILIO', 'TELMOVIL', 'TITID');
         $crud->required_fields('NOMBRECOMPLETO', 'PARENTESCO', 'TELMOVIL');
-        $crud->add_fields('NOMBRECOMPLETO', 'PARENTESCO', 'INDICATIVO', 'TELDOMICILIO', 'TELMOVIL', 'TITID');
+        $crud->add_fields('NOMBRECOMPLETO', 'PARENTESCO', 'TELDOMICILIO', 'TELMOVIL', 'TITID');
         $crud->unset_read();
         $crud->field_type('TITID', 'hidden', $valTitId);
         $crud->buttons_form('sinGuardar');

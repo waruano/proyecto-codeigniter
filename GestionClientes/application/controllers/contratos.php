@@ -14,9 +14,11 @@ class Contratos extends CI_Controller {
     }
 
     function index() {
+        
         if ($this->is_session_started() === FALSE)
             session_start();
         $titularId = $_SESSION['_aux_var'];
+        
         //informacion de Usuario
         $session_rol = $this->tank_auth->get_rol();
         $data['user_id'] = $this->tank_auth->get_user_id();
@@ -26,8 +28,8 @@ class Contratos extends CI_Controller {
         //informacion del titular
         $valTitId = $titularId;
         $query = $this->db->query("SELECT NOMBRES, APELLIDOS, NODOCUMENTO, documento.numero 
-                                   FROM PERSONA Left Join CONTRATO on Contrato.TitId = Persona.ID   and contrato.estado = 1
-                                   left join documento on documento.id = contrato.docId   WHERE Persona.ID = " . $valTitId);
+                                   FROM Titular Left Join CONTRATO on Contrato.TitId = Titular.ID   and contrato.estado = 1
+                                   left join documento on documento.id = contrato.docId   WHERE Titular.ID = " . $valTitId);
         if ($query->num_rows() > 0) {
             $row = $query->row(0);
             $data['titularFullName'] = $row->NOMBRES . ' ' . $row->APELLIDOS;
@@ -83,10 +85,11 @@ class Contratos extends CI_Controller {
         $this->template->render();
     }
 
-    function contratosEdit($titularId) {
+    function contratosEdit($titularId) {       
         session_start();
         $_SESSION['_aux_var'] = $titularId;
         $_SESSION['_aux_wizard'] = false;
+        
         $this->index();
     }
 
@@ -110,7 +113,7 @@ class Contratos extends CI_Controller {
     }
 
     function titulares() {
-
+           
         $data['selectedoption'] = 3;
         //creacion  del crud
         $crud = new Grocery_CRUD();
@@ -130,12 +133,13 @@ class Contratos extends CI_Controller {
         //redireccionamiento para siguiente
         if (!$this->is_session_started())
             session_start();
-        if (isset($_SESSION['success']) && $_SESSION['success'] = true) {
-            unset($_SESSION['success']);
+        if (isset($_SESSION['success_titular']) && $_SESSION['success_titular'] = true) {
+            unset($_SESSION['success_titular']);
             redirect('administrador/contactos/');
         }
         //definicion de los campos
-        $crud->fields('TIPODOC', 'NODOCUMENTO', 'FECHANACIMIENTO', 'GENERO', 'NOMBRES', 'APELLIDOS','PAIS','CIUDAD', 'COBRODIRECCION', 'COBROBARRIO', 'COBROMUNICIPIO', 'COBRODEPTO', 'DOMIDIRECCION', 'DOMIBARRIO', 'DOMIMUNICIPIO', 'DOMIDEPTO', 'TELDOMICILIO', 'TELOFICINA', 'TELMOVIL', 'EMAIL', 'NOHIJOS', 'NODEPENDIENTES', 'ESTRATO', 'ESTADOCIVIL', 'OCUPACION', 'EPS', 'COMOUBICOSERVICIO','BENEFICIARIO', 'PERMITEUSODATOS');
+        //$crud->fields('TIPODOC', 'NODOCUMENTO', 'FECHANACIMIENTO', 'GENERO', 'NOMBRES', 'APELLIDOS','PAIS','CIUDAD', 'COBRODIRECCION', 'COBROBARRIO', 'COBROMUNICIPIO', 'COBRODEPTO', 'DOMIDIRECCION', 'DOMIBARRIO', 'DOMIMUNICIPIO', 'DOMIDEPTO', 'TELDOMICILIO', 'TELOFICINA', 'TELMOVIL', 'EMAIL', 'NOHIJOS', 'NODEPENDIENTES', 'ESTRATO', 'ESTADOCIVIL', 'OCUPACION', 'EPS', 'COMOUBICOSERVICIO','BENEFICIARIO', 'PERMITEUSODATOS');
+        $crud->fields('TIPODOC', 'NODOCUMENTO', 'FECHANACIMIENTO', 'GENERO', 'NOMBRES', 'APELLIDOS', 'COBRODIRECCION', 'COBROBARRIO', 'COBROMUNICIPIO', 'COBRODEPTO', 'DOMIDIRECCION', 'DOMIBARRIO', 'DOMIMUNICIPIO', 'DOMIDEPTO', 'TELDOMICILIO', 'TELOFICINA', 'TELMOVIL', 'EMAIL', 'NOHIJOS', 'NODEPENDIENTES', 'ESTRATO', 'ESTADOCIVIL', 'OCUPACION', 'EPS', 'COMOUBICOSERVICIO','BENEFICIARIO', 'PERMITEUSODATOS');
         //renombrado de los campos
         $crud->display_as('NOMBRES', 'Nombres');
         $crud->display_as('APELLIDOS', 'Apellidos');
@@ -143,8 +147,8 @@ class Contratos extends CI_Controller {
         $crud->display_as('NODOCUMENTO', 'Numero Documento');
         $crud->display_as('TELMOVIL', 'Telefono Movil');
         $crud->display_as('EMAIL', 'Email');
-        $crud->display_as('PAIS', 'Pais');
-        $crud->display_as('CIUDAD', 'Ciudad');
+        //$crud->display_as('PAIS', 'Pais');
+        //$crud->display_as('CIUDAD', 'Ciudad');
         $crud->display_as('BENEFICIARIO', 'Es Beneficiario');
         $crud->display_as('FECHANACIMIENTO', 'Fecha de Nacimiento');
         $crud->display_as('GENERO', 'Género');
@@ -159,7 +163,7 @@ class Contratos extends CI_Controller {
         $crud->display_as('TELDOMICILIO', 'Telefono de Domicilio');
         $crud->display_as('TELOFICINA', 'Telefono de Oficina');
         $crud->display_as('NOHIJOS', 'Numero de Hijos');
-        $crud->display_as('NODEPENDIENTES', 'Numero de Pendientes');
+        $crud->display_as('NODEPENDIENTES', 'Personas a cargo (no hijos)');
         $crud->display_as('ESTRATO', 'Estrato');
         $crud->display_as('ESTADOCIVIL', 'Estado Civil');
         $crud->display_as('OCUPACION', 'Ocupación');
@@ -170,6 +174,7 @@ class Contratos extends CI_Controller {
         $crud->columns('NODOCUMENTO', 'NOMBRES', 'APELLIDOS', 'EPS');
        
         //definicion de tipos de los campos
+        //$crud->field_type('PAIS', 'dropdown', $this->listaPaises());
         $crud->field_type('TIPODOC', 'dropdown', array(0 => 'Cédula de Ciudadanía', 1 => 'Tarjeta de Identidad', 2 => 'Cedula Extrangera'));
         $crud->field_type('GENERO', 'dropdown', array(0 => 'Masculino', 1 => 'Femenino'));
         $crud->field_type('ESTADOCIVIL', 'dropdown', array(0 => 'Soltero', 1 => 'Casado', 2 => 'Divorciado', 3 => 'Unión Libre', 4 => 'Viudo'));
@@ -179,10 +184,12 @@ class Contratos extends CI_Controller {
         $crud->required_fields('NOMBRES');
         //callbacks
         $crud->callback_after_insert(array($this,'_callback_after_guardar_titular'));
+        
         //acciones desde el crud
-        $crud->add_action('Contactos', base_url() . 'images/phone.png', 'Contactos', '', array($this, 'direccion_contactos'));
+        
+        $crud->add_action('Contratos', base_url() . 'images/contrato.png', 'Contratos', '', array($this, 'direccion_contratos'));
         $crud->add_action('Beneficiarios', base_url() . 'images/people.png', 'Beneficiarios', '', array($this, 'direccion_beneficiarios'));
-        $crud->add_action('Beneficiarios', base_url() . 'images/contrato.png', 'Contratos', '', array($this, 'direccion_contratos'));
+        $crud->add_action('Contactos', base_url() . 'images/phone.png', 'Contactos', '', array($this, 'direccion_contactos'));
 
         //Rederizacion del CRUD
         $crud->unset_read();
@@ -212,10 +219,12 @@ class Contratos extends CI_Controller {
                      <input type="radio" name="sex" value="1" /> Femenino';
     }
 
-    function _callback_after_guardar_titular($post_array,$primary_key) {
+    function _callback_after_guardar_titular($post_array, $primary_key) {
         if (!$this->is_session_started())
             session_start();
-        echo '<script>alert("'.$primary_key.'");</script>';
+        //echo 'here';
+        //echo '<script>alert("'.$primary_key.'");</script>';
+        $_SESSION['success_titular'] = true;
         $_SESSION['_aux_var'] = $primary_key;
         $_SESSION['_aux_wizard'] = true;
         return true;
@@ -253,8 +262,8 @@ class Contratos extends CI_Controller {
         $valTitId = $titularId;
 
         $query = $this->db->query("SELECT NOMBRES, APELLIDOS, NODOCUMENTO, documento.numero 
-                                   FROM PERSONA Left Join CONTRATO on Contrato.TitId = Persona.ID and contrato.estado = 1
-                                   left join documento on documento.id = contrato.docId   WHERE Persona.ID = " . $valTitId);
+                                   FROM Titular Left Join CONTRATO on Contrato.TitId = Titular.ID   and contrato.estado = 1
+                                   left join documento on documento.id = contrato.docId   WHERE Titular.ID = " . $valTitId);
         if ($query->num_rows() > 0) {
             $row = $query->row(0);
             $data['titularFullName'] = $row->NOMBRES . ' ' . $row->APELLIDOS;
@@ -302,8 +311,8 @@ class Contratos extends CI_Controller {
         $crud->display_as('ESTADOCIVIL', 'Estado Civil');
 
         //Llamado a funciones callback
-        $crud->callback_insert(array($this, '_callback_guardar_beneficiario'));
-        $crud->callback_update(array($this, '_callback_actualizar_beneficiario'));
+        //$crud->callback_insert(array($this, '_callback_guardar_beneficiario'));
+        //$crud->callback_update(array($this, '_callback_actualizar_beneficiario'));
 
         //definicion de las columnas a mostrar
         $crud->columns('NODOCUMENTO', 'NOMBRES', 'APELLIDOS', 'EPS');
@@ -312,10 +321,8 @@ class Contratos extends CI_Controller {
         $crud->field_type('TITID', 'hidden', $valTitId);
         $crud->field_type('TIPODOC', 'dropdown', array(0 => 'Cédula de Ciudadanía', 1 => 'Tarjeta de Identidad', 2 => 'Cedula Extrangera'));
         $crud->field_type('GENERO', 'dropdown', array(0 => 'Masculino', 1 => 'Femenino'));
-
         $crud->field_type('ESTADOCIVIL', 'dropdown', array(0 => 'Soltero', 1 => 'Casado', 2 => 'Divorciado', 3 => 'Unión Libre', 4 => 'Viudo'));
         $crud->field_type('OCUPACION', 'dropdown', array(0 => 'Empleado', 1 => 'Independiente', 2 => 'Jubilado', 3 => 'Ama de Casa', 4 => 'Estudiante', 5 => 'Desempleado'));
-
 
         //definicion de las reglas
         $crud->required_fields('NOMBRES');
@@ -390,6 +397,207 @@ class Contratos extends CI_Controller {
             return $update;
         }
     }
+    
+    function listaPaises()
+    {
+        $paises = array(
+		'Afghanistan' => 'Afghanistan' ,
+            'Albania' => 'Albania' ,
+            'Algeria' => 'Algeria' ,
+            'Andorra' => 'Andorra' ,
+            'Angola' => 'Angola' ,
+            'Antigua and Barbuda' => 'Antigua and Barbuda' ,
+            'Argentina' => 'Argentina' ,
+            'Armenia' => 'Armenia' ,
+            'Australia' => 'Australia' ,
+            'Austria' => 'Austria' ,
+            'Azerbaijan' => 'Azerbaijan' ,
+            'Bahamas' => 'Bahamas' ,
+            'Bahrain' => 'Bahrain' ,
+            'Bangladesh' => 'Bangladesh' ,
+            'Barbados' => 'Barbados' ,
+            'Belarus' => 'Belarus' ,
+            'Belgium' => 'Belgium' ,
+            'Belize' => 'Belize' ,
+            'Benin' => 'Benin' ,
+            'Bhutan' => 'Bhutan' ,
+            'Bolivia' => 'Bolivia' ,
+            'Bosnia and Herzegovina' => 'Bosnia and Herzegovina' ,
+            'Botswana' => 'Botswana' ,
+            'Brazil' => 'Brazil' ,
+            'Brunei' => 'Brunei' ,
+            'Bulgaria' => 'Bulgaria' ,
+            'Burkina Faso' => 'Burkina Faso' ,
+            'Burundi' => 'Burundi' ,
+            'Cambodia' => 'Cambodia' ,
+            'Cameroon' => 'Cameroon' ,
+            'Canada' => 'Canada' ,
+            'Cape Verde' => 'Cape Verde' ,
+            'Central African Republic' => 'Central African Republic' ,
+            'Chad' => 'Chad' ,
+            'Chile' => 'Chile' ,
+            'China' => 'China' ,
+            'Colombia' => 'Colombia' ,
+            'Comoros' => 'Comoros' ,
+            'Congo (Brazzaville)' => 'Congo (Brazzaville)' ,
+            'Congo' => 'Congo' ,
+            'Costa Rica' => 'Costa Rica' ,
+            'Cote dIvoire' => 'Cote dIvoire' ,
+            'Croatia' => 'Croatia' ,
+            'Cuba' => 'Cuba' ,
+            'Cyprus' => 'Cyprus' ,
+            'Czech Republic' => 'Czech Republic' ,
+            'Denmark' => 'Denmark' ,
+            'Djibouti' => 'Djibouti' ,
+            'Dominica' => 'Dominica' ,
+            'Dominican Republic' => 'Dominican Republic' ,
+            'East Timor (Timor Timur)' => 'East Timor (Timor Timur)' ,
+            'Ecuador' => 'Ecuador' ,
+            'Egypt' => 'Egypt' ,
+            'El Salvador' => 'El Salvador' ,
+            'Equatorial Guinea' => 'Equatorial Guinea' ,
+            'Eritrea' => 'Eritrea' ,
+            'Estonia' => 'Estonia' ,
+            'Ethiopia' => 'Ethiopia' ,
+            'Fiji' => 'Fiji' ,
+            'Finland' => 'Finland' ,
+            'France' => 'France' ,
+            'Gabon' => 'Gabon' ,
+            'Gambia The' => 'Gambia The' ,
+            'Georgia' => 'Georgia' ,
+            'Germany' => 'Germany' ,
+            'Ghana' => 'Ghana' ,
+            'Greece' => 'Greece' ,
+            'Grenada' => 'Grenada' ,
+            'Guatemala' => 'Guatemala' ,
+            'Guinea' => 'Guinea' ,
+            'Guinea-Bissau' => 'Guinea-Bissau' ,
+            'Guyana' => 'Guyana' ,
+            'Haiti' => 'Haiti' ,
+            'Honduras' => 'Honduras' ,
+            'Hungary' => 'Hungary' ,
+            'Iceland' => 'Iceland' ,
+            'India' => 'India' ,
+            'Indonesia' => 'Indonesia' ,
+            'Iran' => 'Iran' ,
+            'Iraq' => 'Iraq' ,
+            'Ireland' => 'Ireland' ,
+            'Israel' => 'Israel' ,
+            'Italy' => 'Italy' ,
+            'Jamaica' => 'Jamaica' ,
+            'Japan' => 'Japan' ,
+            'Jordan' => 'Jordan' ,
+            'Kazakhstan' => 'Kazakhstan' ,
+            'Kenya' => 'Kenya' ,
+            'Kiribati' => 'Kiribati' ,
+            'Korea North' => 'Korea North' ,
+            'Korea South' => 'Korea South' ,
+            'Kuwait' => 'Kuwait' ,
+            'Kyrgyzstan' => 'Kyrgyzstan' ,
+            'Laos' => 'Laos' ,
+            'Latvia' => 'Latvia' ,
+            'Lebanon' => 'Lebanon' ,
+            'Lesotho' => 'Lesotho' ,
+            'Liberia' => 'Liberia' ,
+            'Libya' => 'Libya' ,
+            'Liechtenstein' => 'Liechtenstein' ,
+            'Lithuania' => 'Lithuania' ,
+            'Luxembourg' => 'Luxembourg' ,
+            'Macedonia' => 'Macedonia' ,
+            'Madagascar' => 'Madagascar' ,
+            'Malawi' => 'Malawi' ,
+            'Malaysia' => 'Malaysia' ,
+            'Maldives' => 'Maldives' ,
+            'Mali' => 'Mali' ,
+            'Malta' => 'Malta' ,
+            'Marshall Islands' => 'Marshall Islands' ,
+            'Mauritania' => 'Mauritania' ,
+            'Mauritius' => 'Mauritius' ,
+            'Mexico' => 'Mexico' ,
+            'Micronesia' => 'Micronesia' ,
+            'Moldova' => 'Moldova' ,
+            'Monaco' => 'Monaco' ,
+            'Mongolia' => 'Mongolia' ,
+            'Morocco' => 'Morocco' ,
+            'Mozambique' => 'Mozambique' ,
+            'Myanmar' => 'Myanmar' ,
+            'Namibia' => 'Namibia' ,
+            'Nauru' => 'Nauru' ,
+            'Nepa' => 'Nepa' ,
+            'Netherlands' => 'Netherlands' ,
+            'New Zealand' => 'New Zealand' ,
+            'Nicaragua' => 'Nicaragua' ,
+            'Niger' => 'Niger' ,
+            'Nigeria' => 'Nigeria' ,
+            'Norway' => 'Norway' ,
+            'Oman' => 'Oman' ,
+            'Pakistan' => 'Pakistan' ,
+            'Palau' => 'Palau' ,
+            'Panama' => 'Panama' ,
+            'Papua New Guinea' => 'Papua New Guinea' ,
+            'Paraguay' => 'Paraguay' ,
+            'Peru' => 'Peru' ,
+            'Philippines' => 'Philippines' ,
+            'Poland' => 'Poland' ,
+            'Portugal' => 'Portugal' ,
+            'Qatar' => 'Qatar' ,
+            'Romania' => 'Romania' ,
+            'Russia' => 'Russia' ,
+            'Rwanda' => 'Rwanda' ,
+            'Saint Kitts and Nevis' => 'Saint Kitts and Nevis' ,
+            'Saint Lucia' => 'Saint Lucia' ,
+            'Saint Vincent' => 'Saint Vincent' ,
+            'Samoa' => 'Samoa' ,
+            'San Marino' => 'San Marino' ,
+            'Sao Tome and Principe' => 'Sao Tome and Principe' ,
+            'Saudi Arabia' => 'Saudi Arabia' ,
+            'Senegal' => 'Senegal' ,
+            'Serbia and Montenegro' => 'Serbia and Montenegro' ,
+            'Seychelles' => 'Seychelles' ,
+            'Sierra Leone' => 'Sierra Leone' ,
+            'Singapore' => 'Singapore' ,
+            'Slovakia' => 'Slovakia' ,
+            'Slovenia' => 'Slovenia' ,
+            'Solomon Islands' => 'Solomon Islands' ,
+            'Somalia' => 'Somalia' ,
+            'South Africa' => 'South Africa' ,
+            'Spain' => 'Spain' ,
+            'Sri Lanka' => 'Sri Lanka' ,
+            'Sudan' => 'Sudan' ,
+            'Suriname' => 'Suriname' ,
+            'Swaziland' => 'Swaziland' ,
+            'Sweden' => 'Sweden' ,
+            'Switzerland' => 'Switzerland' ,
+            'Syria' => 'Syria' ,
+            'Taiwan' => 'Taiwan' ,
+            'Tajikistan' => 'Tajikistan' ,
+            'Tanzania' => 'Tanzania' ,
+            'Thailand' => 'Thailand' ,
+            'Togo' => 'Togo' ,
+            'Tonga' => 'Tonga' ,
+            'Trinidad and Tobago' => 'Trinidad and Tobago' ,
+            'Tunisia' => 'Tunisia' ,
+            'Turkey' => 'Turkey' ,
+            'Turkmenistan' => 'Turkmenistan' ,
+            'Tuvalu' => 'Tuvalu' ,
+            'Uganda' => 'Uganda' ,
+            'Ukraine' => 'Ukraine' ,
+            'United Arab Emirates' => 'United Arab Emirates' ,
+            'United Kingdom' => 'United Kingdom' ,
+            'United States' => 'United States' ,
+            'Uruguay' => 'Uruguay' ,
+            'Uzbekistan' => 'Uzbekistan' ,
+            'Vanuatu' => 'Vanuatu' ,
+            'Vatican City' => 'Vatican City' ,
+            'Venezuela' => 'Venezuela' ,
+            'Vietnam' => 'Vietnam' ,
+            'Yemen' => 'Yemen' ,
+            'Zambia' => 'Zambia' ,
+            'Zimbabwe' => 'Zimbabwe' 
+	);
+	return $paises;
+    }
+    
 
 }
 
