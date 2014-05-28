@@ -6,10 +6,12 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <?php echo link_tag('css/bootstrap.css')?>
-        <?php echo link_tag('css/bootstrap-theme.css')?>
-        <?php echo link_tag('js/bootstrap.min.js')?>        
+        <?php echo link_tag('css/bootstrap-theme.css')?>        
+        <script type="text/javascript" src="<?php echo base_url()?>js/jquery-1.11.1.min.js" > </script>
+        <script type="text/javascript" src="<?php echo base_url()?>js/bootstrap.min.js" > </script>
     </head>
     <body>
+    
         <div class="container" style="padding-top: 10px;">             
             <div class='login' style="float: right;">
                     <?php echo $login?>
