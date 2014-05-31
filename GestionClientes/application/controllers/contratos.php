@@ -175,13 +175,17 @@ class Contratos extends CI_Controller {
        
         //definicion de tipos de los campos
         //$crud->field_type('PAIS', 'dropdown', $this->listaPaises());
+        $crud->field_type('NODOCUMENTO', 'integer' );
+        $crud->field_type('TELDOMICILIO', 'integer' );
+        $crud->field_type('TELOFICINA', 'integer' );
+        $crud->field_type('TELMOVIL', 'integer' );
         $crud->field_type('TIPODOC', 'dropdown', array(0 => 'Cédula de Ciudadanía', 1 => 'Tarjeta de Identidad', 2 => 'Cedula Extrangera'));
         $crud->field_type('GENERO', 'dropdown', array(0 => 'Masculino', 1 => 'Femenino'));
         $crud->field_type('ESTADOCIVIL', 'dropdown', array(0 => 'Soltero', 1 => 'Casado', 2 => 'Divorciado', 3 => 'Unión Libre', 4 => 'Viudo'));
         $crud->field_type('OCUPACION', 'dropdown', array(0 => 'Empleado', 1 => 'Independiente', 2 => 'Jubilado', 3 => 'Ama de Casa', 4 => 'Estudiante', 5 => 'Desempleado'));
         $crud->field_type('COMOUBICOSERVICIO', 'dropdown', array(0 => 'Referido', 1 => 'Eventos', 2 => 'Convenio Especial', 3 => 'Directorio Telefónico', 4 => 'Servicio Médico Atendido', 5 => 'Medios de Comunicación'));
         //definicion de las reglas
-        $crud->required_fields('NOMBRES');
+        $crud->required_fields('NOMBRES','TIPODOC','NODOCUMENTO','APELLIDOS');
         //callbacks
         $crud->callback_after_insert(array($this,'_callback_after_guardar_titular'));
         
@@ -316,16 +320,20 @@ class Contratos extends CI_Controller {
 
         //definicion de las columnas a mostrar
         $crud->columns('NODOCUMENTO', 'NOMBRES', 'APELLIDOS', 'EPS');
+        $crud->required_fields('NOMBRES','TIPODOC','NODOCUMENTO','APELLIDOS','TELMOVIL');
 
         //definicion de tipos de los campos
+        
+        $crud->field_type('NODOCUMENTO', 'integer' );
+        $crud->field_type('TELDOMICILIO', 'integer' );
+        $crud->field_type('TELOFICINA', 'integer' );
+        $crud->field_type('TELMOVIL', 'integer' );
+        
         $crud->field_type('TITID', 'hidden', $valTitId);
         $crud->field_type('TIPODOC', 'dropdown', array(0 => 'Cédula de Ciudadanía', 1 => 'Tarjeta de Identidad', 2 => 'Cedula Extrangera'));
         $crud->field_type('GENERO', 'dropdown', array(0 => 'Masculino', 1 => 'Femenino'));
         $crud->field_type('ESTADOCIVIL', 'dropdown', array(0 => 'Soltero', 1 => 'Casado', 2 => 'Divorciado', 3 => 'Unión Libre', 4 => 'Viudo'));
         $crud->field_type('OCUPACION', 'dropdown', array(0 => 'Empleado', 1 => 'Independiente', 2 => 'Jubilado', 3 => 'Ama de Casa', 4 => 'Estudiante', 5 => 'Desempleado'));
-
-        //definicion de las reglas
-        $crud->required_fields('NOMBRES');
 
         //Rederizacion del CRUD
         $output = $crud->render();

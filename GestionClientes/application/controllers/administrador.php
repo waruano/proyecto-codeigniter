@@ -194,9 +194,14 @@ class Administrador extends CI_Controller {
         $crud->required_fields('NOMBRECOMPLETO', 'PARENTESCO', 'TELMOVIL');
         $crud->add_fields('NOMBRECOMPLETO', 'PARENTESCO', 'TELDOMICILIO', 'TELMOVIL', 'TITID');
         $crud->unset_read();
+        
         $crud->field_type('TITID', 'hidden', $valTitId);
+        $crud->field_type('TELDOMICILIO', 'integer' );
+        $crud->field_type('TELMOVIL', 'integer' );
+        
         $crud->buttons_form('sinGuardar');
         $crud->unset_back_to_list();
+        
         $output = $crud->render();
 
         //Configuracion de la Plantilla
@@ -274,6 +279,8 @@ class Administrador extends CI_Controller {
         $crud->required_fields('NOMBRES', 'APELLIDOS', 'TIPODOC', 'NODOCUMENTO', 'TELMOVIL','EMAIL');
         $crud->add_fields('NOMBRES', 'APELLIDOS', 'TIPODOC', 'NODOCUMENTO', 'TELMOVIL','EMAIL','TIPOPERSONA');
         $crud->unset_read();
+        $crud->field_type('NODOCUMENTO','integer');
+        $crud->field_type('TELMOVIL','integer');
         $crud->field_type('TIPOPERSONA', 'hidden', '2');
         $crud->field_type('TIPODOC', 'dropdown', array(0 => 'Cedula de Ciudadnia', 1 => 'Tarjeta de Identidad', 2 => 'Cedula Extrangera'));
         $output = $crud->render();
