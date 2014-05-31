@@ -34,7 +34,8 @@ class digitador extends CI_Controller {
         
         $crud->edit_fields('EMPID', 'NUMERO', 'TIPO', 'ESTADO');
         $crud->required_fields('NUMERO', 'TIPO', 'ESTADO');
-        $crud->add_fields('EMPID', 'NUMERO', 'TIPO', 'ESTADO');        
+        $crud->add_fields('EMPID', 'NUMERO', 'TIPO', 'ESTADO'); 
+        $crud->field_type('NUMERO','integer');
         $crud->field_type('TIPO', 'dropdown', array('1' => 'Contrato', '2' => 'Recibo de Caja'));
         $crud->field_type('ESTADO', 'dropdown', array('1' => 'Asignado', '2' => 'Reportado', '3' => 'Anulado'));
         
