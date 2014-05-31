@@ -90,7 +90,9 @@ create table COSTOPLAN
    ID                   bigint not null AUTO_INCREMENT,
    PLANID               bigint,
    COSTOAFILIACION      bigint,
-   COSTOPAGO            bigint,
+   COSTOPAGOMES         bigint,
+   COSTOPAGOSEMESTRE    bigint,
+   COSTOPAGOANIO        bigint,
    FECHADESDE           date,
    FECHAHASTA           date,
    primary key (ID)
@@ -145,9 +147,7 @@ create table PLAN
 (
    ID                   bigint not null AUTO_INCREMENT,
    NOMBRE               varchar(50),
-   FORMAPAGO            int,
-   PERIODICIDAD         int,
-   TIPOPLAN             int,
+   NUMBENEFICIARIOS     int,
    NOMBRECONVENIO       varchar(30),
    primary key (ID)
 );
