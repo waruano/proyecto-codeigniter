@@ -6,12 +6,12 @@
 
 /*! normalize.css v3.0.0 | MIT License | git.io/normalize */
 html {
-  font-family: sans-serif;
+  font-family: Arial, sans-serif;
   -webkit-text-size-adjust: 100%;
       -ms-text-size-adjust: 100%;
 }
 body {
-  margin: 0;
+  margin: 0;  
 }
 article,
 aside,
@@ -362,7 +362,7 @@ h6,
 .h4,
 .h5,
 .h6 {
-  font-family: inherit;
+  font-family: Arial;
   font-weight: 500;
   line-height: 1.1;
   color: inherit;
