@@ -77,6 +77,7 @@ create table CONTRATO
    PLANID               bigint,
    DOCID                bigint, 
    TIPOCONTRATO         int,
+   PERIODICIDAD         int, 
    FECHAINICIO          date,
    ESTADO               int,
    primary key (ID)
@@ -119,6 +120,8 @@ create table PAGO
    ID                   bigint not null AUTO_INCREMENT,
    RECID                bigint not null,
    TITID                bigint,
+   TIPOCONCEPTO         int, 
+   OTROCONCEPTO         varchar(256),
    VALOR                bigint,
    FECHA                date,
    primary key (ID)
