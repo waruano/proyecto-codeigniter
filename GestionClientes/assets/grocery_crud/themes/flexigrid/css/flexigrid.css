@@ -314,7 +314,6 @@ table th
 	width: 300px;
 	height:20px;
 	border: 1px solid #AAA;
-	padding: 5px 5px 5px 5px;
 	background: #fafafa;
 }
 .flexigrid div.form-div textarea
@@ -1424,7 +1423,7 @@ input[type="submit"].btn.btn-mini {
 
 .pretty-radio-buttons
 {
-	margin-top: 6px;
+	/*margin-top: 6px;*/
 }
 
 .pretty-radio-buttons label
