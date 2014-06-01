@@ -48,7 +48,7 @@ class Contratos extends CI_Controller {
         $crud->set_table('contrato');
         $crud->set_subject("Contrato");
         $crud->where('TITID', $valTitId);
-        $crud->set_relation('PLANID', 'plan', '{NOMBRE} - {FORMAPAGO}');
+        $crud->set_relation('PLANID', 'plan', '{NOMBRE}');
         if ($state == 'add')
             $crud->set_relation('DOCID', 'documento', 'NUMERO', array('TIPO' => '1', 'ESTADO' => '1'));
         else {
@@ -59,17 +59,19 @@ class Contratos extends CI_Controller {
         $crud->display_as('TITID', 'Titular ');
         $crud->display_as('PLANID', 'Plan');
         $crud->display_as('TIPOCONTRATO', 'Tipo de Contrato');
+        $crud->display_as('PERIODICIDAD', 'Periodicidad');
         $crud->display_as('FECHAINICIO', 'Fecha de Inicio');
         $crud->display_as('DOCID', 'Documento');
         $crud->display_as('ESTADO', 'Estado');
-        $crud->columns('PLANID', 'TIPOCONTRATO', 'FECHAINICIO', 'DOCID');
+        $crud->columns('PLANID', 'TIPOCONTRATO', 'PERIODICIDAD' , 'FECHAINICIO', 'DOCID');
         //add fields
-        $crud->add_fields('TITID', 'PLANID', 'TIPOCONTRATO', 'FECHAINICIO', 'DOCID', 'ESTADO');
+        $crud->add_fields('TITID', 'PLANID', 'TIPOCONTRATO', 'PERIODICIDAD', 'FECHAINICIO', 'DOCID', 'ESTADO');
         //edit fields
-        $crud->edit_fields('TITID', 'PLANID', 'TIPOCONTRATO', 'FECHAINICIO', 'DOCID', 'ESTADO');
+        $crud->edit_fields('TITID', 'PLANID', 'TIPOCONTRATO', 'PERIODICIDAD', 'FECHAINICIO', 'DOCID', 'ESTADO');
         //callbacks
-        $crud->field_type('TIPOCONTRATO', 'dropdown', array(0 => 'Nuevo', 1 => 'Adición', 2 => 'Reactivación', 3 => 'Reemplazo'));
-        //$crud->field_type('ESTADO', 'dropdown', array(0 => 'Inactivo', 1 => 'Activo'));
+        $crud->field_type('TIPOCONTRATO', 'dropdown', array(1 => 'Nuevo', 2 => 'Adición', 3 => 'Reactivación', 4 => 'Reemplazo'));
+        $crud->field_type('PERIODICIDAD', 'dropdown', array(1 => 'Mensual', 2 => 'Semestral', 3 => 'Anual'));
+        
         $crud->field_type('TITID', 'hidden', $valTitId);
         $crud->field_type('ESTADO', 'hidden', '1');
         $crud->callback_after_insert(array($this, '_callback_after_insert_contrato'));
@@ -179,11 +181,11 @@ class Contratos extends CI_Controller {
         $crud->field_type('TELDOMICILIO', 'integer' );
         $crud->field_type('TELOFICINA', 'integer' );
         $crud->field_type('TELMOVIL', 'integer' );
-        $crud->field_type('TIPODOC', 'dropdown', array(0 => 'Cédula de Ciudadanía', 1 => 'Tarjeta de Identidad', 2 => 'Cedula Extrangera'));
-        $crud->field_type('GENERO', 'dropdown', array(0 => 'Masculino', 1 => 'Femenino'));
-        $crud->field_type('ESTADOCIVIL', 'dropdown', array(0 => 'Soltero', 1 => 'Casado', 2 => 'Divorciado', 3 => 'Unión Libre', 4 => 'Viudo'));
-        $crud->field_type('OCUPACION', 'dropdown', array(0 => 'Empleado', 1 => 'Independiente', 2 => 'Jubilado', 3 => 'Ama de Casa', 4 => 'Estudiante', 5 => 'Desempleado'));
-        $crud->field_type('COMOUBICOSERVICIO', 'dropdown', array(0 => 'Referido', 1 => 'Eventos', 2 => 'Convenio Especial', 3 => 'Directorio Telefónico', 4 => 'Servicio Médico Atendido', 5 => 'Medios de Comunicación'));
+        $crud->field_type('TIPODOC', 'dropdown', array(1 => 'Cédula de Ciudadanía', 2 => 'Tarjeta de Identidad', 3 => 'Cedula Extrangera'));
+        $crud->field_type('GENERO', 'dropdown', array(1 => 'Masculino', 2 => 'Femenino'));
+        $crud->field_type('ESTADOCIVIL', 'dropdown', array(1 => 'Soltero', 2 => 'Casado', 3 => 'Divorciado', 4 => 'Unión Libre', 5 => 'Viudo'));
+        $crud->field_type('OCUPACION', 'dropdown', array(1 => 'Empleado', 2 => 'Independiente', 3 => 'Jubilado', 4 => 'Ama de Casa', 5 => 'Estudiante', 6 => 'Desempleado'));
+        $crud->field_type('COMOUBICOSERVICIO', 'dropdown', array(1 => 'Referido', 2 => 'Eventos', 3 => 'Convenio Especial', 4 => 'Directorio Telefónico', 5 => 'Servicio Médico Atendido', 6 => 'Medios de Comunicación'));
         //definicion de las reglas
         $crud->required_fields('NOMBRES','TIPODOC','NODOCUMENTO','APELLIDOS');
         //callbacks
@@ -330,10 +332,10 @@ class Contratos extends CI_Controller {
         $crud->field_type('TELMOVIL', 'integer' );
         
         $crud->field_type('TITID', 'hidden', $valTitId);
-        $crud->field_type('TIPODOC', 'dropdown', array(0 => 'Cédula de Ciudadanía', 1 => 'Tarjeta de Identidad', 2 => 'Cedula Extrangera'));
-        $crud->field_type('GENERO', 'dropdown', array(0 => 'Masculino', 1 => 'Femenino'));
-        $crud->field_type('ESTADOCIVIL', 'dropdown', array(0 => 'Soltero', 1 => 'Casado', 2 => 'Divorciado', 3 => 'Unión Libre', 4 => 'Viudo'));
-        $crud->field_type('OCUPACION', 'dropdown', array(0 => 'Empleado', 1 => 'Independiente', 2 => 'Jubilado', 3 => 'Ama de Casa', 4 => 'Estudiante', 5 => 'Desempleado'));
+        $crud->field_type('TIPODOC', 'dropdown', array(1 => 'Cédula de Ciudadanía', 2 => 'Tarjeta de Identidad', 3 => 'Cedula Extrangera'));
+        $crud->field_type('GENERO', 'dropdown', array(1 => 'Masculino', 2 => 'Femenino'));
+        $crud->field_type('ESTADOCIVIL', 'dropdown', array(1 => 'Soltero', 2 => 'Casado', 3 => 'Divorciado', 4 => 'Unión Libre', 5 => 'Viudo'));
+        $crud->field_type('OCUPACION', 'dropdown', array(1 => 'Empleado', 2 => 'Independiente', 3 => 'Jubilado', 4 => 'Ama de Casa', 5 => 'Estudiante', 6 => 'Desempleado'));
 
         //Rederizacion del CRUD
         $output = $crud->render();

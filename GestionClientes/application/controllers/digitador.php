@@ -61,21 +61,26 @@ class digitador extends CI_Controller {
         $crud = new Grocery_CRUD();
         $crud->set_table('pago');
         $crud->set_subject("Pagos");
-        $crud->columns('RECID', 'TITID', 'VALOR', 'FECHA');
+        $crud->columns('RECID', 'TITID', 'VALOR', 'FECHA', 'TIPOCONCEPTO', 'OTROCONCEPTO');
         $crud->display_as('RECID', 'Recibo de caja');
         $crud->display_as('TITID', 'Titular de contrato');
         $crud->display_as('VALOR', 'Valor pagado');
         $crud->display_as('FECHA', 'Fecha de pago');
+        $crud->display_as('TIPOCONCEPTO', 'Por Concepto de');
+        $crud->display_as('OTROCONCEPTO', 'Otro? Cual');
         
         $crud->set_relation('RECID','Documento','{Numero}', array('Estado' => '1'));        
-        $crud->set_relation('TITID','Persona','{Nombres} {Apellidos}', array('TIPOPERSONA' => '0'));        
+        $crud->set_relation('TITID','Titular','{Nombres} {Apellidos}');        
         
-        $crud->edit_fields('RECID', 'TITID', 'VALOR', 'FECHA');
-        $crud->required_fields('RECID', 'TITID', 'VALOR', 'FECHA');
-        $crud->add_fields('RECID', 'TITID', 'VALOR', 'FECHA');
+        $crud->edit_fields('VALOR', 'FECHA', 'TIPOCONCEPTO', 'OTROCONCEPTO');
+        $crud->required_fields('RECID', 'TITID', 'VALOR', 'FECHA', 'TIPOCONCEPTO');
+        $crud->add_fields('RECID', 'TITID', 'VALOR', 'FECHA', 'TIPOCONCEPTO', 'OTROCONCEPTO');
         
+        $crud->field_type('TIPOCONCEPTO', 'dropdown', array('1' => 'Pago mes', '2' => 'Pago semestre', '3' => 'Pago año', '4' => 'Pago afiliación', '5' => 'Otro'));
         $crud->field_type('FECHAHASTA', 'date');
         $crud->field_type('VALOR', 'integer');
+        
+        $crud->callback_after_insert(array($this, '_callback_after_insert_pago'));
         
         //$crud->add_action('Costos', '', 'Administrador/costosplan');
         //$crud->add_action('Tarifas', base_url() . 'images/money.png', 'Costos','',array($this,'direccion_planes'));
@@ -87,5 +92,12 @@ class digitador extends CI_Controller {
         $this->template->write_view('sidebar', $this->tank_auth->get_sidebar());
         $this->template->write_view('content', 'digitador/pagos', $output);
         $this->template->render();
+    }
+    
+    function _callback_after_insert_pago($post_array) {
+        $data = array('ESTADO' => '2');
+        $this->db->where('ID', $post_array['RECID']);
+        $this->db->update('documento', $data);
+        return true;
     }
 }
