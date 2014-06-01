@@ -120,7 +120,7 @@ class Consultor extends CI_Controller {
         }
         
         /// Se consulta la informacion del contrato y los pagos realizados por el titular desde la vigencia del contrato
-        $qcontrato = $this->db->query("SELECT CONTRATO.FECHAINICIO, PLAN.NOMBRE, PLAN.FORMAPAGO, PLAN.PERIODICIDAD, PLAN.TIPOPLAN, 
+        $qcontrato = $this->db->query("SELECT CONTRATO.FECHAINICIO, PLAN.NOMBRE, CONTRATO.PERIODICIDAD, 
                                         PLAN.NOMBRECONVENIO, DOCUMENTO.NUMERO, DOCUMENTO.TIPO
                                         FROM CONTRATO INNER JOIN PLAN ON PLAN.ID = CONTRATO.PLANID 
                                         INNER JOIN DOCUMENTO ON DOCUMENTO.ID = CONTRATO.DOCID WHERE contrato.ESTADO = 1 AND TITID = " .$valTitId );
@@ -130,8 +130,9 @@ class Consultor extends CI_Controller {
             $data['contrato'] = $contrato;
             $data['tienecontrato'] = true;
             
-            $qpagos = $this->db->query("SELECT * FROM PAGO WHERE TITID = " . $valTitId . " AND FECHA >= " . $contrato->FECHAINICIO);
+            $qpagos = $this->db->query("SELECT * FROM PAGO WHERE TITID = " . $valTitId . " AND FECHA >= " . $contrato->FECHAINICIO); 
             
+            $data['pagos'] = $qpagos->result();
         }
         else
         {

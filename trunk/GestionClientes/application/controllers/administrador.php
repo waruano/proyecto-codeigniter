@@ -105,21 +105,22 @@ class Administrador extends CI_Controller {
         $crud = new Grocery_CRUD();
         $crud->set_table('plan');
         $crud->set_subject("planes");
-        $crud->columns('NOMBRE', 'FORMAPAGO', 'PERIODICIDAD', 'TIPOPLAN', 'NOMBRECONVENIO');
+        $crud->columns('NOMBRE', 'NUMBENEFICIARIOS', 'NOMBRECONVENIO');
         $crud->display_as('NOMBRE', 'Nombre Plan');
-        $crud->display_as('FORMAPAGO', 'Forma de Pago');
-        $crud->display_as('PERIODICIDAD', 'Periodicidad');
-        $crud->display_as('TIPOPLAN', 'Tipo de Plan');
+        
+        $crud->display_as('NUMBENEFICIARIOS', 'Número de beneficiarios');
         $crud->display_as('NOMBRECONVENIO', 'Nombre de Convenio');
-        $crud->edit_fields('NOMBRE', 'FORMAPAGO', 'PERIODICIDAD', 'TIPOPLAN', 'NOMBRECONVENIO');
-        $crud->required_fields('NOMBRE', 'FORMAPAGO', 'PERIODICIDAD', 'TIPOPLAN');
-        $crud->add_fields('NOMBRE', 'FORMAPAGO', 'PERIODICIDAD', 'TIPOPLAN', 'NOMBRECONVENIO');
+        $crud->edit_fields('NOMBRE', 'NUMBENEFICIARIOS', 'NOMBRECONVENIO');
+        $crud->required_fields('NOMBRE', 'NUMBENEFICIARIOS');
+        $crud->add_fields('NOMBRE', 'NUMBENEFICIARIOS', 'NOMBRECONVENIO');
         $crud->unset_read();
-        $crud->unique_fields('NOMBRE');
+        $crud->unique_fields('NOMBRE', 'NUMBENEFICIARIOS');
 
-        $crud->field_type('FORMAPAGO', 'dropdown', array('1' => 'Domicilio', '2' => 'Debito Automático', '3' => 'Convenio'));
-        $crud->field_type('PERIODICIDAD', 'dropdown', array('1' => 'Mensual', '2' => 'Trimestral', '3' => 'Semestral', '4' => 'Anual'));
-        $crud->field_type('TIPOPLAN', 'dropdown', array('1' => 'Individual', '2' => 'Familiar', '3' => 'Convenio'));
+        //$crud->field_type('FORMAPAGO', 'dropdown', array('1' => 'Domicilio', '2' => 'Debito Automático', '3' => 'Convenio'));
+        //$crud->field_type('PERIODICIDAD', 'dropdown', array('1' => 'Mensual', '2' => 'Trimestral', '3' => 'Semestral', '4' => 'Anual'));
+        //$crud->field_type('TIPOPLAN', 'dropdown', array('1' => 'Individual', '2' => 'Familiar', '3' => 'Convenio'));
+        
+        $crud->field_type('NUMBENEFICIARIOS', 'integer');
         //$crud->add_action('Costos', '', 'Administrador/costosplan');
         $crud->add_action('Tarifas', base_url() . 'images/money.png', 'Costos','',array($this,'direccion_planes'));
         $output = $crud->render();
@@ -231,18 +232,22 @@ class Administrador extends CI_Controller {
         $crud->set_table('costoplan');
         $crud->where('PLANID', $planid);
         $crud->set_subject("Tarifa");
-        $crud->columns('COSTOAFILIACION', 'COSTOPAGO', 'FECHADESDE', 'FECHAHASTA');
+        $crud->columns('COSTOAFILIACION', 'COSTOPAGOMES', 'COSTOPAGOSEMESTRE', 'COSTOPAGOANIO', 'FECHADESDE', 'FECHAHASTA');
         $crud->display_as('COSTOAFILIACION', 'Costo afiliación');
-        $crud->display_as('COSTOPAGO', 'Costo pago');
+        $crud->display_as('COSTOPAGOMES', 'Costo mensual');
+        $crud->display_as('COSTOPAGOSEMESTRE', 'Costo semestral');
+        $crud->display_as('COSTOPAGOANIO', 'Costo anual');
         $crud->display_as('FECHADESDE', 'Aplica desde');
         $crud->display_as('FECHAHASTA', 'Aplica hasta');
-        $crud->edit_fields('COSTOAFILIACION', 'COSTOPAGO', 'FECHADESDE', 'FECHAHASTA', 'PLANID');
-        $crud->required_fields('COSTOAFILIACION', 'COSTOPAGO', 'FECHADESDE', 'FECHAHASTA');
-        $crud->add_fields('COSTOAFILIACION', 'COSTOPAGO', 'FECHADESDE', 'FECHAHASTA', 'PLANID');
+        $crud->edit_fields('COSTOAFILIACION', 'COSTOPAGOMES', 'COSTOPAGOSEMESTRE', 'COSTOPAGOANIO', 'FECHADESDE', 'FECHAHASTA', 'PLANID');
+        $crud->required_fields('COSTOAFILIACION', 'COSTOPAGOMES', 'COSTOPAGOSEMESTRE', 'COSTOPAGOANIO', 'FECHADESDE', 'FECHAHASTA');
+        $crud->add_fields('COSTOAFILIACION', 'COSTOPAGOMES', 'COSTOPAGOSEMESTRE', 'COSTOPAGOANIO', 'FECHADESDE', 'FECHAHASTA', 'PLANID');
         $crud->unset_read();
         $crud->field_type('PLANID', 'hidden', $planid);
         $crud->field_type('COSTOAFILIACION', 'integer');
-        $crud->field_type('COSTOPAGO', 'integer');
+        $crud->field_type('COSTOPAGOMES', 'integer');
+        $crud->field_type('COSTOPAGOSEMESTRE', 'integer');
+        $crud->field_type('COSTOPAGOANIO', 'integer');
         $crud->field_type('FECHADESDE', 'date');
         $crud->field_type('FECHAHASTA', 'date');
 
@@ -282,7 +287,7 @@ class Administrador extends CI_Controller {
         $crud->field_type('NODOCUMENTO','integer');
         $crud->field_type('TELMOVIL','integer');
         $crud->field_type('TIPOPERSONA', 'hidden', '2');
-        $crud->field_type('TIPODOC', 'dropdown', array(0 => 'Cedula de Ciudadnia', 1 => 'Tarjeta de Identidad', 2 => 'Cedula Extrangera'));
+        $crud->field_type('TIPODOC', 'dropdown', array(1 => 'Cedula de Ciudadnia', 2 => 'Tarjeta de Identidad', 3 => 'Cedula Extrangera'));
         $output = $crud->render();
 
         //Configuracion de la Plantilla
