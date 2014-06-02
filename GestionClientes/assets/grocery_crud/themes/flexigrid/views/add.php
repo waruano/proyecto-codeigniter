@@ -112,10 +112,15 @@ $this->set_js_lib($this->default_javascript_path . '/jquery_plugins/config/jquer
         case 'siguienteTitular':
             ?>
             <div class='form-button-box'>
-                <input type='button' value='Continuar' id="save-and-go-back-button"  class="btn btn-large"/>
+                <input type='button' value='Guardar y Continuar' id="save-and-go-back-button"  class="btn btn-large"/>
             </div>
+            <div class='clear'></div>
+            <?php
+            break;
+        case 'siguienteContratos':
+            ?>
             <div class='form-button-box'>
-                <input type='button' value='<?php echo $this->l('form_cancel'); ?>' class="btn btn-large" id="cancel-button" />
+                <input type='button' value='Guardar y Continuar' id="save-and-go-back-button"  class="btn btn-large"/>
             </div>
             <div class='clear'></div>
             <?php

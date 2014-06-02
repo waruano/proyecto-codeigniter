@@ -10,11 +10,5 @@
             echo 'class="active"';
         }
         ?> ><a href="<?php echo base_url() . 'contratos/beneficiarios' ?>">Beneficiarios</a></li>
-        <li <?php
-        if (isset($step_wizard) && $step_wizard == 2) {
-            echo 'class="active"';
-        }
-        ?> ><a href="<?php echo base_url() . 'contratos' ?>">Contratos</a></li>
-
     </ul>
 </div>

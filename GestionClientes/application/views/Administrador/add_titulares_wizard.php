@@ -7,8 +7,7 @@
     <script src="<?php echo $file; ?>"></script>
 <?php endforeach; ?>
 <div>
-    <h3>Contratos</h3>
-    <!--Aqui Empieza el Acordeon-->
+    <h3>Titulares</h3>
     <div class="row">
         <div class="col-md-6">
             <table>
@@ -21,18 +20,30 @@
                 <tr>
                     <th>Numero de Beneficiarios:</th><td><?php echo $plan_beneficiarios ?></td>
                 </tr>
-                <tr>
+                <tr>            
                     <th>Nombre del Convenio:</th><td><?php echo $plan_convenio ?></td>
+                </tr>
+            </table>
+        </div>
+        <div class="col-md-6">
+            <table>
+                <thead>
+                <th colspan="2"><h4>Informacion del Contrato</h4><th>
+                    </thead>
+                <tr>
+                    <th>Tipo:</th><td><?php echo $contrato_tipo ?>    </td>
+                </tr>
+                <tr>
+                    <th>Periodicidad:</th><td><?php echo $contrato_periodicidad ?></td>
+                </tr>
+                <tr>            
+                    <th>Fecha de Inicio:</th><td><?php echo $contrato_fechaInicio ?></td>
                 </tr>
             </table>
         </div>
     </div>
     </br>
-    <!-- Aqui termina el Acordeon-->
     <?php
     echo $output;
-    if (!isset($_SESSION['_aux_wizard']) || !$_SESSION['_aux_wizard'] == true) {
-        ?>
-        <input type="button" class="btn btn-large"  onclick="window.location = '<?php echo base_url() . "contratos/titulares"; ?>'" value="Regresar a Titulares"/>  
-    <?php } ?>
+    ?>
 </div>
