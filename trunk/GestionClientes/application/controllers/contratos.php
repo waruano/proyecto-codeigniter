@@ -14,70 +14,84 @@ class Contratos extends CI_Controller {
     }
 
     function index() {
-        
+
         if ($this->is_session_started() === FALSE)
             session_start();
-        $titularId = $_SESSION['_aux_var'];
-        
+        $plan_id = $_SESSION['_aux_var'];
+
         //informacion de Usuario
         $session_rol = $this->tank_auth->get_rol();
         $data['user_id'] = $this->tank_auth->get_user_id();
         $data['username'] = $this->tank_auth->get_username();
         $data['selectedoption'] = 3;
         $data['step_wizard'] = 2;
-        //informacion del titular
-        $valTitId = $titularId;
-        $query = $this->db->query("SELECT NOMBRES, APELLIDOS, NODOCUMENTO, documento.numero 
-                                   FROM Titular Left Join CONTRATO on Contrato.TitId = Titular.ID   and contrato.estado = 1
-                                   left join documento on documento.id = contrato.docId   WHERE Titular.ID = " . $valTitId);
-        if ($query->num_rows() > 0) {
-            $row = $query->row(0);
-            $data['titularFullName'] = $row->NOMBRES . ' ' . $row->APELLIDOS;
-            $data['titularIdentificacion'] = $row->NODOCUMENTO;
-            $data['titularContrato'] = $row->numero;
+
+        //informacion del Plan
+        $this->load->model('contratosModel');
+        $select_plan = $this->contratosModel->get_plan($plan_id);
+
+        if ($select_plan != null) {
+            $data['plan_nombre'] = $select_plan->NOMBRE;
+            $data['plan_beneficiarios'] = $select_plan->NUMBENEFICIARIOS;
+            $data['plan_convenio'] = $select_plan->NOMBRECONVENIO;
         } else {
-            $data['titularFullName'] = 'Titular sin definir o no existe';
-            $data['titularIdentificacion'] = '';
-            $data['titularContrato'] = '';
+            $data['plan_nombre'] = 'No se ha Especificado el Plan';
+            $data['plan_beneficiarios'] = '';
+            $data['plan_convenio'] = '';
         }
+
         //creacion  del crud
         $crud = new Grocery_CRUD();
         $state = $crud->getState();
 
+        //redireccionamiento para siguiente
+        if (!$this->is_session_started())
+            session_start();
+        if (isset($_SESSION['_aux_wizard']) && $_SESSION['_aux_wizard']) {
+            //definicion de los botones del formulario
+            $crud->buttons_form('siguienteContratos');
+            if (isset($_SESSION['success_contrato']) && $_SESSION['success_contrato'] = true) {
+                unset($_SESSION['success_contrato']);
+                redirect('contratos/titulares/add');
+            }
+        } else {
+            $crud->buttons_form('sinGuardar');
+        }
+
         //configuracion de la tabla
         $crud->set_table('contrato');
         $crud->set_subject("Contrato");
-        $crud->where('TITID', $valTitId);
-        $crud->set_relation('PLANID', 'plan', '{NOMBRE}');
-        if ($state == 'add')
-            $crud->set_relation('DOCID', 'documento', 'NUMERO', array('TIPO' => '1', 'ESTADO' => '1'));
-        else {
-            $crud->set_relation('DOCID', 'documento', 'NUMERO');
-        }
-
+        
+        //if ($state == 'add')
+        $crud->set_relation('DOCID', 'documento', 'NUMERO', array('TIPO' => '1', 'ESTADO' => '1'));
+        //else {
+        //    $crud->set_relation('DOCID', 'documento', 'NUMERO');
+        //}
         //Renombrado de los campos
-        $crud->display_as('TITID', 'Titular ');
         $crud->display_as('PLANID', 'Plan');
         $crud->display_as('TIPOCONTRATO', 'Tipo de Contrato');
         $crud->display_as('PERIODICIDAD', 'Periodicidad');
         $crud->display_as('FECHAINICIO', 'Fecha de Inicio');
         $crud->display_as('DOCID', 'Documento');
         $crud->display_as('ESTADO', 'Estado');
-        $crud->columns('PLANID', 'TIPOCONTRATO', 'PERIODICIDAD' , 'FECHAINICIO', 'DOCID');
-        //add fields
-        $crud->add_fields('TITID', 'PLANID', 'TIPOCONTRATO', 'PERIODICIDAD', 'FECHAINICIO', 'DOCID', 'ESTADO');
-        //edit fields
-        $crud->edit_fields('TITID', 'PLANID', 'TIPOCONTRATO', 'PERIODICIDAD', 'FECHAINICIO', 'DOCID', 'ESTADO');
-        //callbacks
+        $crud->columns('PLANID', 'TIPOCONTRATO', 'PERIODICIDAD', 'FECHAINICIO', 'DOCID');
+        //campos en formulario para agregar
+        $crud->add_fields('PLANID', 'TIPOCONTRATO', 'PERIODICIDAD', 'FECHAINICIO', 'DOCID', 'ESTADO');
+        //campos en formaulario para editar
+        $crud->edit_fields('PLANID', 'TIPOCONTRATO', 'PERIODICIDAD', 'FECHAINICIO', 'DOCID', 'ESTADO');
+
+        //tipos de los campos
         $crud->field_type('TIPOCONTRATO', 'dropdown', array(1 => 'Nuevo', 2 => 'Adición', 3 => 'Reactivación', 4 => 'Reemplazo'));
         $crud->field_type('PERIODICIDAD', 'dropdown', array(1 => 'Mensual', 2 => 'Semestral', 3 => 'Anual'));
-        
-        $crud->field_type('TITID', 'hidden', $valTitId);
+        $crud->field_type('PLANID', 'hidden', $plan_id);
         $crud->field_type('ESTADO', 'hidden', '1');
+
+        //callback
         $crud->callback_after_insert(array($this, '_callback_after_insert_contrato'));
-        $crud->callback_before_insert(array($this, '_callback_before_insert_contrato'));
-        $crud->buttons_form('sinGuardar');
+        //unsets
         $crud->unset_back_to_list();
+        $crud->unset_list();
+        //renderizacion del crud
         $output = $crud->render();
         //configuracion de la plantilla
         $this->template->write_view('login', $this->tank_auth->get_login(), $data);
@@ -87,21 +101,31 @@ class Contratos extends CI_Controller {
         $this->template->render();
     }
 
-    function contratosEdit($titularId) {       
+    function contratosEdit($primary_key) {
         session_start();
-        $_SESSION['_aux_var'] = $titularId;
+        $_SESSION['_aux_var'] = $primary_key;
         $_SESSION['_aux_wizard'] = false;
-        
         $this->index();
     }
 
-    function _callback_after_insert_contrato($post_array) {
+    function contratosWizard($primary_key) {
+        session_start();
+        $_SESSION['_aux_var'] = $primary_key;
+        $_SESSION['_aux_wizard'] = true;
+        redirect('contratos/index/add');
+    }
+
+    function _callback_after_insert_contrato($post_array, $primary_key) {
         $data = array('ESTADO' => '2');
         $this->db->where('ID', $post_array['DOCID']);
         $this->db->update('documento', $data);
+        $_SESSION['success_contrato'] = true;
+        $_SESSION['_aux_var'] = $primary_key;
+        $_SESSION['_aux_wizard'] = true;
         return true;
     }
 
+    //solo para cuando se ingresan titulares antes del contrato
     function _callback_before_insert_contrato($post_array) {
         $titularId = $post_array['TITID'];
         $this->db->where('TITID', $titularId);
@@ -115,33 +139,100 @@ class Contratos extends CI_Controller {
     }
 
     function titulares() {
-           
+
         $data['selectedoption'] = 3;
         //creacion  del crud
         $crud = new Grocery_CRUD();
+
+        //estado del crud
         $state = $crud->getState();
-        //definicion de los botones del form           
-        if ($state == 'add')
-            $crud->buttons_form("siguienteTitular");
-       
+
+        //obtener contrato
+        if ($this->is_session_started() === FALSE)
+            session_start();
+        if (isset($_SESSION['_aux_wizard']) && $_SESSION['_aux_wizard']) {
+
+            //informacion del Contrato y el Plan
+            $contrato_id = $_SESSION['_aux_var'];
+            $this->load->model('contratosModel');
+            $select_contrato = $this->contratosModel->get_contrato($contrato_id);
+            if ($select_contrato != null) {
+                $_aux_str = "Tipo de Contrato no Definido";
+                switch ($select_contrato->TIPOCONTRATO) {
+                    case '1':
+                        $_aux_str = "Nuevo";
+                        break;
+                    case '2':
+                        $_aux_str = "Adición";
+                        break;
+                    case '3':
+                        $_aux_str = "Reactivación";
+                        break;
+                    case '4':
+                        $_aux_str = "Reemplazo";
+                        break;
+                }
+                $data['contrato_tipo'] = $_aux_str;
+                unset($_aux_str);
+                $_aux_str = "Periodicidad de Contrato No Definida";
+                switch ($select_contrato->PERIODICIDAD) {
+                    case '1':
+                        $_aux_str = "Mensual";
+                        break;
+                    case '2':
+                        $_aux_str = "Semestral";
+                        break;
+                    case '3':
+                        $_aux_str = "Anual";
+                        break;
+                }
+                $data['contrato_periodicidad'] = $_aux_str;
+                unset($_aux_str);
+                $data['contrato_fechaInicio'] = $select_contrato->FECHAINICIO;
+                $select_plan = $this->contratosModel->get_plan($select_contrato->PLANID);
+                if ($select_plan != null) {
+                    $data['plan_nombre'] = $select_plan->NOMBRE;
+                    $data['plan_beneficiarios'] = $select_plan->NUMBENEFICIARIOS;
+                    $data['plan_convenio'] = $select_plan->NOMBRECONVENIO;
+                }
+            } else {
+                $data['contrato_tipo'] = "Tipo de Contrato No Definido";
+                $data['contrato_periodicidad'] = "Periodicidad de Contrato No Definida";
+                $data['contrato_fechaInicio'] = "Fecha de Inicio No Definida";
+                $data['plan_nombre'] = 'No se ha Especificado el Plan';
+                $data['plan_beneficiarios'] = '';
+                $data['plan_convenio'] = '';
+            }
+
+            //definicion de los botones del formulario
+            $crud->buttons_form('siguienteTitular');
+
+            //para guardar informacion del contrato luego de salir
+            $crud->callback_after_insert(array($this, '_callback_after_guardar_titular'));
+
+            //vista del wizard para agregar titular
+            $content = 'Administrador/add_titulares_wizard';
+
+            if (isset($_SESSION['success_titular']) && $_SESSION['success_titular']) {
+                unset($_SESSION['success_titular']);
+                redirect('administrador/contactos/');
+            }
+        } else {
+            $crud->buttons_form('sinGuardar');
+            $content = 'Administrador/titulares';
+        }
+
         //informacion de Usuario
-         $session_rol = $this->tank_auth->get_rol();
+        $session_rol = $this->tank_auth->get_rol();
         $data['user_id'] = $this->tank_auth->get_user_id();
         $data['username'] = $this->tank_auth->get_username();
 
         //configuracion de la tabla
         $crud->set_table('titular');
         $crud->set_subject("Titulares");
-        //redireccionamiento para siguiente
-        if (!$this->is_session_started())
-            session_start();
-        if (isset($_SESSION['success_titular']) && $_SESSION['success_titular'] = true) {
-            unset($_SESSION['success_titular']);
-            redirect('administrador/contactos/');
-        }
         //definicion de los campos
         //$crud->fields('TIPODOC', 'NODOCUMENTO', 'FECHANACIMIENTO', 'GENERO', 'NOMBRES', 'APELLIDOS','PAIS','CIUDAD', 'COBRODIRECCION', 'COBROBARRIO', 'COBROMUNICIPIO', 'COBRODEPTO', 'DOMIDIRECCION', 'DOMIBARRIO', 'DOMIMUNICIPIO', 'DOMIDEPTO', 'TELDOMICILIO', 'TELOFICINA', 'TELMOVIL', 'EMAIL', 'NOHIJOS', 'NODEPENDIENTES', 'ESTRATO', 'ESTADOCIVIL', 'OCUPACION', 'EPS', 'COMOUBICOSERVICIO','BENEFICIARIO', 'PERMITEUSODATOS');
-        $crud->fields('TIPODOC', 'NODOCUMENTO', 'FECHANACIMIENTO', 'GENERO', 'NOMBRES', 'APELLIDOS', 'COBRODIRECCION', 'COBROBARRIO', 'COBROMUNICIPIO', 'COBRODEPTO', 'DOMIDIRECCION', 'DOMIBARRIO', 'DOMIMUNICIPIO', 'DOMIDEPTO', 'TELDOMICILIO', 'TELOFICINA', 'TELMOVIL', 'EMAIL', 'NOHIJOS', 'NODEPENDIENTES', 'ESTRATO', 'ESTADOCIVIL', 'OCUPACION', 'EPS', 'COMOUBICOSERVICIO','BENEFICIARIO', 'PERMITEUSODATOS');
+        $crud->fields('TIPODOC', 'NODOCUMENTO', 'FECHANACIMIENTO', 'GENERO', 'NOMBRES', 'APELLIDOS', 'COBRODIRECCION', 'COBROBARRIO', 'COBROMUNICIPIO', 'COBRODEPTO', 'DOMIDIRECCION', 'DOMIBARRIO', 'DOMIMUNICIPIO', 'DOMIDEPTO', 'TELDOMICILIO', 'TELOFICINA', 'TELMOVIL', 'EMAIL', 'NOHIJOS', 'NODEPENDIENTES', 'ESTRATO', 'ESTADOCIVIL', 'OCUPACION', 'EPS', 'COMOUBICOSERVICIO', 'BENEFICIARIO', 'PERMITEUSODATOS');
         //renombrado de los campos
         $crud->display_as('NOMBRES', 'Nombres');
         $crud->display_as('APELLIDOS', 'Apellidos');
@@ -172,28 +263,26 @@ class Contratos extends CI_Controller {
         $crud->display_as('EPS', 'Eps');
         $crud->display_as('COMOUBICOSERVICIO', 'Como Ubicar Servicio');
         $crud->display_as('PERMITEUSODATOS', 'Permitir Uso De Datos');
+
         //definicion de las columnas a mostrar
         $crud->columns('NODOCUMENTO', 'NOMBRES', 'APELLIDOS', 'EPS');
-       
+
         //definicion de tipos de los campos
         //$crud->field_type('PAIS', 'dropdown', $this->listaPaises());
-        $crud->field_type('NODOCUMENTO', 'integer' );
-        $crud->field_type('TELDOMICILIO', 'integer' );
-        $crud->field_type('TELOFICINA', 'integer' );
-        $crud->field_type('TELMOVIL', 'integer' );
+        $crud->field_type('NODOCUMENTO', 'integer');
+        $crud->field_type('TELDOMICILIO', 'integer');
+        $crud->field_type('TELOFICINA', 'integer');
+        $crud->field_type('TELMOVIL', 'integer');
         $crud->field_type('TIPODOC', 'dropdown', array(1 => 'Cédula de Ciudadanía', 2 => 'Tarjeta de Identidad', 3 => 'Cedula Extrangera'));
         $crud->field_type('GENERO', 'dropdown', array(1 => 'Masculino', 2 => 'Femenino'));
         $crud->field_type('ESTADOCIVIL', 'dropdown', array(1 => 'Soltero', 2 => 'Casado', 3 => 'Divorciado', 4 => 'Unión Libre', 5 => 'Viudo'));
         $crud->field_type('OCUPACION', 'dropdown', array(1 => 'Empleado', 2 => 'Independiente', 3 => 'Jubilado', 4 => 'Ama de Casa', 5 => 'Estudiante', 6 => 'Desempleado'));
         $crud->field_type('COMOUBICOSERVICIO', 'dropdown', array(1 => 'Referido', 2 => 'Eventos', 3 => 'Convenio Especial', 4 => 'Directorio Telefónico', 5 => 'Servicio Médico Atendido', 6 => 'Medios de Comunicación'));
+
         //definicion de las reglas
-        $crud->required_fields('NOMBRES','TIPODOC','NODOCUMENTO','APELLIDOS');
-        //callbacks
-        $crud->callback_after_insert(array($this,'_callback_after_guardar_titular'));
-        
+        $crud->required_fields('NOMBRES', 'TIPODOC', 'NODOCUMENTO', 'APELLIDOS');
+
         //acciones desde el crud
-        
-        $crud->add_action('Contratos', base_url() . 'images/contrato.png', 'Contratos', '', array($this, 'direccion_contratos'));
         $crud->add_action('Beneficiarios', base_url() . 'images/people.png', 'Beneficiarios', '', array($this, 'direccion_beneficiarios'));
         $crud->add_action('Contactos', base_url() . 'images/phone.png', 'Contactos', '', array($this, 'direccion_contactos'));
 
@@ -204,12 +293,8 @@ class Contratos extends CI_Controller {
         $this->template->write_view('login', $this->tank_auth->get_login(), $data);
         $this->template->write('title', 'Titulares');
         $this->template->write_view('sidebar', $this->tank_auth->get_sidebar());
-        $this->template->write_view('content', 'Administrador/titulares', $output);
+        $this->template->write_view('content', $content, $output);
         $this->template->render();
-    }
-
-    function direccion_contratos($primary_key, $row) {
-        return base_url() . 'contratos/contratosEdit/' . $primary_key;
     }
 
     function direccion_contactos($primary_key, $row) {
@@ -228,9 +313,11 @@ class Contratos extends CI_Controller {
     function _callback_after_guardar_titular($post_array, $primary_key) {
         if (!$this->is_session_started())
             session_start();
-        //echo 'here';
-        //echo '<script>alert("'.$primary_key.'");</script>';
+        $data = array('TITID' => $primary_key);
+        $this->db->where('ID', $_SESSION['_aux_var']);
+        $this->db->update('contrato', $data);
         $_SESSION['success_titular'] = true;
+        $_SESSION['_aux_primary_key'] = $_SESSION['_aux_var'];
         $_SESSION['_aux_var'] = $primary_key;
         $_SESSION['_aux_wizard'] = true;
         return true;
@@ -261,13 +348,12 @@ class Contratos extends CI_Controller {
         $session_rol = $this->tank_auth->get_rol();
         $data['user_id'] = $this->tank_auth->get_user_id();
         $data['username'] = $this->tank_auth->get_username();
-        //informacion del titular
         if ($this->is_session_started() === FALSE)
             session_start();
+        //informacion del titular
         $titularId = $_SESSION['_aux_var'];
         $valTitId = $titularId;
-
-        $query = $this->db->query("SELECT NOMBRES, APELLIDOS, NODOCUMENTO, documento.numero 
+        $query = $this->db->query("SELECT NOMBRES, APELLIDOS, NODOCUMENTO, documento.numero,  BENEFICIARIO
                                    FROM Titular Left Join CONTRATO on Contrato.TitId = Titular.ID   and contrato.estado = 1
                                    left join documento on documento.id = contrato.docId   WHERE Titular.ID = " . $valTitId);
         if ($query->num_rows() > 0) {
@@ -279,6 +365,77 @@ class Contratos extends CI_Controller {
             $data['titularFullName'] = 'Titular sin definir o no existe';
             $data['titularIdentificacion'] = '';
             $data['titularContrato'] = '';
+        }
+        //informacion del contrato y del plan
+        if (isset($_SESSION['_aux_wizard']) && $_SESSION['_aux_wizard']) {
+            //informacion del Contrato y el Plan
+            $contrato_id = $_SESSION['_aux_primary_key'];
+            $this->load->model('contratosModel');
+            $select_contrato = $this->contratosModel->get_contrato($contrato_id);
+            if ($select_contrato != null) {
+                $_aux_str = "Tipo de Contrato no Definido";
+                switch ($select_contrato->TIPOCONTRATO) {
+                    case '1':
+                        $_aux_str = "Nuevo";
+                        break;
+                    case '2':
+                        $_aux_str = "Adición";
+                        break;
+                    case '3':
+                        $_aux_str = "Reactivación";
+                        break;
+                    case '4':
+                        $_aux_str = "Reemplazo";
+                        break;
+                }
+                $data['contrato_tipo'] = $_aux_str;
+                unset($_aux_str);
+                $_aux_str = "Periodicidad de Contrato No Definida";
+                switch ($select_contrato->PERIODICIDAD) {
+                    case '1':
+                        $_aux_str = "Mensual";
+                        break;
+                    case '2':
+                        $_aux_str = "Semestral";
+                        break;
+                    case '3':
+                        $_aux_str = "Anual";
+                        break;
+                }
+                $data['contrato_periodicidad'] = $_aux_str;
+                unset($_aux_str);
+                $data['contrato_fechaInicio'] = $select_contrato->FECHAINICIO;
+                $select_plan = $this->contratosModel->get_plan($select_contrato->PLANID);
+                if ($select_plan != null) {
+                    $data['plan_nombre'] = $select_plan->NOMBRE;
+                    $data['plan_beneficiarios'] = $select_plan->NUMBENEFICIARIOS;
+                    $data['plan_convenio'] = $select_plan->NOMBRECONVENIO;
+                }
+            } else {
+                $data['contrato_tipo'] = "Tipo de Contrato No Definido";
+                $data['contrato_periodicidad'] = "Periodicidad de Contrato No Definida";
+                $data['contrato_fechaInicio'] = "Fecha de Inicio No Definida";
+                $data['plan_nombre'] = 'No se ha Especificado el Plan';
+                $data['plan_beneficiarios'] = '';
+                $data['plan_convenio'] = '';
+            }
+            //comprovacion para beneficiarios
+            $_beneficiarios=$this->contratosModel->get_beneficiarios($titularId);
+            $row = $query->row(0);
+            if($row->BENEFICIARIO==1){
+                $total_beneficiarios=1;
+            }else{
+                $total_beneficiarios=0;
+            }
+            if($_beneficiarios!=null){
+                $total_beneficiarios+=$_beneficiarios->num_rows();
+            }
+            $data['total_beneficiarios']=$total_beneficiarios;
+            //vista del wizard para agregar titular
+            $content = 'Administrador/beneficiarios_wizard';
+            
+        } else {
+            $content = 'Administrador/beneficiarios';
         }
         //creacion  del crud
         $crud = new Grocery_CRUD();
@@ -319,18 +476,17 @@ class Contratos extends CI_Controller {
         //Llamado a funciones callback
         //$crud->callback_insert(array($this, '_callback_guardar_beneficiario'));
         //$crud->callback_update(array($this, '_callback_actualizar_beneficiario'));
-
         //definicion de las columnas a mostrar
         $crud->columns('NODOCUMENTO', 'NOMBRES', 'APELLIDOS', 'EPS');
-        $crud->required_fields('NOMBRES','TIPODOC','NODOCUMENTO','APELLIDOS','TELMOVIL');
+        $crud->required_fields('NOMBRES', 'TIPODOC', 'NODOCUMENTO', 'APELLIDOS', 'TELMOVIL');
 
         //definicion de tipos de los campos
-        
-        $crud->field_type('NODOCUMENTO', 'integer' );
-        $crud->field_type('TELDOMICILIO', 'integer' );
-        $crud->field_type('TELOFICINA', 'integer' );
-        $crud->field_type('TELMOVIL', 'integer' );
-        
+
+        $crud->field_type('NODOCUMENTO', 'integer');
+        $crud->field_type('TELDOMICILIO', 'integer');
+        $crud->field_type('TELOFICINA', 'integer');
+        $crud->field_type('TELMOVIL', 'integer');
+
         $crud->field_type('TITID', 'hidden', $valTitId);
         $crud->field_type('TIPODOC', 'dropdown', array(1 => 'Cédula de Ciudadanía', 2 => 'Tarjeta de Identidad', 3 => 'Cedula Extrangera'));
         $crud->field_type('GENERO', 'dropdown', array(1 => 'Masculino', 2 => 'Femenino'));
@@ -344,7 +500,7 @@ class Contratos extends CI_Controller {
         $this->template->write_view('login', $this->tank_auth->get_login(), $data);
         $this->template->write('title', 'Beneficiarios');
         $this->template->write_view('sidebar', $this->tank_auth->get_sidebar());
-        $this->template->write_view('content', 'Administrador/beneficiarios', $output);
+        $this->template->write_view('content',$content, $output);
         $this->template->render();
     }
 
@@ -407,207 +563,205 @@ class Contratos extends CI_Controller {
             return $update;
         }
     }
-    
-    function listaPaises()
-    {
+
+    function listaPaises() {
         $paises = array(
-		'Afghanistan' => 'Afghanistan' ,
-            'Albania' => 'Albania' ,
-            'Algeria' => 'Algeria' ,
-            'Andorra' => 'Andorra' ,
-            'Angola' => 'Angola' ,
-            'Antigua and Barbuda' => 'Antigua and Barbuda' ,
-            'Argentina' => 'Argentina' ,
-            'Armenia' => 'Armenia' ,
-            'Australia' => 'Australia' ,
-            'Austria' => 'Austria' ,
-            'Azerbaijan' => 'Azerbaijan' ,
-            'Bahamas' => 'Bahamas' ,
-            'Bahrain' => 'Bahrain' ,
-            'Bangladesh' => 'Bangladesh' ,
-            'Barbados' => 'Barbados' ,
-            'Belarus' => 'Belarus' ,
-            'Belgium' => 'Belgium' ,
-            'Belize' => 'Belize' ,
-            'Benin' => 'Benin' ,
-            'Bhutan' => 'Bhutan' ,
-            'Bolivia' => 'Bolivia' ,
-            'Bosnia and Herzegovina' => 'Bosnia and Herzegovina' ,
-            'Botswana' => 'Botswana' ,
-            'Brazil' => 'Brazil' ,
-            'Brunei' => 'Brunei' ,
-            'Bulgaria' => 'Bulgaria' ,
-            'Burkina Faso' => 'Burkina Faso' ,
-            'Burundi' => 'Burundi' ,
-            'Cambodia' => 'Cambodia' ,
-            'Cameroon' => 'Cameroon' ,
-            'Canada' => 'Canada' ,
-            'Cape Verde' => 'Cape Verde' ,
-            'Central African Republic' => 'Central African Republic' ,
-            'Chad' => 'Chad' ,
-            'Chile' => 'Chile' ,
-            'China' => 'China' ,
-            'Colombia' => 'Colombia' ,
-            'Comoros' => 'Comoros' ,
-            'Congo (Brazzaville)' => 'Congo (Brazzaville)' ,
-            'Congo' => 'Congo' ,
-            'Costa Rica' => 'Costa Rica' ,
-            'Cote dIvoire' => 'Cote dIvoire' ,
-            'Croatia' => 'Croatia' ,
-            'Cuba' => 'Cuba' ,
-            'Cyprus' => 'Cyprus' ,
-            'Czech Republic' => 'Czech Republic' ,
-            'Denmark' => 'Denmark' ,
-            'Djibouti' => 'Djibouti' ,
-            'Dominica' => 'Dominica' ,
-            'Dominican Republic' => 'Dominican Republic' ,
-            'East Timor (Timor Timur)' => 'East Timor (Timor Timur)' ,
-            'Ecuador' => 'Ecuador' ,
-            'Egypt' => 'Egypt' ,
-            'El Salvador' => 'El Salvador' ,
-            'Equatorial Guinea' => 'Equatorial Guinea' ,
-            'Eritrea' => 'Eritrea' ,
-            'Estonia' => 'Estonia' ,
-            'Ethiopia' => 'Ethiopia' ,
-            'Fiji' => 'Fiji' ,
-            'Finland' => 'Finland' ,
-            'France' => 'France' ,
-            'Gabon' => 'Gabon' ,
-            'Gambia The' => 'Gambia The' ,
-            'Georgia' => 'Georgia' ,
-            'Germany' => 'Germany' ,
-            'Ghana' => 'Ghana' ,
-            'Greece' => 'Greece' ,
-            'Grenada' => 'Grenada' ,
-            'Guatemala' => 'Guatemala' ,
-            'Guinea' => 'Guinea' ,
-            'Guinea-Bissau' => 'Guinea-Bissau' ,
-            'Guyana' => 'Guyana' ,
-            'Haiti' => 'Haiti' ,
-            'Honduras' => 'Honduras' ,
-            'Hungary' => 'Hungary' ,
-            'Iceland' => 'Iceland' ,
-            'India' => 'India' ,
-            'Indonesia' => 'Indonesia' ,
-            'Iran' => 'Iran' ,
-            'Iraq' => 'Iraq' ,
-            'Ireland' => 'Ireland' ,
-            'Israel' => 'Israel' ,
-            'Italy' => 'Italy' ,
-            'Jamaica' => 'Jamaica' ,
-            'Japan' => 'Japan' ,
-            'Jordan' => 'Jordan' ,
-            'Kazakhstan' => 'Kazakhstan' ,
-            'Kenya' => 'Kenya' ,
-            'Kiribati' => 'Kiribati' ,
-            'Korea North' => 'Korea North' ,
-            'Korea South' => 'Korea South' ,
-            'Kuwait' => 'Kuwait' ,
-            'Kyrgyzstan' => 'Kyrgyzstan' ,
-            'Laos' => 'Laos' ,
-            'Latvia' => 'Latvia' ,
-            'Lebanon' => 'Lebanon' ,
-            'Lesotho' => 'Lesotho' ,
-            'Liberia' => 'Liberia' ,
-            'Libya' => 'Libya' ,
-            'Liechtenstein' => 'Liechtenstein' ,
-            'Lithuania' => 'Lithuania' ,
-            'Luxembourg' => 'Luxembourg' ,
-            'Macedonia' => 'Macedonia' ,
-            'Madagascar' => 'Madagascar' ,
-            'Malawi' => 'Malawi' ,
-            'Malaysia' => 'Malaysia' ,
-            'Maldives' => 'Maldives' ,
-            'Mali' => 'Mali' ,
-            'Malta' => 'Malta' ,
-            'Marshall Islands' => 'Marshall Islands' ,
-            'Mauritania' => 'Mauritania' ,
-            'Mauritius' => 'Mauritius' ,
-            'Mexico' => 'Mexico' ,
-            'Micronesia' => 'Micronesia' ,
-            'Moldova' => 'Moldova' ,
-            'Monaco' => 'Monaco' ,
-            'Mongolia' => 'Mongolia' ,
-            'Morocco' => 'Morocco' ,
-            'Mozambique' => 'Mozambique' ,
-            'Myanmar' => 'Myanmar' ,
-            'Namibia' => 'Namibia' ,
-            'Nauru' => 'Nauru' ,
-            'Nepa' => 'Nepa' ,
-            'Netherlands' => 'Netherlands' ,
-            'New Zealand' => 'New Zealand' ,
-            'Nicaragua' => 'Nicaragua' ,
-            'Niger' => 'Niger' ,
-            'Nigeria' => 'Nigeria' ,
-            'Norway' => 'Norway' ,
-            'Oman' => 'Oman' ,
-            'Pakistan' => 'Pakistan' ,
-            'Palau' => 'Palau' ,
-            'Panama' => 'Panama' ,
-            'Papua New Guinea' => 'Papua New Guinea' ,
-            'Paraguay' => 'Paraguay' ,
-            'Peru' => 'Peru' ,
-            'Philippines' => 'Philippines' ,
-            'Poland' => 'Poland' ,
-            'Portugal' => 'Portugal' ,
-            'Qatar' => 'Qatar' ,
-            'Romania' => 'Romania' ,
-            'Russia' => 'Russia' ,
-            'Rwanda' => 'Rwanda' ,
-            'Saint Kitts and Nevis' => 'Saint Kitts and Nevis' ,
-            'Saint Lucia' => 'Saint Lucia' ,
-            'Saint Vincent' => 'Saint Vincent' ,
-            'Samoa' => 'Samoa' ,
-            'San Marino' => 'San Marino' ,
-            'Sao Tome and Principe' => 'Sao Tome and Principe' ,
-            'Saudi Arabia' => 'Saudi Arabia' ,
-            'Senegal' => 'Senegal' ,
-            'Serbia and Montenegro' => 'Serbia and Montenegro' ,
-            'Seychelles' => 'Seychelles' ,
-            'Sierra Leone' => 'Sierra Leone' ,
-            'Singapore' => 'Singapore' ,
-            'Slovakia' => 'Slovakia' ,
-            'Slovenia' => 'Slovenia' ,
-            'Solomon Islands' => 'Solomon Islands' ,
-            'Somalia' => 'Somalia' ,
-            'South Africa' => 'South Africa' ,
-            'Spain' => 'Spain' ,
-            'Sri Lanka' => 'Sri Lanka' ,
-            'Sudan' => 'Sudan' ,
-            'Suriname' => 'Suriname' ,
-            'Swaziland' => 'Swaziland' ,
-            'Sweden' => 'Sweden' ,
-            'Switzerland' => 'Switzerland' ,
-            'Syria' => 'Syria' ,
-            'Taiwan' => 'Taiwan' ,
-            'Tajikistan' => 'Tajikistan' ,
-            'Tanzania' => 'Tanzania' ,
-            'Thailand' => 'Thailand' ,
-            'Togo' => 'Togo' ,
-            'Tonga' => 'Tonga' ,
-            'Trinidad and Tobago' => 'Trinidad and Tobago' ,
-            'Tunisia' => 'Tunisia' ,
-            'Turkey' => 'Turkey' ,
-            'Turkmenistan' => 'Turkmenistan' ,
-            'Tuvalu' => 'Tuvalu' ,
-            'Uganda' => 'Uganda' ,
-            'Ukraine' => 'Ukraine' ,
-            'United Arab Emirates' => 'United Arab Emirates' ,
-            'United Kingdom' => 'United Kingdom' ,
-            'United States' => 'United States' ,
-            'Uruguay' => 'Uruguay' ,
-            'Uzbekistan' => 'Uzbekistan' ,
-            'Vanuatu' => 'Vanuatu' ,
-            'Vatican City' => 'Vatican City' ,
-            'Venezuela' => 'Venezuela' ,
-            'Vietnam' => 'Vietnam' ,
-            'Yemen' => 'Yemen' ,
-            'Zambia' => 'Zambia' ,
-            'Zimbabwe' => 'Zimbabwe' 
-	);
-	return $paises;
+            'Afghanistan' => 'Afghanistan',
+            'Albania' => 'Albania',
+            'Algeria' => 'Algeria',
+            'Andorra' => 'Andorra',
+            'Angola' => 'Angola',
+            'Antigua and Barbuda' => 'Antigua and Barbuda',
+            'Argentina' => 'Argentina',
+            'Armenia' => 'Armenia',
+            'Australia' => 'Australia',
+            'Austria' => 'Austria',
+            'Azerbaijan' => 'Azerbaijan',
+            'Bahamas' => 'Bahamas',
+            'Bahrain' => 'Bahrain',
+            'Bangladesh' => 'Bangladesh',
+            'Barbados' => 'Barbados',
+            'Belarus' => 'Belarus',
+            'Belgium' => 'Belgium',
+            'Belize' => 'Belize',
+            'Benin' => 'Benin',
+            'Bhutan' => 'Bhutan',
+            'Bolivia' => 'Bolivia',
+            'Bosnia and Herzegovina' => 'Bosnia and Herzegovina',
+            'Botswana' => 'Botswana',
+            'Brazil' => 'Brazil',
+            'Brunei' => 'Brunei',
+            'Bulgaria' => 'Bulgaria',
+            'Burkina Faso' => 'Burkina Faso',
+            'Burundi' => 'Burundi',
+            'Cambodia' => 'Cambodia',
+            'Cameroon' => 'Cameroon',
+            'Canada' => 'Canada',
+            'Cape Verde' => 'Cape Verde',
+            'Central African Republic' => 'Central African Republic',
+            'Chad' => 'Chad',
+            'Chile' => 'Chile',
+            'China' => 'China',
+            'Colombia' => 'Colombia',
+            'Comoros' => 'Comoros',
+            'Congo (Brazzaville)' => 'Congo (Brazzaville)',
+            'Congo' => 'Congo',
+            'Costa Rica' => 'Costa Rica',
+            'Cote dIvoire' => 'Cote dIvoire',
+            'Croatia' => 'Croatia',
+            'Cuba' => 'Cuba',
+            'Cyprus' => 'Cyprus',
+            'Czech Republic' => 'Czech Republic',
+            'Denmark' => 'Denmark',
+            'Djibouti' => 'Djibouti',
+            'Dominica' => 'Dominica',
+            'Dominican Republic' => 'Dominican Republic',
+            'East Timor (Timor Timur)' => 'East Timor (Timor Timur)',
+            'Ecuador' => 'Ecuador',
+            'Egypt' => 'Egypt',
+            'El Salvador' => 'El Salvador',
+            'Equatorial Guinea' => 'Equatorial Guinea',
+            'Eritrea' => 'Eritrea',
+            'Estonia' => 'Estonia',
+            'Ethiopia' => 'Ethiopia',
+            'Fiji' => 'Fiji',
+            'Finland' => 'Finland',
+            'France' => 'France',
+            'Gabon' => 'Gabon',
+            'Gambia The' => 'Gambia The',
+            'Georgia' => 'Georgia',
+            'Germany' => 'Germany',
+            'Ghana' => 'Ghana',
+            'Greece' => 'Greece',
+            'Grenada' => 'Grenada',
+            'Guatemala' => 'Guatemala',
+            'Guinea' => 'Guinea',
+            'Guinea-Bissau' => 'Guinea-Bissau',
+            'Guyana' => 'Guyana',
+            'Haiti' => 'Haiti',
+            'Honduras' => 'Honduras',
+            'Hungary' => 'Hungary',
+            'Iceland' => 'Iceland',
+            'India' => 'India',
+            'Indonesia' => 'Indonesia',
+            'Iran' => 'Iran',
+            'Iraq' => 'Iraq',
+            'Ireland' => 'Ireland',
+            'Israel' => 'Israel',
+            'Italy' => 'Italy',
+            'Jamaica' => 'Jamaica',
+            'Japan' => 'Japan',
+            'Jordan' => 'Jordan',
+            'Kazakhstan' => 'Kazakhstan',
+            'Kenya' => 'Kenya',
+            'Kiribati' => 'Kiribati',
+            'Korea North' => 'Korea North',
+            'Korea South' => 'Korea South',
+            'Kuwait' => 'Kuwait',
+            'Kyrgyzstan' => 'Kyrgyzstan',
+            'Laos' => 'Laos',
+            'Latvia' => 'Latvia',
+            'Lebanon' => 'Lebanon',
+            'Lesotho' => 'Lesotho',
+            'Liberia' => 'Liberia',
+            'Libya' => 'Libya',
+            'Liechtenstein' => 'Liechtenstein',
+            'Lithuania' => 'Lithuania',
+            'Luxembourg' => 'Luxembourg',
+            'Macedonia' => 'Macedonia',
+            'Madagascar' => 'Madagascar',
+            'Malawi' => 'Malawi',
+            'Malaysia' => 'Malaysia',
+            'Maldives' => 'Maldives',
+            'Mali' => 'Mali',
+            'Malta' => 'Malta',
+            'Marshall Islands' => 'Marshall Islands',
+            'Mauritania' => 'Mauritania',
+            'Mauritius' => 'Mauritius',
+            'Mexico' => 'Mexico',
+            'Micronesia' => 'Micronesia',
+            'Moldova' => 'Moldova',
+            'Monaco' => 'Monaco',
+            'Mongolia' => 'Mongolia',
+            'Morocco' => 'Morocco',
+            'Mozambique' => 'Mozambique',
+            'Myanmar' => 'Myanmar',
+            'Namibia' => 'Namibia',
+            'Nauru' => 'Nauru',
+            'Nepa' => 'Nepa',
+            'Netherlands' => 'Netherlands',
+            'New Zealand' => 'New Zealand',
+            'Nicaragua' => 'Nicaragua',
+            'Niger' => 'Niger',
+            'Nigeria' => 'Nigeria',
+            'Norway' => 'Norway',
+            'Oman' => 'Oman',
+            'Pakistan' => 'Pakistan',
+            'Palau' => 'Palau',
+            'Panama' => 'Panama',
+            'Papua New Guinea' => 'Papua New Guinea',
+            'Paraguay' => 'Paraguay',
+            'Peru' => 'Peru',
+            'Philippines' => 'Philippines',
+            'Poland' => 'Poland',
+            'Portugal' => 'Portugal',
+            'Qatar' => 'Qatar',
+            'Romania' => 'Romania',
+            'Russia' => 'Russia',
+            'Rwanda' => 'Rwanda',
+            'Saint Kitts and Nevis' => 'Saint Kitts and Nevis',
+            'Saint Lucia' => 'Saint Lucia',
+            'Saint Vincent' => 'Saint Vincent',
+            'Samoa' => 'Samoa',
+            'San Marino' => 'San Marino',
+            'Sao Tome and Principe' => 'Sao Tome and Principe',
+            'Saudi Arabia' => 'Saudi Arabia',
+            'Senegal' => 'Senegal',
+            'Serbia and Montenegro' => 'Serbia and Montenegro',
+            'Seychelles' => 'Seychelles',
+            'Sierra Leone' => 'Sierra Leone',
+            'Singapore' => 'Singapore',
+            'Slovakia' => 'Slovakia',
+            'Slovenia' => 'Slovenia',
+            'Solomon Islands' => 'Solomon Islands',
+            'Somalia' => 'Somalia',
+            'South Africa' => 'South Africa',
+            'Spain' => 'Spain',
+            'Sri Lanka' => 'Sri Lanka',
+            'Sudan' => 'Sudan',
+            'Suriname' => 'Suriname',
+            'Swaziland' => 'Swaziland',
+            'Sweden' => 'Sweden',
+            'Switzerland' => 'Switzerland',
+            'Syria' => 'Syria',
+            'Taiwan' => 'Taiwan',
+            'Tajikistan' => 'Tajikistan',
+            'Tanzania' => 'Tanzania',
+            'Thailand' => 'Thailand',
+            'Togo' => 'Togo',
+            'Tonga' => 'Tonga',
+            'Trinidad and Tobago' => 'Trinidad and Tobago',
+            'Tunisia' => 'Tunisia',
+            'Turkey' => 'Turkey',
+            'Turkmenistan' => 'Turkmenistan',
+            'Tuvalu' => 'Tuvalu',
+            'Uganda' => 'Uganda',
+            'Ukraine' => 'Ukraine',
+            'United Arab Emirates' => 'United Arab Emirates',
+            'United Kingdom' => 'United Kingdom',
+            'United States' => 'United States',
+            'Uruguay' => 'Uruguay',
+            'Uzbekistan' => 'Uzbekistan',
+            'Vanuatu' => 'Vanuatu',
+            'Vatican City' => 'Vatican City',
+            'Venezuela' => 'Venezuela',
+            'Vietnam' => 'Vietnam',
+            'Yemen' => 'Yemen',
+            'Zambia' => 'Zambia',
+            'Zimbabwe' => 'Zimbabwe'
+        );
+        return $paises;
     }
-    
 
 }
 

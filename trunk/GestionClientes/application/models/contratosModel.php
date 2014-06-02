@@ -65,6 +65,32 @@ class contratosModel extends CI_Model {
         $this->db->where('ID',$prymaryKey);
         return $this->db->delete('titular');
     }
+    public function get_plan($primary_key){
+        $this->db->where('ID', $primary_key);
+        $this->db->limit(1);
+        $result = $this->db->get('plan');
+        if ($result->num_rows() > 0)
+            return $result->row();
+        else
+            return null;
+    }
+    public function get_contrato($primary_key){
+        $this->db->where('ID', $primary_key);
+        $this->db->limit(1);
+        $result = $this->db->get('contrato');
+        if ($result->num_rows() > 0)
+            return $result->row();
+        else
+            return null;
+    }
+    public function get_beneficiarios($titular_id){
+        $this->db->where('TITID',$titular_id);
+        $query=  $this->db->get('beneficiario');
+        if($query->num_rows()>0)
+            return $query;
+        else
+            return null;
+    }
 }
 
 ?>

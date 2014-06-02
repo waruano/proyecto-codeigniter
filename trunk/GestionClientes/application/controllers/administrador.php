@@ -122,6 +122,7 @@ class Administrador extends CI_Controller {
         
         $crud->field_type('NUMBENEFICIARIOS', 'integer');
         //$crud->add_action('Costos', '', 'Administrador/costosplan');
+        $crud->add_action('Contratos', base_url() . 'images/contrato.png', 'Contratos', '', array($this, 'direccion_contratosWizard'));
         $crud->add_action('Tarifas', base_url() . 'images/money.png', 'Costos','',array($this,'direccion_planes'));
         $output = $crud->render();
 
@@ -131,6 +132,14 @@ class Administrador extends CI_Controller {
         $this->template->write_view('sidebar', $this->tank_auth->get_sidebar());
         $this->template->write_view('content', 'Administrador/planes', $output);
         $this->template->render();
+    }
+    
+    function direccion_contratosWizard($primary_key, $row) {
+        return base_url() . 'contratos/contratosWizard/' . $primary_key;
+    }
+
+    function direccion_contratos($primary_key, $row) {
+        return base_url() . 'contratos/contratosEdit/' . $primary_key;
     }
 
     function direccion_planes($primary_key, $row) {
@@ -143,8 +152,7 @@ class Administrador extends CI_Controller {
         $_SESSION['_aux_var'] = $titularId;
         $_SESSION['_aux_wizard'] = false;
         $this->contactos();
-    }
-    
+    }    
     function is_session_started()
     {
         if ( php_sapi_name() !== 'cli' ) {
@@ -157,9 +165,68 @@ class Administrador extends CI_Controller {
         return FALSE;
     }
     
-    function contactos() {    
-        if ( $this->is_session_started() === FALSE ) session_start();
-                
+    function contactos() {   
+        if ($this->is_session_started() === FALSE)
+            session_start();
+        //informacion del contrato y del plan
+        if (isset($_SESSION['_aux_wizard']) && $_SESSION['_aux_wizard']) {
+            //informacion del Contrato y el Plan
+            $contrato_id = $_SESSION['_aux_primary_key'];
+            $this->load->model('contratosModel');
+            $select_contrato = $this->contratosModel->get_contrato($contrato_id);
+            if ($select_contrato != null) {
+                $_aux_str = "Tipo de Contrato no Definido";
+                switch ($select_contrato->TIPOCONTRATO) {
+                    case '1':
+                        $_aux_str = "Nuevo";
+                        break;
+                    case '2':
+                        $_aux_str = "Adición";
+                        break;
+                    case '3':
+                        $_aux_str = "Reactivación";
+                        break;
+                    case '4':
+                        $_aux_str = "Reemplazo";
+                        break;
+                }
+                $data['contrato_tipo'] = $_aux_str;
+                unset($_aux_str);
+                $_aux_str = "Periodicidad de Contrato No Definida";
+                switch ($select_contrato->PERIODICIDAD) {
+                    case '1':
+                        $_aux_str = "Mensual";
+                        break;
+                    case '2':
+                        $_aux_str = "Semestral";
+                        break;
+                    case '3':
+                        $_aux_str = "Anual";
+                        break;
+                }
+                $data['contrato_periodicidad'] = $_aux_str;
+                unset($_aux_str);
+                $data['contrato_fechaInicio'] = $select_contrato->FECHAINICIO;
+                $select_plan = $this->contratosModel->get_plan($select_contrato->PLANID);
+                if ($select_plan != null) {
+                    $data['plan_nombre'] = $select_plan->NOMBRE;
+                    $data['plan_beneficiarios'] = $select_plan->NUMBENEFICIARIOS;
+                    $data['plan_convenio'] = $select_plan->NOMBRECONVENIO;
+                }
+            } else {
+                $data['contrato_tipo'] = "Tipo de Contrato No Definido";
+                $data['contrato_periodicidad'] = "Periodicidad de Contrato No Definida";
+                $data['contrato_fechaInicio'] = "Fecha de Inicio No Definida";
+                $data['plan_nombre'] = 'No se ha Especificado el Plan';
+                $data['plan_beneficiarios'] = '';
+                $data['plan_convenio'] = '';
+            }
+            //vista del wizard para agregar titular
+            $content = 'Administrador/contactos_wizard';
+            
+        } else {
+            $content = 'Administrador/contactos';
+        }     
         $titularId = $_SESSION['_aux_var'];            
         //informacion de Usuario
         $data['user_id'] = $this->tank_auth->get_user_id();
@@ -209,7 +276,7 @@ class Administrador extends CI_Controller {
         $this->template->write_view('login', $this->tank_auth->get_login(), $data);
         $this->template->write('title', 'Contactos');
         $this->template->write_view('sidebar', $this->tank_auth->get_sidebar());
-        $this->template->write_view('content', 'Administrador/contactos', $output);
+        $this->template->write_view('content', $content, $output);
         $this->template->render();
     }
 
