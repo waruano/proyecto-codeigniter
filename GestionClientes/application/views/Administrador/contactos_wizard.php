@@ -7,53 +7,67 @@
     <script src="<?php echo $file; ?>"></script>
 <?php endforeach; ?>
 <div>
-    <h3>Contactos</h3>
+    <h3>Registro de Contactos</h3>
     <div class="row">
-        <div class="col-md-6">
-            <table>
-                <thead>
-                <th colspan="2"><h4>Informacion del Plan</h4></th>
-                </thead>
+        <div class="col-md-4" style="border: 1px solid #ccc; text-align: center; font-size: 18px; 
+             padding: 0px; border-radius: 6px 6px 6px 6px;  " >
+            
+            <h4 >Informacion del Plan</h4>            
+                <table style="width: 100%; background-color: rgb(239, 239, 239);" >
+                <tbody >
                 <tr>
-                    <th>Nombre:</th><td><?php echo $plan_nombre ?>    </td>
+                    <td style="padding-left: 20px; padding-top: 10px;">Nombre: </td><td style="padding-left: 20px; padding-top: 10px;"> <?php echo $plan_nombre ?>    </td>
                 </tr>
                 <tr>
-                    <th>Numero de Beneficiarios:</th><td><?php echo $plan_beneficiarios ?></td>
+                    <td style="padding-left: 20px;">Numero de Beneficiarios: </td><td style="padding-left: 20px;"><?php echo $plan_beneficiarios ?></td>
                 </tr>
-                <tr>            
-                    <th>Nombre del Convenio:</th><td><?php echo $plan_convenio ?></td>
-                </tr>
+                <tr>
+                    <td style="padding-left: 20px;  padding-bottom: 10px;">Nombre del Convenio: </td><td style="padding-left: 20px; padding-bottom: 10px;"><?php echo $plan_convenio ?></td>
+                </tr>                
+                </tbody>
             </table>
         </div>
-        <div class="col-md-6">
-            <table>
-                <thead>
-                <th colspan="2"><h4>Informacion del Contrato</h4><th>
-                    </thead>
+        <div class="col-md-4" style="border: 1px solid #ccc; text-align: center; font-size: 18px; 
+             padding: 0px; border-radius: 6px 6px 6px 6px;  " >
+            
+            <h4 >Informacion del Contrato</h4>            
+                <table style="width: 100%; background-color: rgb(239, 239, 239);" >
+                <tbody >
                 <tr>
-                    <th>Tipo:</th><td><?php echo $contrato_tipo ?>    </td>
+                    <td style="padding-left: 20px; padding-top: 10px;">Tipo: </td><td style="padding-left: 20px; padding-top: 10px;"> <?php echo $contrato_tipo ?>    </td>
                 </tr>
                 <tr>
-                    <th>Periodicidad:</th><td><?php echo $contrato_periodicidad ?></td>
+                    <td style="padding-left: 20px;">Periodicidad: </td><td style="padding-left: 20px;"><?php echo $contrato_periodicidad ?></td>
                 </tr>
-                <tr>            
-                    <th>Fecha de Inicio:</th><td><?php echo $contrato_fechaInicio ?></td>
-                </tr>
+                <tr>
+                    <td style="padding-left: 20px;  padding-bottom: 10px;">Fecha de Inicio: </td><td style="padding-left: 20px; padding-bottom: 10px;"><?php echo $contrato_fechaInicio ?></td>
+                </tr>                
+                </tbody>
             </table>
+        </div>
+        <div class="col-md-4" style="border: 1px solid #ccc; text-align: center; font-size: 18px; 
+             padding: 0px; border-radius: 6px 6px 6px 6px;  " >
+            
+            <h4 >Informacion del Titular</h4>            
+                <table style="width: 100%; background-color: rgb(239, 239, 239);" >
+                <tbody >
+                <tr>
+                    <td style="padding-left: 20px; padding-top: 10px;">Titular: </td><td style="padding-left: 20px; padding-top: 10px;"> <?php echo $titularFullName ?>    </td>
+                </tr>
+                <tr>
+                    <td style="padding-left: 20px;">Identificación: </td><td style="padding-left: 20px;"><?php echo $titularIdentificacion ?></td>
+                </tr>
+                <tr>
+                    <td style="padding-left: 20px;  padding-bottom: 10px;">No Contrato: </td><td style="padding-left: 20px; padding-bottom: 10px;"><?php echo $titularContrato ?></td>
+                </tr>                
+                </tbody>
+            </table>
+            
+            
         </div>
     </div>
     </br>
-    <div  class="row" style="display: inline-block">
-        <div style="float:left; width: 50%; padding-left: 1.5%;">
-            <table>
-                <thead>
-                <th colspan="2"><h4>Informacion del Titular</h4><th>
-                </thead>
-                <tr><th>Titular:</th><td><?php echo $titularFullName ?>    </td></tr>
-                <tr><th>Identificación:</th><td><?php echo $titularIdentificacion ?></td></tr>
-                <tr><th>No Contrato:</th><td><?php echo $titularContrato ?></td></tr>
-            </table>
-        </div>
+    <div  class="row" style="display: inline-block">        
         <div style="float: right; width: 50%;">
             <?php $this->load->view('Administrador/sidebar_add_titular');?>
         </div>
