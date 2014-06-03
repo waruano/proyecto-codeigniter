@@ -79,6 +79,7 @@ create table CONTRATO
    TIPOCONTRATO         int,
    PERIODICIDAD         int, 
    FECHAINICIO          date,
+   FECHAFIN             date,
    ESTADO               int,
    primary key (ID)
 );
