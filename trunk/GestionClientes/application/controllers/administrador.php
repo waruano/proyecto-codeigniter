@@ -113,8 +113,7 @@ class Administrador extends CI_Controller {
         $crud->edit_fields('NOMBRE', 'NUMBENEFICIARIOS', 'NOMBRECONVENIO');
         $crud->required_fields('NOMBRE', 'NUMBENEFICIARIOS');
         $crud->add_fields('NOMBRE', 'NUMBENEFICIARIOS', 'NOMBRECONVENIO');
-        $crud->unset_read();
-        $crud->unique_fields('NOMBRE', 'NUMBENEFICIARIOS');
+        $crud->unset_read();        
 
         //$crud->field_type('FORMAPAGO', 'dropdown', array('1' => 'Domicilio', '2' => 'Debito Automático', '3' => 'Convenio'));
         //$crud->field_type('PERIODICIDAD', 'dropdown', array('1' => 'Mensual', '2' => 'Trimestral', '3' => 'Semestral', '4' => 'Anual'));
@@ -122,8 +121,9 @@ class Administrador extends CI_Controller {
         
         $crud->field_type('NUMBENEFICIARIOS', 'integer');
         //$crud->add_action('Costos', '', 'Administrador/costosplan');
-        $crud->add_action('Contratos', base_url() . 'images/contrato.png', 'Contratos', '', array($this, 'direccion_contratosWizard'));
         $crud->add_action('Tarifas', base_url() . 'images/money.png', 'Costos','',array($this,'direccion_planes'));
+        $crud->add_action('Adicionar Contratos', base_url() . 'images/contrato.png', 'Contratos', '', array($this, 'direccion_contratosWizard'));
+        
         $output = $crud->render();
 
         //Configuracion de la Plantilla

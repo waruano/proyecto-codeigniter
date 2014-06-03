@@ -85,6 +85,8 @@ class Consultor extends CI_Controller {
         $data['username'] = $this->tank_auth->get_username();
         $data['selectedoption'] = 4;  
         
+        $contarbeneficiarios = 0;
+        
         $valTitId = $noContrato;
         $query = $this->db->query("SELECT *
                                    FROM titular Left Join CONTRATO on Contrato.TitId = titular.ID   and contrato.estado = 1
@@ -92,21 +94,26 @@ class Consultor extends CI_Controller {
         if ($query->num_rows() > 0) {
             $row = $query->row(0);
             $data['titular'] = $row;
-            
+            if($row->BENEFICIARIO == 1){
+                $contarbeneficiarios = $contarbeneficiarios + 1;                
+            }
         } else {
             $data['titular']  = null;
         }
-        
+                
         /// Se consultan los beneficiarios del titular
         $qbeneficiarios = $this->db->query("SELECT * FROM BENEFICIARIO WHERE titId = " . $valTitId );
         if($qbeneficiarios->num_rows() > 0 )
         {
+            $contarbeneficiarios = $contarbeneficiarios + $qbeneficiarios->num_rows();
             $data['beneficiarios']  = $qbeneficiarios->result() ;
             $data['tienebeneficiarios'] = true;
         }
         else {
             $data['tienebeneficiarios'] = false;
         }
+        
+        $data['numerobeneficiarios'] = $contarbeneficiarios;
         
         /// Se consultan los contactos del titular
         $qcontactos = $this->db->query("SELECT * FROM CONTACTO WHERE titId = " . $valTitId );
@@ -120,24 +127,103 @@ class Consultor extends CI_Controller {
         }
         
         /// Se consulta la informacion del contrato y los pagos realizados por el titular desde la vigencia del contrato
-        $qcontrato = $this->db->query("SELECT CONTRATO.FECHAINICIO, PLAN.NOMBRE, CONTRATO.PERIODICIDAD, 
-                                        PLAN.NOMBRECONVENIO, DOCUMENTO.NUMERO, DOCUMENTO.TIPO
-                                        FROM CONTRATO INNER JOIN PLAN ON PLAN.ID = CONTRATO.PLANID 
-                                        INNER JOIN DOCUMENTO ON DOCUMENTO.ID = CONTRATO.DOCID WHERE contrato.ESTADO = 1 AND TITID = " .$valTitId );
+        $qcontrato = $this->db->query("
+            SELECT CONTRATO.FECHAINICIO, PLAN.NOMBRE, CONTRATO.PERIODICIDAD, 
+            PLAN.NOMBRECONVENIO, DOCUMENTO.NUMERO, DOCUMENTO.TIPO, PLAN.NUMBENEFICIARIOS,
+            COSTOPLAN.COSTOPAGOMES, COSTOPLAN.COSTOPAGOSEMESTRE, COSTOPLAN.COSTOPAGOANIO,                                    
+            TIMESTAMPDIFF(MONTH,CONTRATO.FECHAINICIO,CURDATE()) AS DIFERENCIA
+            FROM CONTRATO INNER JOIN PLAN ON PLAN.ID = CONTRATO.PLANID 
+            INNER JOIN DOCUMENTO ON DOCUMENTO.ID = CONTRATO.DOCID 
+            INNER JOIN COSTOPLAN ON (COSTOPLAN.PLANID = PLAN.ID 
+            AND CURDATE() BETWEEN COSTOPLAN.FECHADESDE AND COSTOPLAN.FECHAHASTA)
+            WHERE contrato.ESTADO = 1 AND TITID = " .$valTitId );
         if($qcontrato->num_rows() > 0 )
         {
-            $contrato = $query->row(0);
+            $contrato = $qcontrato->row(0);
             $data['contrato'] = $contrato;
             $data['tienecontrato'] = true;
             
-            $qpagos = $this->db->query("SELECT * FROM PAGO WHERE TITID = " . $valTitId . " AND FECHA >= " . $contrato->FECHAINICIO); 
-            
+            $qpagos = $this->db->query("
+                SELECT PAGO.VALOR, PAGO.FECHA, PAGO.TIPOCONCEPTO, DOCUMENTO.NUMERO, PERSONA.NOMBRES, PERSONA.APELLIDOS 
+                FROM PAGO 
+                INNER JOIN DOCUMENTO ON DOCUMENTO.ID = PAGO.RECID
+                INNER JOIN PERSONA ON PERSONA.ID = DOCUMENTO.EMPID
+                WHERE PAGO.TIPOCONCEPTO IN (1,2,3) AND  TITID = " . $valTitId . " AND FECHA >= " . $contrato->FECHAINICIO);             
             $data['pagos'] = $qpagos->result();
+            
+            $qcostoadicional = $this->db->query("
+                SELECT COSTOPLAN.COSTOAFILIACION, COSTOPLAN.COSTOPAGOMES, COSTOPLAN.COSTOPAGOSEMESTRE, COSTOPLAN.COSTOPAGOANIO
+                FROM PLAN INNER JOIN COSTOPLAN ON (COSTOPLAN.PLANID = PLAN.ID 
+                AND CURDATE() BETWEEN COSTOPLAN.FECHADESDE AND COSTOPLAN.FECHAHASTA)
+                WHERE PLAN.NOMBRE = '" . $contrato->NOMBRE ."' 
+                AND plan.NUMBENEFICIARIOS in (	SELECT MAX(plan.NUMBENEFICIARIOS) as maximo	FROM PLAN WHERE PLAN.NOMBRE = '" . $contrato->NOMBRE . "' )");            
+            $data['costoadicional'] = $qcostoadicional->row(0);
+            
+            // Se calcula el numero de pagos que se deberian haber realizado            
+            $cantidadpagos = ($contrato->DIFERENCIA + 1);
+            $pagosidx = 0;
+            $invervalo = 'P1M';
+            if($contrato->PERIODICIDAD == 2)
+            {
+                $cantidadpagos = ceil($contrato->DIFERENCIA / 6);
+                $invervalo = 'P6M';
+            }
+            else if($contrato->PERIODICIDAD == 3)
+            {
+                $cantidadpagos = ceil($contrato->DIFERENCIA / 12);
+                $invervalo = 'P1Y';
+            }
+            $inicio = date_parse($contrato->FECHAINICIO);
+            $factual = new DateTime($inicio['year'] . '-' . $inicio['month'] . '-' . $inicio['day']);
+                        
+            // Para cada pago que se debería haber realizado se genera un elemento del array
+            $lstPagos = array();
+            if($cantidadpagos < $qpagos->num_rows())
+            {
+                $cantidadpagos = $qpagos->num_rows();
+            }
+            
+            for($i = 0 ; $i < $cantidadpagos; $i++)
+            {                
+                $finperiodo = clone $factual;
+                $limitepago = clone $factual;
+                $finperiodo->add(new DateInterval($invervalo));
+                $limitepago->add(new DateInterval('P10D'));
+                $fechapago = 'No realizado';
+                $valorpagado = 0;
+                $numerodoc = 0;
+                $asesor = "";
+                if($qpagos->num_rows() > $pagosidx)
+                {
+                    $pagoind = $qpagos->row($pagosidx);
+                    $fechapago = $pagoind->FECHA;
+                    $valorpagado = $pagoind->VALOR;
+                    $numerodoc = $pagoind->NUMERO;
+                    $asesor = $pagoind->NOMBRES . ' ' . $pagoind->APELLIDOS;
+                    $pagosidx = $pagosidx + 1;
+                }
+                                
+                $lstPagos[$i] = array(
+                    "inicioperiodo" => $factual->format('Y-m-d'),
+                    "finperiodo" => $finperiodo->format('Y-m-d'),
+                    "limitepago" => $limitepago->format('Y-m-d'),
+                    "fechapago" => $fechapago,
+                    "valor" => $valorpagado,
+                    "numero" => $numerodoc, 
+                    "asesor" => $asesor
+                );
+                
+                $factual->add(new DateInterval($invervalo));                
+            }
+            
+            $data['lstpagos'] = $lstPagos;
         }
         else
         {
             $data['tienecontrato'] = false;
         }
+        
+        $data['estadocontrato'] = $this->ObtenerEstado($valTitId);
         
         //Configuracion de la Plantilla
         $this->template->write_view('login', $this->tank_auth->get_login(), $data);
@@ -145,6 +231,86 @@ class Consultor extends CI_Controller {
         $this->template->write_view('sidebar', $this->tank_auth->get_sidebar());
         $this->template->write_view('content', 'consultor/detalleTitulares');
         $this->template->render();
+    }
+    
+    function ObtenerEstado($titularId)
+    {        
+         /// Se consulta la informacion del contrato y los pagos realizados por el titular desde la vigencia del contrato
+        $qcontrato = $this->db->query("
+            SELECT CONTRATO.FECHAINICIO, PLAN.NOMBRE, CONTRATO.PERIODICIDAD, 
+            PLAN.NOMBRECONVENIO, DOCUMENTO.NUMERO, DOCUMENTO.TIPO, PLAN.NUMBENEFICIARIOS,            
+            TIMESTAMPDIFF(MONTH,CONTRATO.FECHAINICIO,CURDATE()) AS DIFERENCIA
+            FROM CONTRATO INNER JOIN PLAN ON PLAN.ID = CONTRATO.PLANID 
+            INNER JOIN DOCUMENTO ON DOCUMENTO.ID = CONTRATO.DOCID 
+            WHERE contrato.ESTADO = 1 AND TITID = " .$titularId );
+        
+        $estado = "OK";
+        
+        if($qcontrato->num_rows() > 0 )
+        {
+            $contrato = $qcontrato->row(0);            
+            $qpagos = $this->db->query("
+                SELECT PAGO.VALOR, PAGO.FECHA, PAGO.TIPOCONCEPTO, DOCUMENTO.NUMERO, PERSONA.NOMBRES, PERSONA.APELLIDOS 
+                FROM PAGO INNER JOIN DOCUMENTO ON DOCUMENTO.ID = PAGO.RECID
+                INNER JOIN PERSONA ON PERSONA.ID = DOCUMENTO.EMPID
+                WHERE PAGO.TIPOCONCEPTO IN (1,2,3) AND  TITID = " . $titularId . " AND FECHA >= " . $contrato->FECHAINICIO);             
+            
+                        
+            // Se calcula el numero de pagos que se deberian haber realizado            
+            $cantidadpagos = ($contrato->DIFERENCIA + 1);
+            $pagosidx = 0;
+            $invervalo = 'P1M';
+            if($contrato->PERIODICIDAD == 2)
+            {
+                $cantidadpagos = ceil($contrato->DIFERENCIA / 6);
+                $invervalo = 'P6M';
+            }
+            else if($contrato->PERIODICIDAD == 3)
+            {
+                $cantidadpagos = ceil($contrato->DIFERENCIA / 12);
+                $invervalo = 'P1Y';
+            }
+            $inicio = date_parse($contrato->FECHAINICIO);
+            $factual = new DateTime($inicio['year'] . '-' . $inicio['month'] . '-' . $inicio['day']);
+            
+            $ahora = getdate();
+            $fahora = new DateTime($ahora['year'] . '-' . $ahora['month'] . '-' . $ahora['mday']);
+            
+            // Para cada pago que se debería haber realizado se genera un elemento del array
+            $lstPagos = array();
+            
+            $coutas_pendientes = 0;
+            
+            for($i = 0 ; $i < $cantidadpagos; $i++)
+            {                
+                /*$finperiodo = clone $factual;*/
+                $limitepago = clone $factual;
+                /*$finperiodo->add(new DateInterval($invervalo));*/
+                $limitepago->add(new DateInterval('P10D'));
+                /*$fechapago = 'NO';*/
+                /*$valorpagado = 0;*/
+                if($qpagos->num_rows() <= $pagosidx && $limitepago < $fahora)
+                {
+                    $coutas_pendientes = $coutas_pendientes + 1;
+                }
+                                
+                $pagosidx = $pagosidx + 1;
+                $factual->add(new DateInterval($invervalo));                
+            }
+            if($coutas_pendientes == 1 )
+            {
+                $estado = "EN MORA (1 pago pendiente)";
+            }
+            else if ($coutas_pendientes > 1)
+            {
+                $estado = "EN MORA (" . $coutas_pendientes . " pagos pendientes)";
+            }            
+        }    
+        else
+        {
+            $estado = "CONTRATO INACTIVO Ó INEXISTENTE";
+        }
+        return $estado;
     }
 }
 
