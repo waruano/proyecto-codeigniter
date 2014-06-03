@@ -3,22 +3,7 @@
 </style>
 <div>
     <h3>Información detallada</h3>
-    <div  style="padding-left: 30px;">
-        <table>
-            <?php if($titular != NULL) { ?>
-            <tr><th>Titular:</th><td class="delta" ><?php echo $titular->NOMBRES . ' ' . $titular->APELLIDOS; ?>    </td></tr>
-            <tr><th>Identificación:</th><td  class="delta" ><?php echo $titular->NODOCUMENTO ?></td></tr>
-            <tr><th>No Contrato:</th><td  class="delta"  ><?php echo $titular->NUMERO ?></td></tr>
-            <?php } 
-            else
-            {
-                ?>                    
-                    <tr><td style="color:red; font-size: 20px; font-weight: bold;" >'Titular sin definir o no existe'</td></tr>
-                    <?php
-            }
-            ?>
-        </table>
-    </div>
+    
     <br/>
    
 </div>
@@ -112,7 +97,7 @@
         foreach( $beneficiarios as $benefic)
         { ?>
         <table class="table table-condensed">
-            <tr><th colspan ="4">Beneficiario Número <?php echo $iCounter; $iCounter = $iCounter + 1; ?>: </th></tr>
+            <tr><th colspan ="4">Beneficiario Número <?php echo $iCounter; $iCounter = $iCounter + 1; ?> </th></tr>
             <TR>
                 <td>Nombre completo:</td>
                 <td  colspan="3"><?php echo  $benefic->NOMBRES . ' ' . $benefic->APELLIDOS ?></td>
@@ -185,7 +170,7 @@
         foreach( $contactos as $contacto)
         { ?>
         <table class="table table-condensed">
-            <tr><th colspan ="4">Contacto Número <?php echo $iCounter; $iCounter = $iCounter + 1; ?>: </th></tr>
+            <tr><th colspan ="4">Contacto Número <?php echo $iCounter; $iCounter = $iCounter + 1; ?> </th></tr>
             <TR>
                 <td>Nombre completo:</td>
                 <td ><?php echo  $contacto->NOMBRECOMPLETO ?></td>
@@ -212,14 +197,148 @@
     <div class="panel panel-default">
     <div class="panel-heading">
       <h4 class="panel-title">
-        <a data-toggle="collapse" data-parent="#accordion" href="#collapseThree">
+        <a data-toggle="collapse" data-parent="#accordion" href="#collapseFour">
           Contrato y Pagos
         </a>
       </h4>
     </div>
-    <div id="collapseThree" class="panel-collapse collapse">
+    <div id="collapseFour" class="panel-collapse collapse">
       <div class="panel-body">
-        Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus labore sustainable VHS.
+          <?php if (! $tienecontrato){ ?>
+            No se encuentra contrato activo para el titular
+          <?php } 
+          else
+          { ?>
+              <table class="table table-condensed">
+                  <tr><th colspan="4">Información del contrato actual</th></tr>
+                  <tr>
+                      <td>Número de contrato: </td><td><?php echo $contrato->NUMERO ?></td>  
+                      <td>Plan: </td><td><?php echo $contrato->NOMBRE . ' (' . $contrato->NUMBENEFICIARIOS . ' beneficiarios)' ?></td>  
+                  
+                  </tr>
+                  <tr>
+                      <td>Periodicidad: </td><td><?php echo array(1 => 'Mensual', 2 => 'Semestral', 3 => 'Anual')[$contrato->PERIODICIDAD] ?></td>  
+                      <td>Nombre convenio: </td><td><?php echo $contrato->NOMBRECONVENIO ?></td>  
+                  
+                  </tr>
+                  <tr>
+                      <td>Tarifa por beneficiario: </td><td> $
+                          <?php                           
+                            if ($contrato->PERIODICIDAD == 1){
+                                echo number_format($contrato->COSTOPAGOMES, 2, ',' , '.');
+                            }
+                            else if($contrato->PERIODICIDAD == 2)
+                            {
+                                echo number_format($contrato->COSTOPAGOSEMESTRE, 2, ',' , '.');
+                            }
+                            else
+                                echo number_format($contrato->COSTOPAGOANIO, 2, ',' , '.');
+                           ?></td>  
+                      <td>Tarifa por beneficiario adicional: </td>
+                      <td>$ 
+                          <?php                           
+                            if ($contrato->PERIODICIDAD == 1){
+                                echo number_format($costoadicional->COSTOPAGOMES, 2, ',' , '.');
+                            }
+                            else if($contrato->PERIODICIDAD == 2)
+                            {
+                                echo number_format($costoadicional->COSTOPAGOSEMESTRE, 2, ',' , '.');
+                            }
+                            else
+                                echo number_format($costoadicional->COSTOPAGOANIO, 2, ',' , '.');
+                           ?>
+                      </td>  
+                  
+                  </tr>
+                         
+                  <tr>
+                      <td>Pago <?php echo array(1 => 'Mensual', 2 => 'Semestral', 3 => 'Anual')[$contrato->PERIODICIDAD] ?>: </td>
+                      
+                      <td>$ <?php 
+                        if( $numerobeneficiarios <= $contrato->NUMBENEFICIARIOS)
+                        {
+                             if ($contrato->PERIODICIDAD == 1){
+                                echo number_format($contrato->COSTOPAGOMES * $numerobeneficiarios, 2, ',' , '.');
+                            }
+                            else if($contrato->PERIODICIDAD == 2)
+                            {
+                                echo number_format($contrato->COSTOPAGOSEMESTRE * $numerobeneficiarios, 2, ',' , '.');
+                            }
+                            else
+                                echo number_format($contrato->COSTOPAGOANIO * $numerobeneficiarios, 2, ',' , '.');
+                        }
+                        else
+                        {
+                            $numadicionales = $numerobeneficiarios - $contrato->NUMBENEFICIARIOS;
+                            
+                            if ($contrato->PERIODICIDAD == 1){
+                                echo number_format(($contrato->COSTOPAGOMES * $contrato->NUMBENEFICIARIOS) + ($numadicionales * $costoadicional->COSTOPAGOMES), 2, ',' , '.');
+                            }
+                            else if($contrato->PERIODICIDAD == 2)
+                            {
+                                echo number_format(($contrato->COSTOPAGOSEMESTRE * $contrato->NUMBENEFICIARIOS) + ($numadicionales * $costoadicional->COSTOPAGOSEMESTRE), 2, ',' , '.');                             
+                            }
+                            else
+                                echo number_format(($contrato->COSTOPAGOANIO * $contrato->NUMBENEFICIARIOS) + ($numadicionales * $costoadicional->COSTOPAGOANIO), 2, ',' , '.');           
+                        }
+                      ?>
+                      <br/><br/>
+                      </td>         
+                      <td>Estado:</td>
+                      <td
+                          <?php if($estadocontrato != "OK") echo "style='color: red;'"; else echo "style='color: green;'" ?>
+                          ><?php echo $estadocontrato ?></td>
+                      
+                  </tr>
+                  
+                  
+                  <tr><td colspan="4">
+                          
+                          <table width="100%"  class="table table-condensed">                         
+                  <TR>
+                      <tr><th colspan="9">Historial de pagos</th></tr>                  
+                  <tr>
+                      <th colspan="3" align="center">Periodo</td><td style="width:20px;"></td>
+                      <th colspan="5" align="center">Pagos</td>
+                  </tr>
+                  <tr>
+                  <th>Inicio</th><th>Fin</th><th>Límite pago</th><td></td>
+                      
+                  <th>Valor</th><th>Fecha pago</th><th>Recibo No</th><th>Asesor</th>
+                          </TR>
+                  <?php 
+                        foreach( $lstpagos as $pago)
+                        { ?>
+                  <tr>
+                      <td><?php echo $pago['inicioperiodo'] ?></td>
+                      <td><?php echo $pago['finperiodo'] ?> </td>                      
+                      <td><?php echo $pago['limitepago'] ?> </td>
+                      <td></td>                      
+                      
+                      <?php if($pago['valor'] == 0){?>
+                      <td>- -</td>
+                      <td style="color:red;" >No realizado</td>
+                      <td>- -</td>
+                      <td>- -</td>
+                      <?php }
+                      else { ?>
+                      <td>$ <?php echo number_format($pago['valor'], 2, ',' , '.') ?></td>
+                      <td><?php echo $pago['fechapago'] ?> </td>
+                      <td><?php echo $pago['numero'] ?> </td>
+                      <td><?php echo $pago['asesor'] ?> </td>
+                      <?php } ?>
+                      
+                      
+                      
+                      
+                  </tr>
+                        <?php } ?>                      
+                       </table>
+                      </td></tr>    
+             </table>
+          <?php }?>
+          
+        
       </div>
     </div>
   </div>
