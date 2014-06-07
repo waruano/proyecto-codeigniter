@@ -8,7 +8,7 @@
 	$this->set_js_lib($this->default_javascript_path.'/jquery_plugins/config/jquery.noty.config.js');
 ?>
 <div class="flexigrid crud-form" style='width: 100%;' data-unique-hash="<?php echo $unique_hash; ?>">
-	<div class="mDiv">
+	<!--<div class="mDiv">
 		<div class="ftitle">
 			<div class='ftitle-left'>
 				<?php echo $this->l('list_record'); ?> <?php echo $subject?>
@@ -18,7 +18,11 @@
 		<div title="<?php echo $this->l('minimize_maximize');?>" class="ptogtitle">
 			<span></span>
 		</div>
-	</div>
+	</div>-->
+        <div class="row " style="border: 1px solid #69bd43; padding-left: 10px; color: #fff; background-color: #69bd43;
+         font-size: 18px; padding-top: 5px; padding-bottom: 5px; border-radius: 6px 6px 0px 0px; ">
+        <strong><?php echo $this->l('list_record'); ?> <?php echo $subject ?></strong>
+    </div>
 <div id='main-table-box'>
 	<?php echo form_open( $read_url, 'method="post" id="crudForm" autocomplete="off" enctype="multipart/form-data"'); ?>
 	<div class='form-div'>

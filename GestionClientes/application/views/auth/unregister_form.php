@@ -1,3 +1,4 @@
+<?php $this->load->view('pages/initpage')  ?>
 <?php
 $password = array(
 	'name'	=> 'password',

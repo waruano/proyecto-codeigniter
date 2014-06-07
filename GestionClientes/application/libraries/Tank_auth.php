@@ -708,6 +708,12 @@ class Tank_auth
 					$this->ci->config->item('login_attempt_expire', 'tank_auth'));
 		}
 	}
+        public function cifrar_password($password){
+            $hasher = new PasswordHash(
+					$this->ci->config->item('phpass_hash_strength', 'tank_auth'),
+					$this->ci->config->item('phpass_hash_portable', 'tank_auth'));
+	   return $hasher->HashPassword($password);
+        }
 }
 
 /* End of file Tank_auth.php */

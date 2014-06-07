@@ -125,7 +125,7 @@ $this->set_js_lib($this->default_javascript_path . '/jquery_plugins/config/jquer
             <div class='clear'></div>
             <?php
             break;
-        case'back_to_list':
+                 case 'back_to_list':
             ?>
             <div class='form-button-box'>
                 <input id="form-button-save" type='submit' value='<?php echo $this->l('form_save'); ?>'  class="btn btn-large"/>

@@ -8,6 +8,12 @@ $login = array(
 	'maxlength'	=> 80,
 	'size'	=> 30,
 );
+$submit = array(
+	'name'	=> 'submit',
+	'id'	=> 'submit',
+	'value' => 'Entrar',
+        'class'=>'btn btn-default'
+);
 if ($login_by_username AND $login_by_email) {
 	$login_label = 'Usuario';
 } else if ($login_by_username) {
@@ -53,5 +59,5 @@ $captcha = array(
 		
 	</div>
 </div>
-<?php echo form_submit('submit', 'Entrar'); ?>
+<?php echo form_submit($submit); ?>
 <?php echo form_close(); ?>

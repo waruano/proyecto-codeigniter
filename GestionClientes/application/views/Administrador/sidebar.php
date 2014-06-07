@@ -10,11 +10,5 @@
         <li <?php if(isset($selectedoption) && $selectedoption == 6){ echo 'class="active"'; } ?> ><?php echo anchor('home/remap/digitador/documentos','Documentos');?></li>    
         <li <?php if(isset($selectedoption) && $selectedoption == 8){ echo 'class="active"'; } ?> ><?php echo anchor('home/remap/digitador/pagos','Pagos');?></li>
         <li <?php if(isset($selectedoption) && $selectedoption == 4){ echo 'class="active"'; } ?> ><?php echo anchor('home/remap/consultor/consultar','Consulta Contratos');?></li>
-      <!--  <li class="dropdown">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown">Consultas <b class="caret"></b></a>
-              <ul class="dropdown-menu">
-                        
-              </ul>
-        </li> -->
     </ul>
 </div>
