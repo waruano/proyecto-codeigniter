@@ -27,9 +27,6 @@ class Home extends CI_Controller {
         if(isset($_SESSION['success_titular'])){
             unset($_SESSION['success_titular']);
         }
-        if(isset($_SESSION['_aux_primary_key'])){
-            unset($_SESSION['_aux_primary_key']);
-        }
         if(isset($_SESSION['_aux_var'])){
             unset($_SESSION['_aux_var']);
         }
