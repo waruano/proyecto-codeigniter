@@ -427,7 +427,7 @@ class Administrador extends CI_Controller {
         $crud->field_type('NODOCUMENTO', 'integer');
         $crud->field_type('TELMOVIL', 'integer');
         $crud->field_type('TIPOPERSONA', 'hidden', '2');
-        $crud->field_type('TIPODOC', 'dropdown', array(1 => 'Cedula de Ciudadnia', 2 => 'Tarjeta de Identidad', 3 => 'Cedula Extrangera'));
+        $crud->field_type('TIPODOC', 'dropdown', array(1 => 'Cédula de Ciudadanía', 2 => 'Tarjeta de Identidad', 3 => 'Cédula Extrangera'));
         $output = $crud->render();
 
         //Configuracion de la Plantilla

@@ -61,8 +61,10 @@ class Consultor extends CI_Controller {
             $crud->unset_read();
             $crud->add_action('Detalles', base_url() . 'images/magnifier.png', 'Detalles', '', array($this, 'direccion_contratos'));
             $crud->unset_jquery();
+            $crud->callback_column('Estado', array($this, 'callback_column_estado'));
+            
             $output = $crud->render();
-
+            
             //Configuracion de la Plantilla
             $this->template->write_view('login', $this->tank_auth->get_login(), $data);
             $this->template->write('title', 'Búsqueda de Contratos');
@@ -73,7 +75,72 @@ class Consultor extends CI_Controller {
             redirect('');
         }
     }
+    
+    public function callback_column_estado($value, $row)
+    {
+        return $this->ObtenerEstado($row->ID, false);
+    }
+    
+    function busquedageneral() {
+        $session_rol = $this->tank_auth->get_rol();
+        if ($session_rol >= 1 && $session_rol <= 4) {
+            
+            // Se obtienen todos los valores de los filtros
+            $data['validentificacion'] = $this->input->post('identificacion');
+            $data['valnocontrato'] = $this->input->post('numeroContrato');
+            $data['valtitular'] = $this->input->post('nombreTitular');
 
+            //informacion de Usuario
+            $data['user_id'] = $this->tank_auth->get_user_id();
+            $data['username'] = $this->tank_auth->get_username();
+            $data['selectedoption'] = 4;
+
+            $crud = new grocery_CRUD();
+            $crud->set_model('Custom_query_model');
+            $crud->set_table('persona'); //Change to your table name
+
+            $strSQL = "select 'Estado' as Estado, documento.Numero as NumeroContrato, CONCAT(titular.Nombres, ' ', ifnull(titular.Apellidos, '')) as NombreTitular, 
+            titular.NoDocumento as Identificacion, contrato.FechaInicio as FechaAfiliacion, titular.id as ID
+            from titular left join contrato on contrato.TITID = titular.ID left join documento on documento.ID = contrato.DOCID
+            where contrato.ESTADO = 1";
+
+            if ($data['valtitular'] != '') {
+                $strSQL = $strSQL . " AND CONCAT(persona.Nombres, ' ', persona.Apellidos) like '%" . $data['valtitular'] . "%' ";
+            }
+
+            if ($data['validentificacion'] != '') {
+                $strSQL = $strSQL . " AND persona.NoDocumento like '%" . $data['validentificacion'] . "%' ";
+            }
+
+            if (is_numeric($data['valnocontrato'])) {
+                $strSQL = $strSQL . " AND documento.Numero = " . $data['valnocontrato'] . " ";
+            }
+
+            $crud->basic_model->set_query_str($strSQL); //Query text here
+            $crud->columns('Estado', 'NumeroContrato', 'NombreTitular', 'Identificacion', 'FechaAfiliacion');
+            $crud->unset_add();
+            $crud->unset_edit();
+            $crud->unset_delete();
+            $crud->unset_read();
+            $crud->add_action('Detalles', base_url() . 'images/magnifier.png', 'Detalles', '', array($this, 'direccion_contratos'));
+            $crud->unset_jquery();
+            $crud->callback_column('Estado', array($this, 'callback_column_estado'));
+            
+            $output = $crud->render();
+            
+            //Configuracion de la Plantilla
+            $this->template->write_view('login', $this->tank_auth->get_login(), $data);
+            $this->template->write('title', 'Búsqueda de Contratos');
+            $this->template->write_view('sidebar', $this->tank_auth->get_sidebar());
+            $this->template->write_view('content', 'consultor/consulta', $output);
+            $this->template->render();
+        } else {
+            redirect('');
+        }
+    }
+    
+        
+    
     function direccion_contratos($primary_key, $row) {
         return base_url() . 'consultor/detalleTitulares/' . $primary_key;
     }
@@ -142,7 +209,7 @@ class Consultor extends CI_Controller {
                 FROM PAGO 
                 INNER JOIN DOCUMENTO ON DOCUMENTO.ID = PAGO.RECID
                 INNER JOIN PERSONA ON PERSONA.ID = DOCUMENTO.EMPID
-                WHERE PAGO.TIPOCONCEPTO IN (1,2,3) AND  TITID = " . $valTitId . " AND FECHA >= " . $contrato->FECHAINICIO);
+                WHERE PAGO.TIPOCONCEPTO = 1 AND  TITID = " . $valTitId . " AND FECHA >= " . $contrato->FECHAINICIO);
             $data['pagos'] = $qpagos->result();
 
             $qcostoadicional = $this->db->query("
@@ -209,7 +276,7 @@ class Consultor extends CI_Controller {
             $data['tienecontrato'] = false;
         }
 
-        $data['estadocontrato'] = $this->ObtenerEstado($valTitId);
+        $data['estadocontrato'] = $this->ObtenerEstado($valTitId, true);
 
         //Configuracion de la Plantilla
         $this->template->write_view('login', $this->tank_auth->get_login(), $data);
@@ -219,7 +286,7 @@ class Consultor extends CI_Controller {
         $this->template->render();
     }
 
-    function ObtenerEstado($titularId) {
+    function ObtenerEstado($titularId, $condetalle) {
         /// Se consulta la informacion del contrato y los pagos realizados por el titular desde la vigencia del contrato
         $qcontrato = $this->db->query("
             SELECT CONTRATO.FECHAINICIO, PLAN.NOMBRE, CONTRATO.PERIODICIDAD, 
@@ -237,7 +304,7 @@ class Consultor extends CI_Controller {
                 SELECT PAGO.VALOR, PAGO.FECHA, PAGO.TIPOCONCEPTO, DOCUMENTO.NUMERO, PERSONA.NOMBRES, PERSONA.APELLIDOS 
                 FROM PAGO INNER JOIN DOCUMENTO ON DOCUMENTO.ID = PAGO.RECID
                 INNER JOIN PERSONA ON PERSONA.ID = DOCUMENTO.EMPID
-                WHERE PAGO.TIPOCONCEPTO IN (1,2,3) AND  TITID = " . $titularId . " AND FECHA >= " . $contrato->FECHAINICIO);
+                WHERE PAGO.TIPOCONCEPTO = 1 AND  TITID = " . $titularId . " AND FECHA >= " . $contrato->FECHAINICIO);
 
 
             // Se calcula el numero de pagos que se deberian haber realizado            
@@ -277,9 +344,24 @@ class Consultor extends CI_Controller {
                 $factual->add(new DateInterval($invervalo));
             }
             if ($coutas_pendientes == 1) {
-                $estado = "EN MORA (1 pago pendiente)";
-            } else if ($coutas_pendientes > 1) {
-                $estado = "EN MORA (" . $coutas_pendientes . " pagos pendientes)";
+                if($condetalle)
+                {                    
+                    $estado = "EN MORA (1 pago pendiente)";        
+                }
+                else
+                {
+                    $estado = "EN MORA";        
+                }
+                
+            } else if ($coutas_pendientes > 1) {                
+                if($condetalle)
+                {                    
+                    $estado = "EN MORA (" . $coutas_pendientes . " pagos pendientes)";
+                }
+                else
+                {
+                    $estado = "EN MORA";        
+                }
             }
         } else {
             $estado = "CONTRATO INACTIVO Ó INEXISTENTE";
