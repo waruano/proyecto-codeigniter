@@ -242,6 +242,7 @@ class Contratos extends CI_Controller {
                 }
             } else {
                 $crud->buttons_form('sinGuardar');
+                $crud->unset_add();
                 $content = 'Administrador/titulares';
             }
             //configuracion de la tabla
@@ -298,12 +299,12 @@ class Contratos extends CI_Controller {
 
             //definicion de las reglas
             $crud->required_fields('NOMBRES', 'APELLIDOS', 'TIPODOC', 'NODOCUMENTO', 'EMAIL', 'BENEFICIARIO', 'FECHANACIMIENTO', 'GENERO', 'COBRODIRECCION', 'COBROBARRIO', 'COBROMUNICIPIO', 'COBRODEPTO', 'DOMIDIRECCION', 'DOMIBARRIO', 'DOMIMUNICIPIO', 'DOMIDEPTO', 'TELDOMICILIO', 'NOHIJOS', 'NODEPENDIENTES', 'ESTRATO', 'ESTADOCIVIL', 'OCUPACION', 'EPS', 'COMOUBICOSERVICIO', 'PERMITEUSODATOS');
-            $crud->set_rules('EMAIL', 'E-mail', 'required|trim|xss_clean|valid_email|max_length[100]');
-            $crud->set_rules('NOHIJOS', 'No ', 'required|trim|xss_clean|valid_email|max_length[100]');
+            $crud->set_rules('EMAIL', 'E-mail', 'required|trim|xss_clean|valid_email|max_length[100]');           
+            
 //acciones desde el crud
             $crud->add_action('Beneficiarios', base_url() . 'images/people.png', 'Beneficiarios', '', array($this, 'direccion_beneficiarios'));
             $crud->add_action('Contactos', base_url() . 'images/phone.png', 'Contactos', '', array($this, 'direccion_contactos'));
-
+            
             //Rederizacion del CRUD
             $output = $crud->render();
 
