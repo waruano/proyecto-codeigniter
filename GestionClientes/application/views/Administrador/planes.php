@@ -7,9 +7,7 @@
     <script src="<?php echo $file; ?>"></script>
 <?php endforeach; ?>
 <div>
-    <div>
-        <h3> Planes de afiliación </h3>
-    </div> 
+    <div class="titlerow">Planes de afiliación </div>
     <?php
     echo $output;
     ?>

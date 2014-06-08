@@ -6,8 +6,8 @@
 
     <script src="<?php echo $file; ?>"></script>
 <?php endforeach; ?>
-<div>
-    <h3>Empleados</h3>
+<div>    
+    <div class="titlerow">Empleados</div>
     <?php
     echo $output;
     ?>

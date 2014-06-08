@@ -6,9 +6,9 @@
 
     <script src="<?php echo $file; ?>"></script>
 <?php endforeach; ?>
-<div>
-    <h3>Contactos</h3>
-    <div  style="padding-left: 0px; display: inline-block">
+<div>    
+    <div class="titlerow">Contactos</div>
+    <div  style="padding-left: 0px; margin-bottom: 5px;  display: inline-block">
         <div  style=" float:left; width: 50%; border: 1px solid #ccc; text-align: center; font-size: 18px; 
              padding: 0px; border-radius: 6px 6px 6px 6px;  " >
             
@@ -28,12 +28,10 @@
             </table>
         </div>
         
-        <div style="float: right; width: 50%; padding-top: 20px;">
+        <div style="float: right; width: 50%;">
             <?php $this->load->view('Administrador/sidebar_add_titular');?>
         </div>
     </div>
-    <br/>
-    <br/>
 
     <?php
     echo $output;

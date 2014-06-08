@@ -20,9 +20,10 @@ $nombreTitular = array(
 ?>
 
 <?php echo form_open('consultor/consultar') ?>
-<h3>Consulta de Contratos</h3>
 
- <div class="row"  >
+<div class="titlerow">Consulta de Contratos</div>
+
+ <div class="row" style="padding-top: 10px; padding-bottom: 10px;" >
      <div class="col-md-4">   
          <?php echo form_label('Identificación', $identificacion['id']); ?> &nbsp; &nbsp;
          <?php echo form_input($identificacion); ?>          

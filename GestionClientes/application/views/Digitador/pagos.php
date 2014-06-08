@@ -7,7 +7,8 @@
     <script src="<?php echo $file; ?>"></script>
 <?php endforeach; ?>
 <div>
-    <div><h3>Pagos</h3></div>
+    
+    <div class="titlerow">Pagos </div>
     <?php
     echo $output;
     ?>

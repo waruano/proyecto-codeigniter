@@ -6,9 +6,9 @@
 
     <script src="<?php echo $file; ?>"></script>
 <?php endforeach; ?>
-<div>
-    <h3>Registro de Titular</h3>
-    <div class="row">
+<div>    
+    <div class="titlerow">Registro de Titular</div>
+    <div class="row" style="margin-bottom: 5px">
         <div class="col-md-4" style="border: 1px solid #ccc; text-align: center; font-size: 18px; 
              padding: 0px; border-radius: 6px 6px 6px 6px;  " >
             
@@ -49,7 +49,6 @@
         </div>
         
     </div>
-    </br>
     <?php
     echo $output;
     ?>
