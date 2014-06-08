@@ -2,9 +2,8 @@
 .delta {font-size: 20px; font-weight: bold; padding-left: 30px;}
 </style>
 <div>
-    <h3>Información detallada</h3>
+    <div class="titlerow">Información detallada</div>
     
-    <br/>
    
 </div>
 <div class="panel-group" id="accordion">

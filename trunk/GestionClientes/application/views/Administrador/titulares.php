@@ -6,8 +6,8 @@
 
     <script src="<?php echo $file; ?>"></script>
 <?php endforeach; ?>
-<div>
-    <h3>Titulares</h3>
+<div>    
+    <div class="titlerow">Titulares</div>
     <?php
     echo $output;
     ?>

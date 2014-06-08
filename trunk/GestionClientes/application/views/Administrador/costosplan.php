@@ -6,10 +6,8 @@
 
     <script src="<?php echo $file; ?>"></script>
 <?php endforeach; ?>
-<div>    
-    <div>
-        <h3> Tarifas para el plan <strong>'<?php echo $planFullName ?>'</strong> </h3>
-    </div>   
+<div>        
+    <div class="titlerow">Tarifas para el plan <strong>'<?php echo $planFullName ?>'</div>
     <?php
     echo $output;
     ?>
