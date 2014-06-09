@@ -17,10 +17,10 @@
                     <?php echo $login?>
                 </div>
             <div class="row"  >
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <a href="<?php echo base_url()?>" ><img src="<?php echo base_url()?>images/logo.png"></img> </a>              
                 </div>
-                <div class="col-md-8">
+                <div class="col-md-9">
                     <div class='sidebar'>
                     <?php echo $sidebar?>
                     </div>
