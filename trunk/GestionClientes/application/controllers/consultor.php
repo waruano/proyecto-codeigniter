@@ -36,16 +36,20 @@ class Consultor extends CI_Controller {
             $crud->set_model('Custom_query_model');
             $crud->set_table('persona'); //Change to your table name
 
-            $strSQL = "select 'Estado' as Estado, documento.Numero as NumeroContrato, CONCAT(titular.Nombres, ' ', ifnull(titular.Apellidos, '')) as NombreTitular, 
-            titular.NoDocumento as Identificacion, contrato.FechaInicio as FechaAfiliacion, contrato.id as ID
-            from titular inner join contrato on contrato.TITID = titular.ID inner join documento on documento.ID = contrato.DOCID ";
+            $strSQL = "select 'EstadoCartera' as EstadoCartera, documento.Numero as NumeroContrato, 
+                CONCAT(titular.Nombres, ' ', ifnull(titular.Apellidos, '')) as NombreTitular, 
+                titular.NoDocumento as Identificacion, contrato.FechaInicio as FechaAfiliacion, 
+                contrato.id as ID, CASE WHEN contrato.estado = 1 then 'Si' ELSE 'No' END as EstadoContrato
+                from titular 
+                inner join contrato on contrato.TITID = titular.ID 
+                inner join documento on documento.ID = contrato.DOCID ";
 
             if ($data['valtitular'] != '') {
-                $strSQL = $strSQL . " AND CONCAT(persona.Nombres, ' ', persona.Apellidos) like '%" . $data['valtitular'] . "%' ";
+                $strSQL = $strSQL . " AND CONCAT(titular.Nombres, ' ', titular.Apellidos) like '%" . $data['valtitular'] . "%' ";
             }
 
             if ($data['validentificacion'] != '') {
-                $strSQL = $strSQL . " AND persona.NoDocumento like '%" . $data['validentificacion'] . "%' ";
+                $strSQL = $strSQL . " AND titular.NoDocumento like '%" . $data['validentificacion'] . "%' ";
             }
 
             if (is_numeric($data['valnocontrato'])) {
@@ -53,14 +57,19 @@ class Consultor extends CI_Controller {
             }
 
             $crud->basic_model->set_query_str($strSQL); //Query text here
-            $crud->columns('Estado', 'NumeroContrato', 'NombreTitular', 'Identificacion', 'FechaAfiliacion');
+            $crud->columns('EstadoCartera', 'NumeroContrato', 'NombreTitular', 'Identificacion', 'FechaAfiliacion',  'EstadoContrato');
+            $crud->display_as('EstadoCartera', 'Estado Cartera');
+            $crud->display_as('EstadoContrato', '¿Contrato Activo?');
+            $crud->display_as('NumeroContrato', 'Numero Contrato');
+            $crud->display_as('NombreTitular', 'Titular');
+            $crud->display_as('FechaAfiliacion', 'Fecha Afiliacion');
             $crud->unset_add();
             $crud->unset_edit();
             $crud->unset_delete();
             $crud->unset_read();
             $crud->add_action('Detalles', base_url() . 'images/magnifier.png', 'Detalles', '', array($this, 'direccion_contratos'));
             $crud->unset_jquery();
-            $crud->callback_column('Estado', array($this, 'callback_column_estado'));
+            $crud->callback_column('EstadoCartera', array($this, 'callback_column_estado'));
             
             $output = $crud->render();
             
@@ -88,46 +97,90 @@ class Consultor extends CI_Controller {
             $data['valdireccion'] = $this->input->post('direccion');
             $data['valestrato'] = $this->input->post('estrato');
             $data['valeps'] = $this->input->post('eps');
-            $data['valafiliaciondesde'] = $this->input->post('afiliaciondesde');
-            $data['valafiliacionhasta'] = $this->input->post('afiliacionhasta');
-            $data['plan'] = $this->input->post('plan');
-            $data['convenio'] = $this->input->post('convenio');
-            $data['asesor'] = $this->input->post('asesor');            
+           /* $data['valafiliaciondesde'] = $this->input->post('afiliaciondesde');
+            $data['valafiliacionhasta'] = $this->input->post('afiliacionhasta');*/
+            $data['valplan'] = $this->input->post('plan');
+            $data['valconvenio'] = $this->input->post('convenio');
+            $data['valasesor'] = $this->input->post('asesor');            
             
             //informacion de Usuario
             $data['user_id'] = $this->tank_auth->get_user_id();
             $data['username'] = $this->tank_auth->get_username();
-            $data['selectedoption'] = 4;
+            $data['selectedoption'] = 9;
 
             $crud = new grocery_CRUD();
             $crud->set_model('Custom_query_model');
             $crud->set_table('persona'); //Change to your table name
 
-            $strSQL = "select 'Estado' as Estado, documento.Numero as NumeroContrato, CONCAT(titular.Nombres, ' ', ifnull(titular.Apellidos, '')) as NombreTitular, 
-                    titular.NoDocumento as Identificacion, contrato.FechaInicio as FechaAfiliacion, contrato.id as ID
-                    from titular inner join contrato on contrato.TITID = titular.ID inner join documento on documento.ID = contrato.DOCID ";
+            $strSQL = "select 'EstadoCartera' as EstadoCartera, documento.Numero as NumeroContrato, 
+                    CONCAT(titular.Nombres, ' ', ifnull(titular.Apellidos, '')) as NombreTitular, 
+                    titular.NoDocumento as Identificacion, contrato.FechaInicio as FechaAfiliacion, 
+                    contrato.id as ID, CASE WHEN contrato.estado = 1 then 'Si' ELSE 'No' END as EstadoContrato
+                    from titular 
+                    inner join contrato on contrato.TITID = titular.ID 
+                    inner join documento on documento.ID = contrato.DOCID 
+                    inner join plan on plan.id = contrato.planid
+                    inner join persona on documento.empid = persona.id";
 
             // se crean los filtros a la consulta dependiendo de lo recibido por post
             if ($data['valtitular'] != '') {
-                $strSQL = $strSQL . " AND CONCAT(persona.Nombres, ' ', persona.Apellidos) like '%" . $data['valtitular'] . "%' ";
+                $strSQL = $strSQL . " AND CONCAT(titular.Nombres, ' ', titular.Apellidos) like '%" . $data['valtitular'] . "%' ";
             }
-
             if ($data['validentificacion'] != '') {
-                $strSQL = $strSQL . " AND persona.NoDocumento like '%" . $data['validentificacion'] . "%' ";
+                $strSQL = $strSQL . " AND titular.NoDocumento like '%" . $data['validentificacion'] . "%' ";
             }
-
             if (is_numeric($data['valnocontrato'])) {
                 $strSQL = $strSQL . " AND documento.Numero = " . $data['valnocontrato'] . " ";
+            }            
+            if (is_numeric($data['valtelefono'])) {                
+                $strSQL = $strSQL . " AND  (titular.TELDOMICILIO LIKE'%" .$data['valtelefono'] . "%' OR titular.TELMOVIL LIKE'%" .$data['valtelefono'] . "%' OR titular.TELOFICINA LIKE'%" .$data['valtelefono'] . "%')";
+            }            
+            if ($data['valcorreo'] != '') {
+                $strSQL = $strSQL . " AND titular.email LIKE'%" .$data['valcorreo'] . "%' ";
+            }            
+            if (is_numeric($data['valgenero'])) {
+                if($data['valgenero'] != 0){
+                    $strSQL = $strSQL . " AND titular.genero = " . $data['valgenero'] . " ";
+                }
             }
-
+            if ($data['valdireccion'] != '') {
+                $strSQL = $strSQL . " AND (titular.COBROBARRIO like '%" . $data['valdireccion'] . "%' or titular.COBRODEPTO like '%" . $data['valdireccion'] . "%' or titular.COBRODIRECCION like '%" . $data['valdireccion'] . "%' or titular.COBROMUNICIPIO like '%" . $data['valdireccion'] . "%' or titular.DOMIBARRIO like '%" . $data['valdireccion'] . "%' or titular.DOMIDEPTO like '%" . $data['valdireccion'] . "%' or titular.DOMIDIRECCION like '%" . $data['valdireccion'] . "%' or titular.DOMIMUNICIPIO like '%" . $data['valdireccion'] . "%' )";                   
+            }
+            if (is_numeric($data['valestrato'])) {
+                $strSQL = $strSQL . " AND TITULAR.estrato = " . $data['valestrato'] . " ";
+            }
+            if ($data['valeps'] != '') {
+                $strSQL = $strSQL . " AND titular.eps like '%" . $data['valeps'] . "%' ";
+            }/*
+            if ($data['valafiliaciondesde'] !='') {
+                $strSQL = $strSQL . " AND documento.Numero = " . $data['valnocontrato'] . " ";
+            }
+            if ($data['valafiliacionhasta'] != '') {
+                $strSQL = $strSQL . " AND documento.Numero = " . $data['valnocontrato'] . " ";
+            } */
+            if ($data['valplan'] != '') {
+                $strSQL = $strSQL . " AND plan.nombre like '%" . $data['valplan'] . "%' ";
+            }
+            if ($data['valconvenio'] != '') {
+                $strSQL = $strSQL . " AND plan.nombreconvenio like '%" . $data['valconvenio'] . "%' ";
+            }
+            if ($data['valasesor'] != '') {
+                $strSQL = $strSQL . " AND CONCAT(persona.Nombres, ' ', persona.Apellidos) like '%" . $data['valasesor'] . "%' ";
+            }
+            
             // Se define el CRUD
             $crud->basic_model->set_query_str($strSQL); //Query text here
-            $crud->columns('Estado', 'NumeroContrato', 'NombreTitular', 'Identificacion', 'FechaAfiliacion');
+            $crud->columns('EstadoCartera', 'NumeroContrato', 'NombreTitular', 'Identificacion', 'FechaAfiliacion',  'EstadoContrato');
+            $crud->display_as('EstadoCartera', 'Estado Cartera');
+            $crud->display_as('EstadoContrato', '¿Contrato Activo?');
+            $crud->display_as('NumeroContrato', 'Numero Contrato');
+            $crud->display_as('NombreTitular', 'Titular');
+            $crud->display_as('FechaAfiliacion', 'Fecha Afiliacion');
             $crud->unset_add();
             $crud->unset_edit();
             $crud->unset_delete();
             $crud->unset_read();
-            $crud->add_action('Detalles', base_url() . 'images/magnifier.png', 'Detalles', '', array($this, 'direccion_contratos'));
+            $crud->add_action('Detalles', base_url() . 'images/magnifier.png', 'Detalles', '', array($this, 'direccion_general'));
             $crud->unset_jquery();
             $crud->callback_column('Estado', array($this, 'callback_column_estado'));
             
@@ -137,7 +190,7 @@ class Consultor extends CI_Controller {
             $this->template->write_view('login', $this->tank_auth->get_login(), $data);
             $this->template->write('title', 'Búsqueda de Contratos');
             $this->template->write_view('sidebar', $this->tank_auth->get_sidebar());
-            $this->template->write_view('content', 'consultor/consulta', $output);
+            $this->template->write_view('content', 'consultor/consultaGeneral', $output);
             $this->template->render();
         } else {
             redirect('');
@@ -149,14 +202,28 @@ class Consultor extends CI_Controller {
     }
         
     function direccion_contratos($primary_key, $row) {
-        return base_url() . 'consultor/detalleTitulares/' . $primary_key;
+        return base_url() . 'consultor/detallesContratos/' . $primary_key;
     }
 
-    function detalleTitulares($noContrato) {
+    function direccion_general($primary_key, $row) {
+        return base_url() . 'consultor/detallesGeneral/' . $primary_key;
+    }
+    
+    function detallesGeneral($noContrato)
+    {
+       $this->detalleTitulares($noContrato, 9);
+    }
+    
+    function detallesContratos($noContrato)
+    {
+       $this->detalleTitulares($noContrato, 4);
+    }
+    
+    function detalleTitulares($noContrato, $opcion) {
         //informacion de Usuario
         $data['user_id'] = $this->tank_auth->get_user_id();
         $data['username'] = $this->tank_auth->get_username();
-        $data['selectedoption'] = 4;
+        $data['selectedoption'] = $opcion;
 
         $contarbeneficiarios = 0;
 
@@ -448,5 +515,87 @@ class Consultor extends CI_Controller {
         return $estado;
     }
 
+    function consultaDocumentos() {
+        $session_rol = $this->tank_auth->get_rol();
+        if ($session_rol >= 1 && $session_rol <= 4) {
+
+            $data['asesor'] = $this->input->post('asesor');            
+            $data['estado'] = $this->input->post('estado');
+            $data['nodocumento'] = $this->input->post('nodocumento');
+            $data['rangoinicio'] = $this->input->post('rangoinicio');
+            $data['rangofin'] = $this->input->post('rangofin');
+            $data['tipo'] = $this->input->post('tipo');
+
+            //informacion de Usuario
+            $data['user_id'] = $this->tank_auth->get_user_id();
+            $data['username'] = $this->tank_auth->get_username();
+            $data['selectedoption'] = 10;
+
+            $crud = new grocery_CRUD();
+            $crud->set_model('Custom_query_model');
+            $crud->set_table('persona'); //Change to your table name
+
+            $strSQL = " SELECT CONCAT(PERSONA.NOMBRES, ' ' , PERSONA.APELLIDOS) AS ASESOR, 
+                        DOCUMENTO.NUMERO, DOCUMENTO.ESTADO, DOCUMENTO.TIPO, DOCUMENTO.ID
+                        FROM DOCUMENTO
+                        INNER JOIN PERSONA ON DOCUMENTO.EMPID = PERSONA.ID  ";
+            if ($data['asesor'] != '') {
+                $strSQL = $strSQL . " AND CONCAT(PERSONA.Nombres, ' ', PERSONA.Apellidos) like '%" . $data['asesor'] . "%' ";
+            }
+            if (is_numeric($data['estado'])) {
+                if($data['estado'] > 0)
+                    $strSQL = $strSQL . " AND documento.ESTADO = " . $data['estado'] . " ";
+            }
+            if (is_numeric($data['nodocumento'])) {
+                $strSQL = $strSQL . " AND documento.Numero = " . $data['nodocumento'] . " ";
+            }
+            if (is_numeric($data['rangoinicio'])) {
+                $strSQL = $strSQL . " AND documento.Numero >= " . $data['rangoinicio'] . " ";
+            }
+            if (is_numeric($data['rangofin'])) {
+                $strSQL = $strSQL . " AND documento.Numero <= " . $data['rangofin'] . " ";
+            }
+            if (is_numeric($data['tipo'])) {
+                if($data['tipo'] > 0)
+                    $strSQL = $strSQL . " AND documento.tipo = " . $data['tipo'] . " ";
+            }
+            $strSQL = $strSQL . " ORDER BY DOCUMENTO.NUMERO";
+            $crud->basic_model->set_query_str($strSQL); //Query text here
+            $crud->columns("NUMERO", "ASESOR","ESTADO", "TIPO");
+            $crud->display_as('ASESOR', 'Asesor');
+            $crud->display_as('NUMERO', 'Número');
+            $crud->display_as('ESTADO', 'Estado Documento');
+            $crud->display_as('TIPO', 'Tipo Documento');
+                        
+            $crud->unset_add();
+            $crud->unset_edit();
+            $crud->unset_delete();
+            $crud->unset_read();
+            
+            $crud->unset_jquery();
+            $crud->callback_column('ESTADO', array($this, 'callback_column_estado_documento'));
+            $crud->callback_column('TIPO', array($this, 'callback_column_tipo_documento'));
+            
+            $output = $crud->render();
+            
+            //Configuracion de la Plantilla
+            $this->template->write_view('login', $this->tank_auth->get_login(), $data);
+            $this->template->write('title', 'Búsqueda de Contratos');
+            $this->template->write_view('sidebar', $this->tank_auth->get_sidebar());
+            $this->template->write_view('content', 'consultor/consultaDocumentos', $output);
+            $this->template->render();
+        } else {
+            redirect('');
+        }
+    }
+    
+    public function callback_column_estado_documento($value, $row) {        
+        return array('1' => 'Asignado', '2' => 'Reportado', '3' => 'Anulado')[$row->ESTADO];
+    }
+    
+    public function callback_column_tipo_documento($value, $row) {        
+        return array('1' => 'Contrato', '2' => 'Recibo de Caja')[$row->TIPO];
+    }
+    
 }
 
