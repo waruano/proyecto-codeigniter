@@ -111,7 +111,7 @@ class digitador extends CI_Controller {
             $crud->display_as('OTROCONCEPTO', 'Otro? Cual');
 
             $crud->set_relation('RECID', 'Documento', '{Numero}', array('TIPO' => '2', 'ESTADO' => '1'));            
-            $crud->set_relation('TITID', 'Titular', '{Nombres} {Apellidos}');
+            $crud->set_relation('TITID', 'Titular', '{Nombres} {Apellidos}',array('ID !='=> 1));
 
             $crud->edit_fields('VALOR', 'FECHA', 'TIPOCONCEPTO', 'OTROCONCEPTO');
             //definicion de las reglas

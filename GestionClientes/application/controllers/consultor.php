@@ -182,7 +182,7 @@ class Consultor extends CI_Controller {
             $crud->unset_read();
             $crud->add_action('Detalles', base_url() . 'images/magnifier.png', 'Detalles', '', array($this, 'direccion_general'));
             $crud->unset_jquery();
-            $crud->callback_column('Estado', array($this, 'callback_column_estado'));
+            $crud->callback_column('EstadoCartera', array($this, 'callback_column_estado'));
             
             $output = $crud->render();
             
@@ -229,7 +229,7 @@ class Consultor extends CI_Controller {
 
         //$valTitId = $noContrato;
         $query = $this->db->query("SELECT titular.*
-                                   FROM titular INNER JOIN CONTRATO on Contrato.TitId = titular.ID  AND contrato.estado = 1
+                                   FROM titular INNER JOIN CONTRATO on Contrato.TitId = titular.ID  
                                    INNER JOIN documento on documento.id = contrato.docId   WHERE contrato.id = " . $noContrato);
         if ($query->num_rows() > 0) {
             $row = $query->row(0);
@@ -239,7 +239,7 @@ class Consultor extends CI_Controller {
                 $contarbeneficiarios = $contarbeneficiarios + 1;
             }
         } else {
-            $data['titular'] = null;
+            $data['titular'] = null;            
         }
 
         /// Se consultan los beneficiarios del titular
@@ -270,7 +270,7 @@ class Consultor extends CI_Controller {
                 TIMESTAMPDIFF(MONTH,CONTRATO.FECHAINICIO,CURDATE()) 
             ELSE
                 TIMESTAMPDIFF(MONTH,CONTRATO.FECHAINICIO,CONTRATO.FECHAFIN) END
-            AS DIFERENCIA,
+            AS DIFERENCIA, CONTRATO.FECHAFIN,
             CONTRATO.ESTADO
             FROM CONTRATO 
             INNER JOIN PLAN ON PLAN.ID = CONTRATO.PLANID 
@@ -297,11 +297,12 @@ class Consultor extends CI_Controller {
                 FROM PAGO 
                 INNER JOIN DOCUMENTO ON DOCUMENTO.ID = PAGO.RECID
                 INNER JOIN PERSONA ON PERSONA.ID = DOCUMENTO.EMPID
-                WHERE PAGO.TIPOCONCEPTO = 1 AND  TITID = " . $valTitId . " AND FECHA >= " . $contrato->FECHAINICIO; 
+                WHERE PAGO.TIPOCONCEPTO = 1 AND  TITID = " . $valTitId . " AND FECHA >= '" . $contrato->FECHAINICIO . "' "; 
             if($contrato->ESTADO == 0)
             {
-                $strQueryPagos = $strQueryPagos . " AND FECHA <= " . $contrato->FECHAFIN;                
+                $strQueryPagos = $strQueryPagos . " AND FECHA <= '" . $contrato->FECHAFIN ."' ";                
             }
+            
             $qpagos = $this->db->query($strQueryPagos);
             $data['pagos'] = $qpagos->result();
 
@@ -454,15 +455,15 @@ class Consultor extends CI_Controller {
                 FROM PAGO 
                 INNER JOIN DOCUMENTO ON DOCUMENTO.ID = PAGO.RECID
                 INNER JOIN PERSONA ON PERSONA.ID = DOCUMENTO.EMPID
-                WHERE PAGO.TIPOCONCEPTO = 1 AND  TITID = " . $contrato->TITID . " AND FECHA >= " . $contrato->FECHAINICIO; 
+                WHERE PAGO.TIPOCONCEPTO = 1 AND  TITID = " . $contrato->TITID . " AND FECHA >= '" . $contrato->FECHAINICIO  ."' "; 
             if($contrato->ESTADO == 0)
             {
-                $strQueryPagos = $strQueryPagos . " AND FECHA <= " . $contrato->FECHAFIN;                
+                $strQueryPagos = $strQueryPagos . " AND FECHA <= '" . $contrato->FECHAFIN ."' ";                
             }
             $qpagos = $this->db->query($strQueryPagos);
             $rtotal = $qpagos->row(0);
             $totalpagado = $rtotal->VALOR;
-            //echo $totalpagado . ' ' ;
+            
 
             // Se calcula el numero de pagos que se deberian haber realizado            
             $cantidadpagos = ($contrato->DIFERENCIA + 1);
@@ -487,6 +488,7 @@ class Consultor extends CI_Controller {
                 /* $finperiodo->add(new DateInterval($invervalo)); */
                 $limitepago->add(new DateInterval('P10D'));
                 $valorPago = $this->ObtenerValorPago($contratoId, $factual, $contrato->NUMBENEFICIARIOS );
+                
                 if($valorPago >= 0 )
                 {
                     $total_deuda = $total_deuda + $valorPago;       
@@ -499,7 +501,7 @@ class Consultor extends CI_Controller {
                 $factual->add(new DateInterval($invervalo));
             }
             
-            if ($totalpagado < $total_deuda) {
+            if ($total_deuda < $total_deuda) {
                 if($condetalle)
                 {                    
                     $estado = "EN MORA ($ " . number_format(($total_deuda - $totalpagado), 2, ',', '.') .")";    

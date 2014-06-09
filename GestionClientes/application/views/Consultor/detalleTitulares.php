@@ -24,13 +24,17 @@
                     </TR>
                     <tr>
                         <td>Tipo de documento:</td>
-                        <td><?php echo array(1 => 'Cédula de Ciudadanía', 2 => 'Tarjeta de Identidad', 3 => 'Cedula Extrangera', NULL => '')[$titular->TIPODOC] ?></td>
+                        <td><?php 
+                        $valor = array(1 => 'Cédula de Ciudadanía', 2 => 'Tarjeta de Identidad', 3 => 'Cedula Extrangera', NULL => '');
+                        echo $valor[$titular->TIPODOC] ?></td>
                         <td>Número de documento:</td>
                         <td><?php echo $titular->NODOCUMENTO ?></td>
                     </tr>
                     <tr>                
                         <td>Género:</td>
-                        <td><?php echo array(1 => 'Masculino', 2 => 'Femenino', NULL => '')[$titular->GENERO] ?></td>
+                        <td><?php 
+                        $valor = array(1 => 'Masculino', 2 => 'Femenino', NULL => '');
+                        echo $valor[$titular->GENERO] ?></td>
                         <td>Fecha de nacimiento:</td>
                         <td><?php echo $titular->FECHANACIMIENTO ?></td>
                     </tr>
@@ -64,17 +68,23 @@
                         <td>Estrato domicilio: </td>
                         <td><?php echo $titular->ESTRATO ?></td>
                         <td>Estado civil: </td>
-                        <td><?php echo array(1 => 'Soltero', 2 => 'Casado', 3 => 'Divorciado', 4 => 'Unión Libre', 5 => 'Viudo', NULL => '')[$titular->ESTADOCIVIL] ?></td>
+                        <td><?php 
+                        $valor = array(1 => 'Soltero', 2 => 'Casado', 3 => 'Divorciado', 4 => 'Unión Libre', 5 => 'Viudo', NULL => '');
+                        echo $valor[$titular->ESTADOCIVIL] ?></td>
                     </TR>
                     <TR>                
                         <td>Ocupación: </td>
-                        <td><?php echo array(1 => 'Empleado', 2 => 'Independiente', 3 => 'Jubilado', 4 => 'Ama de Casa', 5 => 'Estudiante', 6 => 'Desempleado', NULL => '')[$titular->OCUPACION] ?></td>
+                        <td><?php 
+                        $valor = array(1 => 'Empleado', 2 => 'Independiente', 3 => 'Jubilado', 4 => 'Ama de Casa', 5 => 'Estudiante', 6 => 'Desempleado', NULL => '');
+                        echo $valor[$titular->OCUPACION] ?></td>
                         <td>EPS: </td>
                         <td><?php echo $titular->EPS ?></td>
                     </TR>
                     <TR>                
                         <td>Es beneficiario: </td>
-                        <td><?php echo array(0 => 'No', 1 => 'Si', NULL => '')[$titular->BENEFICIARIO] ?></td>
+                        <td><?php
+                        $valor = array(0 => 'No', 1 => 'Si', NULL => '');
+                        echo $valor[$titular->BENEFICIARIO] ?></td>
                     </TR>
                 </table>
             </div>
@@ -105,13 +115,17 @@
                             </TR>
                             <tr>
                                 <td>Tipo de documento:</td>
-                                <td><?php echo array(1 => 'Cédula de Ciudadanía', 2 => 'Tarjeta de Identidad', 3 => 'Cedula Extrangera', NULL => '')[$benefic->TIPODOC] ?></td>
+                                <td><?php 
+                                $valor = array(1 => 'Cédula de Ciudadanía', 2 => 'Tarjeta de Identidad', 3 => 'Cedula Extrangera', NULL => '');
+                                echo $valor[$benefic->TIPODOC] ?></td>
                                 <td>Número de documento:</td>
                                 <td><?php echo $benefic->NODOCUMENTO ?></td>
                             </tr>
                             <tr>                
                                 <td>Género: </td>
-                                <td><?php echo array(1 => 'Masculino', 2 => 'Femenino', NULL => '')[$benefic->GENERO] ?></td>
+                                <td><?php 
+                                    $valor = array(1 => 'Masculino', 2 => 'Femenino', NULL => '');
+                                    echo $valor[$benefic->GENERO] ?></td>
                                 <td>Fecha de nacimiento:</td>
                                 <td><?php echo $benefic->FECHANACIMIENTO ?></td>
                             </tr>
@@ -139,11 +153,15 @@
                             </TR>
                             <TR>                                
                                 <td>Estado civil: </td>
-                                <td><?php echo array(1 => 'Soltero', 2 => 'Casado', 3 => 'Divorciado', 4 => 'Unión Libre', 5 => 'Viudo', NULL => '')[$benefic->ESTADOCIVIL] ?></td>
+                                <td><?php 
+                                $valor = array(1 => 'Soltero', 2 => 'Casado', 3 => 'Divorciado', 4 => 'Unión Libre', 5 => 'Viudo', NULL => '');
+                                echo $valor[$benefic->ESTADOCIVIL] ?></td>
                             </TR>
                             <TR>                
                                 <td>Ocupación: </td>
-                                <td><?php echo array(1 => 'Empleado', 2 => 'Independiente', 3 => 'Jubilado', 4 => 'Ama de Casa', 5 => 'Estudiante', 6 => 'Desempleado', NULL => '')[$benefic->OCUPACION] ?></td>
+                                <td><?php 
+                                $valor = array(1 => 'Empleado', 2 => 'Independiente', 3 => 'Jubilado', 4 => 'Ama de Casa', 5 => 'Estudiante', 6 => 'Desempleado', NULL => '');
+                                echo $valor[$benefic->OCUPACION] ?></td>
                                 <td>EPS: </td>
                                 <td><?php echo $benefic->EPS ?></td>
                             </TR>
@@ -223,7 +241,9 @@ else
 
                         </tr>
                         <tr>
-                            <td>Periodicidad: </td><td><?php echo array(1 => 'Mensual', 2 => 'Semestral', 3 => 'Anual')[$contrato->PERIODICIDAD] ?></td>  
+                            <td>Periodicidad: </td><td><?php 
+                                $valor = array(1 => 'Mensual', 2 => 'Semestral', 3 => 'Anual');
+                            echo $valor[$contrato->PERIODICIDAD] ?></td>  
                             <td>Nombre convenio: </td><td><?php echo $contrato->NOMBRECONVENIO ?></td>  
 
                         </tr>
@@ -254,7 +274,9 @@ else
                         </tr>
 
                         <tr>
-                            <td>Pago <?php echo array(1 => 'Mensual', 2 => 'Semestral', 3 => 'Anual')[$contrato->PERIODICIDAD] ?>: </td>
+                            <td>Pago <?php 
+                            $valor = array(1 => 'Mensual', 2 => 'Semestral', 3 => 'Anual');
+                            echo $valor[$contrato->PERIODICIDAD] ?>: </td>
 
                             <td>$ <?php
                                 if ($numerobeneficiarios <= $contrato->NUMBENEFICIARIOS) {
