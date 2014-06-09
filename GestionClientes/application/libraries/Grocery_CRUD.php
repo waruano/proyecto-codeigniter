@@ -1530,6 +1530,8 @@ class grocery_CRUD_Layout extends grocery_CRUD_Model_Driver {
 
         $data->validation_url = $this->getValidationUpdateUrl($state_info->primary_key);
         $data->is_ajax = $this->_is_ajax();
+        //carga de configuracion de botones
+        $data->buttons_form = $this->buttons_form;
 
         $this->_theme_view('edit.php', $data);
         $this->_inline_js("var js_date_format = '" . $this->js_date_format . "';");

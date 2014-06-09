@@ -103,3 +103,10 @@
         <input type="button" class="btn btn-large"  onclick="window.location = '<?php echo base_url() . "contratos/titulares"; ?>'" value="Regresar a Titulares"/>  
     <?php } ?>
 </div>
+    <script language="javascript" type="text/javascript">
+            $(document).ready(function(){
+                $(".personalizada").live('click', function (){                    
+                    return confirm('¿Esta seguro que desea eliminar el beneficiario?');
+                });     
+            });
+        </script>

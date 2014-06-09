@@ -44,11 +44,14 @@ class Contratos extends CI_Controller {
 
             //creacion  del crud
             $crud = new Grocery_CRUD();
-            
+
             //restriccion de acciones
-            if($session_rol==2){
+            if ($session_rol == 2) {
                 $crud->unset_edit();
                 $crud->unset_delete();
+            }
+            if ($session_rol == 1) {
+                $crud->add_action(' Terminar Contrato', base_url() . 'images/close.png', 'Terminar Contrato', 'personalizada', array($this, 'direccion_terminar_contrato'));
             }
             $state = $crud->getState();
 
@@ -60,41 +63,62 @@ class Contratos extends CI_Controller {
                 $crud->buttons_form('siguienteContratos');
                 if (isset($_SESSION['success_contrato']) && $_SESSION['success_contrato'] = true) {
                     unset($_SESSION['success_contrato']);
-                    redirect('contratos/titulares/add');
+
+                    if (isset($_SESSION['_aux_primary_key'])) {
+                        if ($_SESSION['_aux_primary_key'] == 1) {
+                            unset($_SESSION['_aux_primary_key']);
+                            redirect('contratos/titulares/add');
+                        } else {
+                            $aux_primary = $_SESSION['_aux_primary_key'];
+                            unset($_SESSION['_aux_primary_key']);
+                            redirect('contratos/titulares/edit/' . $aux_primary);
+                        }
+                    } else {
+                        redirect('contratos/titulares/add');
+                    }
                 }
+                $crud->set_relation('DOCID', 'documento', 'NUMERO', array('TIPO' => '1', 'ESTADO' => '1'));
+
+                $crud->field_type('ESTADO', 'hidden', '1');
             } else {
                 $crud->buttons_form('sinGuardar');
+                $crud->set_relation('DOCID', 'documento', 'NUMERO', array('TIPO' => '1'));
+                $crud->field_type('ESTADO', 'dropdown', array(0 => 'No', 1 => 'Si'));
+                $crud->unset_add();
+                $crud->unset_edit();
+                $crud->unset_delete();
             }
 
             //configuracion de la tabla
             $crud->set_table('contrato');
             $crud->set_subject("Contrato");
-            $crud->set_relation('DOCID', 'documento', 'NUMERO', array('TIPO' => '1', 'ESTADO' => '1'));
-
+            $crud->set_relation('TITID', 'titular', '{NODOCUMENTO} {NOMBRES} {APELLIDOS}', null, 'ID ASC');
             //Renombrado de los campos
             $crud->display_as('PLANID', 'Plan');
             $crud->display_as('TIPOCONTRATO', 'Tipo de Contrato');
             $crud->display_as('PERIODICIDAD', 'Periodicidad');
             $crud->display_as('FECHAINICIO', 'Fecha de Inicio');
             $crud->display_as('DOCID', 'Documento');
-            $crud->display_as('ESTADO', 'Estado');
-            $crud->columns('PLANID', 'TIPOCONTRATO', 'PERIODICIDAD', 'FECHAINICIO', 'DOCID');
+            $crud->display_as('ESTADO', '¿Activo?');
+            $crud->display_as('TITID', 'Titular');
+            $crud->columns('TITID', 'ESTADO', 'TIPOCONTRATO', 'PERIODICIDAD', 'FECHAINICIO', 'DOCID');
             //definicion de las reglas
-            $crud->required_fields('TIPOCONTRATO', 'PERIODICIDAD', 'FECHAINICIO', 'DOCID');
+            $crud->required_fields('TIPOCONTRATO', 'TITID', 'PERIODICIDAD', 'FECHAINICIO', 'DOCID');
 
             //campos en formulario para agregar
-            $crud->add_fields('PLANID', 'TIPOCONTRATO', 'PERIODICIDAD', 'FECHAINICIO', 'DOCID', 'ESTADO');
+            $crud->add_fields('PLANID', 'TITID', 'TIPOCONTRATO', 'PERIODICIDAD', 'FECHAINICIO', 'DOCID', 'ESTADO');
             //campos en formaulario para editar
             $crud->edit_fields('PLANID', 'TIPOCONTRATO', 'PERIODICIDAD', 'FECHAINICIO', 'DOCID', 'ESTADO');
 
             //tipos de los campos
             $crud->field_type('TIPOCONTRATO', 'dropdown', array(1 => 'Nuevo', 2 => 'Adición', 3 => 'Reactivación', 4 => 'Reemplazo'));
             $crud->field_type('PERIODICIDAD', 'dropdown', array(1 => 'Mensual', 2 => 'Semestral', 3 => 'Anual'));
+
             $crud->field_type('PLANID', 'hidden', $plan_id);
-            $crud->field_type('ESTADO', 'hidden', '1');
 
             //callback
             $crud->callback_after_insert(array($this, '_callback_after_insert_contrato'));
+            $crud->callback_before_insert(array($this, '_callback_before_insert_contrato'));
             //unsets
             $crud->unset_back_to_list();
             $crud->unset_read();
@@ -109,6 +133,17 @@ class Contratos extends CI_Controller {
         } else {
             redirect('');
         }
+    }
+
+    function direccion_terminar_contrato($primary_key, $row) {
+        return base_url() . 'contratos/terminar_contrato/' . $primary_key;
+    }
+
+    function terminar_contrato($primary_key) {
+        $this->db->where('ID', $primary_key);
+        $_estado = array('ESTADO' => '0', 'FECHAFIN' => ' CURDATE()');
+        $this->db->update('contrato', $_estado);
+        redirect('contratos');
     }
 
     function contratosEdit($primary_key) {
@@ -126,9 +161,11 @@ class Contratos extends CI_Controller {
     }
 
     function _callback_after_insert_contrato($post_array, $primary_key) {
+        $titularId = $post_array['TITID'];
         $data = array('ESTADO' => '2');
         $this->db->where('ID', $post_array['DOCID']);
         $this->db->update('documento', $data);
+        $_SESSION['_aux_primary_key'] = $titularId;
         $_SESSION['success_contrato'] = true;
         $_SESSION['_aux_var'] = $primary_key;
         $_SESSION['_aux_wizard'] = true;
@@ -138,12 +175,15 @@ class Contratos extends CI_Controller {
     //solo para cuando se ingresan titulares antes del contrato
     function _callback_before_insert_contrato($post_array) {
         $titularId = $post_array['TITID'];
-        $this->db->where('TITID', $titularId);
-        $contratos = $this->db->get('contrato');
-        foreach ($contratos->result() as $contrato) {
-            $_estado = array('ESTADO' => '0');
-            $this->db->where('ID', $contrato->ID);
-            $this->db->update('contrato', $_estado);
+        if ($titularId != 1) {
+            $this->db->where('TITID', $titularId);
+            $contratos = $this->db->get('contrato');
+            foreach ($contratos->result() as $contrato) {
+                $_estado = array('ESTADO' => '0', 'FECHAFIN' => ' CURDATE()');
+                $this->db->where('ID', $contrato->ID);
+                $this->db->where('ESTADO', '1');
+                $this->db->update('contrato', $_estado);
+            }
         }
         return $post_array;
     }
@@ -162,6 +202,7 @@ class Contratos extends CI_Controller {
             $data['selectedoption'] = 3;
             //creacion  del crud
             $crud = new Grocery_CRUD();
+            //restriccion de acciones
             if ($session_rol == 2) {
                 $crud->unset_edit();
                 $crud->unset_delete();
@@ -174,12 +215,12 @@ class Contratos extends CI_Controller {
                 session_start();
             if (isset($_SESSION['_aux_wizard']) && $_SESSION['_aux_wizard']) {
 
-                //informacion del Contrato y el Plan
+                //informacion del Contrato y el Plan  
+                $data['selectedoption'] = 2;
                 $contrato_id = $_SESSION['_aux_var'];
                 $this->load->model('contratosModel');
                 $select_contrato = $this->contratosModel->get_contrato($contrato_id);
                 if ($select_contrato != null) {
-                    $data['selectedoption'] = 2;
                     $_aux_str = "Tipo de Contrato no Definido";
                     switch ($select_contrato->TIPOCONTRATO) {
                         case '1':
@@ -232,7 +273,7 @@ class Contratos extends CI_Controller {
 
                 //para guardar informacion del contrato luego de salir
                 $crud->callback_after_insert(array($this, '_callback_after_guardar_titular'));
-
+                $crud->callback_after_update(array($this, '_callback_after_actualizar_titular'));
                 //vista del wizard para agregar titular
                 $content = 'Administrador/add_titulares_wizard';
 
@@ -245,6 +286,7 @@ class Contratos extends CI_Controller {
                 $crud->unset_add();
                 $content = 'Administrador/titulares';
             }
+            $crud->where('ID !=', '1');
             //configuracion de la tabla
             $crud->set_table('titular');
             $crud->set_subject("Titulares");
@@ -299,8 +341,8 @@ class Contratos extends CI_Controller {
 
             //definicion de las reglas
             $crud->required_fields('NOMBRES', 'APELLIDOS', 'TIPODOC', 'NODOCUMENTO', 'EMAIL', 'BENEFICIARIO', 'FECHANACIMIENTO', 'GENERO', 'COBRODIRECCION', 'COBROBARRIO', 'COBROMUNICIPIO', 'COBRODEPTO', 'DOMIDIRECCION', 'DOMIBARRIO', 'DOMIMUNICIPIO', 'DOMIDEPTO', 'TELDOMICILIO', 'NOHIJOS', 'NODEPENDIENTES', 'ESTRATO', 'ESTADOCIVIL', 'OCUPACION', 'EPS', 'COMOUBICOSERVICIO', 'PERMITEUSODATOS');
-            $crud->set_rules('EMAIL', 'E-mail', 'required|trim|xss_clean|valid_email|max_length[100]');           
-            
+            $crud->set_rules('EMAIL', 'E-mail', 'required|trim|xss_clean|valid_email|max_length[100]');
+
 //acciones desde el crud
             $crud->add_action('Beneficiarios', base_url() . 'images/people.png', 'Beneficiarios', '', array($this, 'direccion_beneficiarios'));
             $crud->add_action('Contactos', base_url() . 'images/phone.png', 'Contactos', '', array($this, 'direccion_contactos'));
@@ -338,6 +380,16 @@ class Contratos extends CI_Controller {
         $data = array('TITID' => $primary_key);
         $this->db->where('ID', $_SESSION['_aux_var']);
         $this->db->update('contrato', $data);
+        $_SESSION['success_titular'] = true;
+        $_SESSION['_aux_primary_key'] = $_SESSION['_aux_var'];
+        $_SESSION['_aux_var'] = $primary_key;
+        $_SESSION['_aux_wizard'] = true;
+        return true;
+    }
+
+    function _callback_after_actualizar_titular($post_array, $primary_key) {
+        if (!$this->is_session_started())
+            session_start();
         $_SESSION['success_titular'] = true;
         $_SESSION['_aux_primary_key'] = $_SESSION['_aux_var'];
         $_SESSION['_aux_var'] = $primary_key;
@@ -389,8 +441,13 @@ class Contratos extends CI_Controller {
                 $row = $query->row(0);
                 $data['titularFullName'] = $row->NOMBRES . ' ' . $row->APELLIDOS;
                 $data['titularIdentificacion'] = $row->NODOCUMENTO;
-                $data['titularContrato'] = $row->numero;
-                $data['plan_beneficiarios'] = $row->NUMBENEFICIARIOS;
+                if ($row->numero == "") {
+                    $data['titularContrato'] = "Sin Contrato Activo";
+                    $data['plan_beneficiarios'] = FALSE;
+                } else {
+                    $data['titularContrato'] = $row->numero;
+                    $data['plan_beneficiarios'] = $row->NUMBENEFICIARIOS;
+                }
             } else {
                 $data['titularFullName'] = 'Titular sin definir o no existe';
                 $data['titularIdentificacion'] = '';
@@ -479,17 +536,15 @@ class Contratos extends CI_Controller {
                 }
                 $data['total_beneficiarios'] = $total_beneficiarios;
                 $content = 'Administrador/beneficiarios';
-                $crud->unset_add();                
-            }                        
-            $crud->unset_delete();            
+                $crud->unset_add();
+            }
+            $crud->unset_delete();
             //restringir acciones
             if ($session_rol == 2) {
                 $crud->unset_edit();
                 $crud->unset_delete();
-            }
-            else if (isset($_SESSION['_aux_wizard']) && $_SESSION['_aux_wizard'])
-            {
-                $crud->add_action('Eliminar Beneficiario', base_url() . 'images/close.png', 'Eliminar Beneficiario', '', array($this, 'direccion_eliminar_beneficiario'));
+            } else if (isset($_SESSION['_aux_wizard']) && $_SESSION['_aux_wizard']) {
+                $crud->add_action('Eliminar Beneficiario', base_url() . 'images/close.png', 'Eliminar Beneficiario', 'personalizada', array($this, 'direccion_eliminar_beneficiario'));
             }
             $crud->unset_read();
             $state = $crud->getState();
@@ -497,7 +552,7 @@ class Contratos extends CI_Controller {
             $crud->set_table('beneficiario');
             $crud->set_subject("Beneficiarios");
             $crud->where('TITID', $valTitId);
-            
+
             //callback despues de eliminar
             $crud->callback_after_delete(array($this, 'after_delete_callback_beneficiarios'));
             //definicion de los botones del form
@@ -530,9 +585,9 @@ class Contratos extends CI_Controller {
 
             //definicion de las columnas a mostrar
             $crud->columns('NODOCUMENTO', 'NOMBRES', 'APELLIDOS', 'EPS');
-            $crud->required_fields('NOMBRES', 'TIPODOC', 'NODOCUMENTO', 'APELLIDOS','EMAIL','FECHANACIMIENTO','GENERO','ESTRATODOMICILIO','DIRECCION','BARRIO','MUNICIPIO','DEPTO','TELDOMICILIO','EPS','NOHIJOS','OCUPACION','ESTADOCIVIL');
+            $crud->required_fields('NOMBRES', 'TIPODOC', 'NODOCUMENTO', 'APELLIDOS', 'EMAIL', 'FECHANACIMIENTO', 'GENERO', 'ESTRATODOMICILIO', 'DIRECCION', 'BARRIO', 'MUNICIPIO', 'DEPTO', 'TELDOMICILIO', 'EPS', 'NOHIJOS', 'OCUPACION', 'ESTADOCIVIL');
             $crud->set_rules('EMAIL', 'E-mail', 'required|trim|xss_clean|valid_email|max_length[100]');
-            
+
             //definicion de tipos de los campos
 
             $crud->field_type('NODOCUMENTO', 'integer');
@@ -559,13 +614,16 @@ class Contratos extends CI_Controller {
             redirect('');
         }
     }
-    function direccion_eliminar_beneficiario($primary_key,$row){
-        return base_url().'contratos/eliminar_beneficiario/'.$primary_key;
+
+    function direccion_eliminar_beneficiario($primary_key, $row) {
+        return base_url() . 'contratos/eliminar_beneficiario/' . $primary_key;
     }
-    function eliminar_beneficiario($primary_key){
-        $this->db->delete('beneficiario',array('ID'=>$primary_key));
+
+    function eliminar_beneficiario($primary_key) {
+        $this->db->delete('beneficiario', array('ID' => $primary_key));
         redirect('contratos/beneficiarios');
     }
+
     function after_delete_callback_beneficiarios($primary_key) {
         //redirect('contratos/beneficiarios');
         return true;

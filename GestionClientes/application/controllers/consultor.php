@@ -589,12 +589,14 @@ class Consultor extends CI_Controller {
         }
     }
     
-    public function callback_column_estado_documento($value, $row) {        
-        return array('1' => 'Asignado', '2' => 'Reportado', '3' => 'Anulado')[$row->ESTADO];
+    public function callback_column_estado_documento($value, $row) {  
+        $estados=array('1' => 'Asignado', '2' => 'Reportado', '3' => 'Anulado');
+        return $estados[$row->ESTADO];
     }
     
-    public function callback_column_tipo_documento($value, $row) {        
-        return array('1' => 'Contrato', '2' => 'Recibo de Caja')[$row->TIPO];
+    public function callback_column_tipo_documento($value, $row) {    
+        $estados=array('1' => 'Asignado', '2' => 'Reportado', '3' => 'Anulado');
+        return $estados[$row->TIPO];
     }
     
 }
