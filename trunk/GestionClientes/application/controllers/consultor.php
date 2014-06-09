@@ -188,7 +188,7 @@ class Consultor extends CI_Controller {
             
             //Configuracion de la Plantilla
             $this->template->write_view('login', $this->tank_auth->get_login(), $data);
-            $this->template->write('title', 'Búsqueda de Contratos');
+            $this->template->write('title', 'Búsqueda de General');
             $this->template->write_view('sidebar', $this->tank_auth->get_sidebar());
             $this->template->write_view('content', 'consultor/consultaGeneral', $output);
             $this->template->render();
@@ -385,7 +385,7 @@ class Consultor extends CI_Controller {
 
         //Configuracion de la Plantilla
         $this->template->write_view('login', $this->tank_auth->get_login(), $data);
-        $this->template->write('title', 'Búsqueda de Contratos');
+        $this->template->write('title', 'Detalles de Titular');
         $this->template->write_view('sidebar', $this->tank_auth->get_sidebar());
         $this->template->write_view('content', 'consultor/detalleTitulares');
         $this->template->render();
@@ -580,7 +580,7 @@ class Consultor extends CI_Controller {
             
             //Configuracion de la Plantilla
             $this->template->write_view('login', $this->tank_auth->get_login(), $data);
-            $this->template->write('title', 'Búsqueda de Contratos');
+            $this->template->write('title', 'Búsqueda de Documentos');
             $this->template->write_view('sidebar', $this->tank_auth->get_sidebar());
             $this->template->write_view('content', 'consultor/consultaDocumentos', $output);
             $this->template->render();
