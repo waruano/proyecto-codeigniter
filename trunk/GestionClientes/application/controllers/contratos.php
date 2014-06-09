@@ -141,7 +141,10 @@ class Contratos extends CI_Controller {
 
     function terminar_contrato($primary_key) {
         $this->db->where('ID', $primary_key);
-        $_estado = array('ESTADO' => '0', 'FECHAFIN' => ' CURDATE()');
+        $this->db->where('ESTADO', '1');
+        $factual = getdate();
+        $valor = $factual['year'] . '-' . $factual['mon'] . '-' . $factual['mday'];
+        $_estado = array('ESTADO' => '0', 'FECHAFIN' => $valor);
         $this->db->update('contrato', $_estado);
         redirect('contratos');
     }
@@ -178,8 +181,10 @@ class Contratos extends CI_Controller {
         if ($titularId != 1) {
             $this->db->where('TITID', $titularId);
             $contratos = $this->db->get('contrato');
+            $factual = getdate();
+            $valor = $factual['year'] . '-' . $factual['mon'] . '-' . $factual['mday'];
             foreach ($contratos->result() as $contrato) {
-                $_estado = array('ESTADO' => '0', 'FECHAFIN' => ' CURDATE()');
+                $_estado = array('ESTADO' => '0', 'FECHAFIN' => $valor);
                 $this->db->where('ID', $contrato->ID);
                 $this->db->where('ESTADO', '1');
                 $this->db->update('contrato', $_estado);
