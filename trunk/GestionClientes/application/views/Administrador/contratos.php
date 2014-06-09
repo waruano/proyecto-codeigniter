@@ -70,6 +70,14 @@
     echo $output;
     if (!isset($_SESSION['_aux_wizard']) || !$_SESSION['_aux_wizard'] == true) {
         ?>
-        <input type="button" class="btn btn-large"  onclick="window.location = '<?php echo base_url() . "contratos/titulares"; ?>'" value="Regresar a Titulares"/>  
+        <input type="button" class="btn btn-large"  onclick="window.location = '<?php echo base_url() . "administrador/planes"; ?>'" value="Regresar a Planes"/>  
     <?php } ?>
 </div>
+    <script language="javascript" type="text/javascript">
+            $(document).ready(function(){
+                $(".personalizada").live('click', function (){                    
+                    return confirm('¿Esta seguro de finalizar el contrato?');
+                });     
+            });
+        </script>
+    
