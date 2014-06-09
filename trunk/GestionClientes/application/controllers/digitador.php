@@ -54,7 +54,7 @@ class digitador extends CI_Controller {
 
             //Configuracion de la Plantilla
             $this->template->write_view('login', $this->tank_auth->get_login(), $data);
-            $this->template->write('title', 'Planes');
+            $this->template->write('title', 'Documentos');
             $this->template->write_view('sidebar', $this->tank_auth->get_sidebar());
             $this->template->write_view('content', 'digitador/documentos', $output);
             $this->template->render();
@@ -129,7 +129,7 @@ class digitador extends CI_Controller {
 
             //Configuracion de la Plantilla
             $this->template->write_view('login', $this->tank_auth->get_login(), $data);
-            $this->template->write('title', 'Planes');
+            $this->template->write('title', 'Pagos');
             $this->template->write_view('sidebar', $this->tank_auth->get_sidebar());
             $this->template->write_view('content', 'digitador/pagos', $output);
             $this->template->render();
