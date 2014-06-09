@@ -304,7 +304,7 @@ class Contratos extends CI_Controller {
 //acciones desde el crud
             $crud->add_action('Beneficiarios', base_url() . 'images/people.png', 'Beneficiarios', '', array($this, 'direccion_beneficiarios'));
             $crud->add_action('Contactos', base_url() . 'images/phone.png', 'Contactos', '', array($this, 'direccion_contactos'));
-            
+            $crud->unset_read();
             //Rederizacion del CRUD
             $output = $crud->render();
 
@@ -397,6 +397,8 @@ class Contratos extends CI_Controller {
                 $data['titularContrato'] = '';
                 $data['plan_beneficiarios'] = 1;
             }
+            //creacion  del crud
+            $crud = new Grocery_CRUD();
             //informacion del contrato y del plan
             if (isset($_SESSION['_aux_wizard']) && $_SESSION['_aux_wizard']) {
                 //informacion del Contrato y el Plan
@@ -477,13 +479,17 @@ class Contratos extends CI_Controller {
                 }
                 $data['total_beneficiarios'] = $total_beneficiarios;
                 $content = 'Administrador/beneficiarios';
-            }
-            //creacion  del crud
-            $crud = new Grocery_CRUD();
+                $crud->unset_add();                
+            }                        
+            $crud->unset_delete();            
             //restringir acciones
             if ($session_rol == 2) {
                 $crud->unset_edit();
                 $crud->unset_delete();
+            }
+            else if (isset($_SESSION['_aux_wizard']) && $_SESSION['_aux_wizard'])
+            {
+                $crud->add_action('Eliminar Beneficiario', base_url() . 'images/close.png', 'Eliminar Beneficiario', '', array($this, 'direccion_eliminar_beneficiario'));
             }
             $crud->unset_read();
             $state = $crud->getState();
@@ -491,8 +497,7 @@ class Contratos extends CI_Controller {
             $crud->set_table('beneficiario');
             $crud->set_subject("Beneficiarios");
             $crud->where('TITID', $valTitId);
-            $crud->add_action('Eliminar Beneficiario', base_url() . 'images/close.png', 'Eliminar Beneficiario', '', array($this, 'direccion_eliminar_beneficiario'));
-            $crud->unset_delete();
+            
             //callback despues de eliminar
             $crud->callback_after_delete(array($this, 'after_delete_callback_beneficiarios'));
             //definicion de los botones del form

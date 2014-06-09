@@ -352,7 +352,7 @@ class Administrador extends CI_Controller {
         $data['username'] = $this->tank_auth->get_username();
         $data['selectedoption'] = 2;
 
-        $query = $this->db->query("SELECT NOMBRE FROM PLAN WHERE ID = " . $planid);
+        $query = $this->db->query("SELECT concat(NOMBRE , ' (' , NUMBENEFICIARIOS, ' beneficiarios)') AS NOMBRE FROM PLAN WHERE ID = " . $planid);
         if ($query->num_rows() > 0) {
             $row = $query->row(0);
             $data['planFullName'] = $row->NOMBRE;
