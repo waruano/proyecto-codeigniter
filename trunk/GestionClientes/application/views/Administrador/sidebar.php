@@ -8,5 +8,7 @@
         <li <?php if(isset($selectedoption) && $selectedoption == 6){ echo 'class="active"'; } ?> ><?php echo anchor('home/remap/digitador/documentos','Documentos');?></li>    
         <li <?php if(isset($selectedoption) && $selectedoption == 8){ echo 'class="active"'; } ?> ><?php echo anchor('home/remap/digitador/pagos','Pagos');?></li>
         <li <?php if(isset($selectedoption) && $selectedoption == 4){ echo 'class="active"'; } ?> ><?php echo anchor('home/remap/consultor/consultar','Consulta Contratos');?></li>
+        <li <?php if(isset($selectedoption) && $selectedoption == 9){ echo 'class="active"'; } ?> ><?php echo anchor('home/remap/consultor/consultageneral','Consulta General');?></li>
+        <li <?php if(isset($selectedoption) && $selectedoption == 10){ echo 'class="active"'; } ?> ><?php echo anchor('home/remap/consultor/consultadocumentos','Consulta Documentos');?></li>
     </ul>
 </div>
