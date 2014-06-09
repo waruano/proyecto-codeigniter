@@ -432,7 +432,7 @@ class Administrador extends CI_Controller {
 
         //Configuracion de la Plantilla
         $this->template->write_view('login', $this->tank_auth->get_login(), $data);
-        $this->template->write('title', 'Planes');
+        $this->template->write('title', 'Empleados');
         $this->template->write_view('sidebar', $this->tank_auth->get_sidebar());
         $this->template->write_view('content', 'Administrador/empleados', $output);
         $this->template->render();
