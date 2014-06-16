@@ -96,7 +96,7 @@ create table COSTOPLAN
    COSTOPAGOSEMESTRE    bigint,
    COSTOPAGOANIO        bigint,
    FECHADESDE           date,
-   FECHAHASTA           date,
+   FECHAHASTA           date,   
    primary key (ID)
 );
 
@@ -141,6 +141,7 @@ create table PERSONA
    TELMOVIL             varchar(15),
    EMAIL                varchar(50),
    TIPOPERSONA          int,
+   CODIGOASESOR         int,
    primary key (ID)
 );
 
@@ -153,6 +154,8 @@ create table PLAN
    NOMBRE               varchar(50),
    NUMBENEFICIARIOS     int,
    NOMBRECONVENIO       varchar(30),
+   DEBITOAUTOMATICO     bool,
+   BENEFICIARIOSILIMITADOS    bool,
    primary key (ID)
 );
 
