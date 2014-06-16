@@ -181,8 +181,7 @@ class Contratos extends CI_Controller {
         if ($titularId != 1) {
             $this->db->where('TITID', $titularId);
             $contratos = $this->db->get('contrato');
-            $factual = getdate();
-            $valor = $factual['year'] . '-' . $factual['mon'] . '-' . $factual['mday'];
+            $valor = $post_array["FECHAINICIO"];
             foreach ($contratos->result() as $contrato) {
                 $_estado = array('ESTADO' => '0', 'FECHAFIN' => $valor);
                 $this->db->where('ID', $contrato->ID);
@@ -338,15 +337,16 @@ class Contratos extends CI_Controller {
             $crud->field_type('TELDOMICILIO', 'integer');
             $crud->field_type('TELOFICINA', 'integer');
             $crud->field_type('TELMOVIL', 'integer');
-            $crud->field_type('TIPODOC', 'dropdown', array(1 => 'Cédula de Ciudadanía', 2 => 'Tarjeta de Identidad', 3 => 'Cedula Extrangera'));
+            $crud->field_type('TIPODOC', 'dropdown', array(1 => 'Cédula de Ciudadanía', 2 => 'Tarjeta de Identidad', 3 => 'Cedula Extrangera', 4 => 'Registro Civil'));
             $crud->field_type('GENERO', 'dropdown', array(1 => 'Masculino', 2 => 'Femenino'));
             $crud->field_type('ESTADOCIVIL', 'dropdown', array(1 => 'Soltero', 2 => 'Casado', 3 => 'Divorciado', 4 => 'Unión Libre', 5 => 'Viudo'));
+            $crud->field_type('ESTRATO', 'dropdown', array(1 => 1, 2 => 2, 3 => 3, 4 => 4, 5 => 5, 6 => 6));
             $crud->field_type('OCUPACION', 'dropdown', array(1 => 'Empleado', 2 => 'Independiente', 3 => 'Jubilado', 4 => 'Ama de Casa', 5 => 'Estudiante', 6 => 'Desempleado'));
             $crud->field_type('COMOUBICOSERVICIO', 'dropdown', array(1 => 'Referido', 2 => 'Eventos', 3 => 'Convenio Especial', 4 => 'Directorio Telefónico', 5 => 'Servicio Médico Atendido', 6 => 'Medios de Comunicación'));
 
             //definicion de las reglas
-            $crud->required_fields('NOMBRES', 'APELLIDOS', 'TIPODOC', 'NODOCUMENTO', 'EMAIL', 'BENEFICIARIO', 'FECHANACIMIENTO', 'GENERO', 'COBRODIRECCION', 'COBROBARRIO', 'COBROMUNICIPIO', 'COBRODEPTO', 'DOMIDIRECCION', 'DOMIBARRIO', 'DOMIMUNICIPIO', 'DOMIDEPTO', 'TELDOMICILIO', 'NOHIJOS', 'NODEPENDIENTES', 'ESTRATO', 'ESTADOCIVIL', 'OCUPACION', 'EPS', 'COMOUBICOSERVICIO', 'PERMITEUSODATOS');
-            $crud->set_rules('EMAIL', 'E-mail', 'required|trim|xss_clean|valid_email|max_length[100]');
+            $crud->required_fields('NOMBRES', 'APELLIDOS', 'TIPODOC', 'NODOCUMENTO', 'BENEFICIARIO', 'FECHANACIMIENTO', 'GENERO', 'COBRODIRECCION', 'COBROBARRIO', 'COBROMUNICIPIO', 'COBRODEPTO', 'DOMIDIRECCION', 'DOMIBARRIO', 'DOMIMUNICIPIO', 'DOMIDEPTO', 'NOHIJOS', 'NODEPENDIENTES', 'ESTRATO', 'ESTADOCIVIL', 'OCUPACION', 'EPS', 'COMOUBICOSERVICIO', 'PERMITEUSODATOS');
+            $crud->set_rules('EMAIL', 'E-mail', 'trim|xss_clean|valid_email|max_length[100]');
 
 //acciones desde el crud
             $crud->add_action('Beneficiarios', base_url() . 'images/people.png', 'Beneficiarios', '', array($this, 'direccion_beneficiarios'));
@@ -463,6 +463,18 @@ class Contratos extends CI_Controller {
             $crud = new Grocery_CRUD();
             //informacion del contrato y del plan
             if (isset($_SESSION['_aux_wizard']) && $_SESSION['_aux_wizard']) {
+                //comprobacion para beneficiarios
+                $_beneficiarios = $this->contratosModel->get_beneficiarios($titularId);
+                $row = $query->row(0);
+                if ($row->BENEFICIARIO == 1) {
+                    $total_beneficiarios = 1;
+                } else {
+                    $total_beneficiarios = 0;
+                }
+                if ($_beneficiarios != null) {
+                    $total_beneficiarios+=$_beneficiarios->num_rows();
+                }
+                $data['total_beneficiarios'] = $total_beneficiarios;
                 //informacion del Contrato y el Plan
                 $contrato_id = $_SESSION['_aux_primary_key'];
                 $this->load->model('contratosModel');
@@ -503,7 +515,14 @@ class Contratos extends CI_Controller {
                     $select_plan = $this->contratosModel->get_plan($select_contrato->PLANID);
                     if ($select_plan != null) {
                         $data['plan_nombre'] = $select_plan->NOMBRE;
-                        $data['plan_beneficiarios'] = $select_plan->NUMBENEFICIARIOS;
+                        if ($select_plan->BENEFICIARIOSILIMITADOS == 0) {
+                            $data['plan_beneficiarios'] = $select_plan->NUMBENEFICIARIOS;                            
+                            if($total_beneficiarios==$select_plan->NUMBENEFICIARIOS){
+                                $crud->unset_add();
+                            }
+                        }else{
+                            $data['plan_beneficiarios'] = "Ilimitado";
+                        }
                         $data['plan_convenio'] = $select_plan->NOMBRECONVENIO;
                     }
                 } else {
@@ -514,18 +533,7 @@ class Contratos extends CI_Controller {
                     $data['plan_beneficiarios'] = '';
                     $data['plan_convenio'] = '';
                 }
-                //comprobacion para beneficiarios
-                $_beneficiarios = $this->contratosModel->get_beneficiarios($titularId);
-                $row = $query->row(0);
-                if ($row->BENEFICIARIO == 1) {
-                    $total_beneficiarios = 1;
-                } else {
-                    $total_beneficiarios = 0;
-                }
-                if ($_beneficiarios != null) {
-                    $total_beneficiarios+=$_beneficiarios->num_rows();
-                }
-                $data['total_beneficiarios'] = $total_beneficiarios;
+                
                 //vista del wizard para agregar titular
                 $content = 'Administrador/beneficiarios_wizard';
             } else {
@@ -590,8 +598,8 @@ class Contratos extends CI_Controller {
 
             //definicion de las columnas a mostrar
             $crud->columns('NODOCUMENTO', 'NOMBRES', 'APELLIDOS', 'EPS');
-            $crud->required_fields('NOMBRES', 'TIPODOC', 'NODOCUMENTO', 'APELLIDOS', 'EMAIL', 'FECHANACIMIENTO', 'GENERO', 'ESTRATODOMICILIO', 'DIRECCION', 'BARRIO', 'MUNICIPIO', 'DEPTO', 'TELDOMICILIO', 'EPS', 'NOHIJOS', 'OCUPACION', 'ESTADOCIVIL');
-            $crud->set_rules('EMAIL', 'E-mail', 'required|trim|xss_clean|valid_email|max_length[100]');
+            $crud->required_fields('NOMBRES', 'TIPODOC', 'NODOCUMENTO', 'APELLIDOS', 'FECHANACIMIENTO', 'GENERO', 'ESTRATODOMICILIO', 'DIRECCION', 'BARRIO', 'MUNICIPIO', 'DEPTO', 'EPS', 'NOHIJOS', 'OCUPACION', 'ESTADOCIVIL');
+            $crud->set_rules('EMAIL', 'E-mail', 'trim|xss_clean|valid_email|max_length[100]');
 
             //definicion de tipos de los campos
 

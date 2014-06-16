@@ -102,24 +102,23 @@ class digitador extends CI_Controller {
             
             $crud->set_table('pago');
             $crud->set_subject("Pagos");
-            $crud->columns('RECID', 'TITID', 'VALOR', 'FECHA', 'TIPOCONCEPTO', 'OTROCONCEPTO');
+            $crud->columns('RECID', 'TITID', 'VALOR', 'FECHA', 'TIPOCONCEPTO');
             $crud->display_as('RECID', 'Recibo de caja');
             $crud->display_as('TITID', 'Titular de contrato');
             $crud->display_as('VALOR', 'Valor pagado');
             $crud->display_as('FECHA', 'Fecha de pago');
             $crud->display_as('TIPOCONCEPTO', 'Por Concepto de');
-            $crud->display_as('OTROCONCEPTO', 'Otro? Cual');
 
             $crud->set_relation('RECID', 'Documento', '{Numero}', array('TIPO' => '2', 'ESTADO' => '1'));            
             $crud->set_relation('TITID', 'Titular', '{Nombres} {Apellidos}',array('ID !='=> 1));
 
-            $crud->edit_fields('VALOR', 'FECHA', 'TIPOCONCEPTO', 'OTROCONCEPTO');
+            $crud->edit_fields('VALOR', 'FECHA', 'TIPOCONCEPTO');
             //definicion de las reglas
             $crud->required_fields('RECID', 'TITID', 'VALOR', 'FECHA', 'TIPOCONCEPTO');
             $crud->set_rules('VALOR', 'Valor Pagado', 'required|trim|xss_clean|max_length[20]|numeric');
-            $crud->add_fields('RECID', 'TITID', 'VALOR', 'FECHA', 'TIPOCONCEPTO', 'OTROCONCEPTO');
+            $crud->add_fields('RECID', 'TITID', 'TIPOCONCEPTO','VALOR', 'FECHA');
 
-            $crud->field_type('TIPOCONCEPTO', 'dropdown', array('1' => 'Pago mensualidad', '2' => 'Pago afiliación', '3' => 'Otro'));
+            $crud->field_type('TIPOCONCEPTO', 'dropdown', array('1' => 'Pago mensualidad', '2' => 'Pago afiliación'));
             $crud->field_type('FECHAHASTA', 'date');
             $crud->field_type('VALOR', 'integer');
 

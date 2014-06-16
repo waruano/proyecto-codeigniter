@@ -72,12 +72,13 @@
             
          <div style="float: left; width: 50%; padding-left: 10px;">
              
-                    <?php if (intval($total_beneficiarios) < intval($plan_beneficiarios)) { ?>
+                    <?php if(strcmp($total_beneficiarios, "Ilimitado")!=0)
+                    if (intval($total_beneficiarios) < intval($plan_beneficiarios)) { ?>
                         <h4>Total beneficiarios: <?php echo $total_beneficiarios."/".$plan_beneficiarios; ?></h4>
              
                     <?php } else { ?>
                         <h4 style="color: red">Total de Beneficiarios: <?php echo $total_beneficiarios."/".$plan_beneficiarios; ?></h4>
-                            <h5 style="color: red">Ha alcanzado su limite de beneficiarios,los beneficiarios extra tendrán un costo adicional.</h5>
+                            <h5 style="color: red">Ha alcanzado su limite de beneficiarios.</h5>
                     <?php } ?>
              
             </div>
