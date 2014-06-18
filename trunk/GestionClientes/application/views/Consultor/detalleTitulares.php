@@ -237,8 +237,8 @@ else
                         <tr><th colspan="4">Información del contrato actual</th></tr>
                         <tr>
                             <td>Número de contrato: </td><td><?php echo $contrato->NUMERO ?></td>  
-                            <td>Plan: </td><td><?php echo $contrato->NOMBRE . ' (' . $contrato->NUMBENEFICIARIOS . ' beneficiarios)' ?></td>  
-
+                            <td>Plan: </td><td><?php echo $contrato->NOMBRE . ' (' . $contrato->BeneficPlan . ' beneficiarios)' ?></td>  
+   
                         </tr>
                         <tr>
                             <td>Periodicidad: </td><td><?php 
@@ -248,7 +248,12 @@ else
 
                         </tr>
                         <tr>
-                            <td>Tarifa por beneficiario: </td><td> $
+                            <td>Fecha de inicio de contrato</td>
+                            <td>
+                            <?php echo $contrato->FECHAINICIO ?>
+                            </td>
+                            
+                            <td>Tarifa actual por beneficiario: </td><td> $
                                 <?php
                                 if ($contrato->PERIODICIDAD == 1) {
                                     echo number_format($contrato->COSTOPAGOMES, 2, ',', '.');
@@ -258,55 +263,47 @@ else
                                 else
                                     echo number_format($contrato->COSTOPAGOANIO, 2, ',', '.');
                                 ?></td>  
-                            <td>Tarifa por beneficiario adicional: </td>
-                            <td>$ 
-                                <?php
-                                if ($contrato->PERIODICIDAD == 1) {
-                                    echo number_format($costoadicional->COSTOPAGOMES, 2, ',', '.');
-                                } else if ($contrato->PERIODICIDAD == 2) {
-                                    echo number_format($costoadicional->COSTOPAGOSEMESTRE, 2, ',', '.');
-                                }
-                                else
-                                    echo number_format($costoadicional->COSTOPAGOANIO, 2, ',', '.');
-                                ?>
-                            </td>  
-
                         </tr>
 
                         <tr>
+                            <td>Costo de afiliación: </td>
+                            <td>$ <?php echo  number_format($costoafiliacion, 2, ',', '.') ?></td>
+                            <td>Total pagado por afiliacion: </td>
+                            <td <?php if($sumapagoafiliacion < $costoafiliacion) { echo "style='color:red;'"; }?> >$ <?php echo number_format($sumapagoafiliacion, 2, ',', '.') ?></td>
+                        </tr>
+                        
+                        <tr>
                             <td>Pago <?php 
                             $valor = array(1 => 'Mensual', 2 => 'Semestral', 3 => 'Anual');
-                            echo $valor[$contrato->PERIODICIDAD] ?>: </td>
+                            echo $valor[$contrato->PERIODICIDAD] ?> (tarifa actual): </td>
 
                             <td>$ <?php
-                                if ($numerobeneficiarios <= $contrato->NUMBENEFICIARIOS) {
                                     if ($contrato->PERIODICIDAD == 1) {
-                                        echo number_format($contrato->COSTOPAGOMES * $numerobeneficiarios, 2, ',', '.');
+                                        echo number_format($contrato->COSTOPAGOMES * $contrato->NUMBENEFICIARIOS, 2, ',', '.');
                                     } else if ($contrato->PERIODICIDAD == 2) {
-                                        echo number_format($contrato->COSTOPAGOSEMESTRE * $numerobeneficiarios, 2, ',', '.');
+                                        echo number_format($contrato->COSTOPAGOSEMESTRE * $contrato->NUMBENEFICIARIOS, 2, ',', '.');
                                     }
                                     else
-                                        echo number_format($contrato->COSTOPAGOANIO * $numerobeneficiarios, 2, ',', '.');
-                                }
-                                else {
-                                    $numadicionales = $numerobeneficiarios - $contrato->NUMBENEFICIARIOS;
-
-                                    if ($contrato->PERIODICIDAD == 1) {
-                                        echo number_format(($contrato->COSTOPAGOMES * $contrato->NUMBENEFICIARIOS) + ($numadicionales * $costoadicional->COSTOPAGOMES), 2, ',', '.');
-                                    } else if ($contrato->PERIODICIDAD == 2) {
-                                        echo number_format(($contrato->COSTOPAGOSEMESTRE * $contrato->NUMBENEFICIARIOS) + ($numadicionales * $costoadicional->COSTOPAGOSEMESTRE), 2, ',', '.');
-                                    }
-                                    else
-                                        echo number_format(($contrato->COSTOPAGOANIO * $contrato->NUMBENEFICIARIOS) + ($numadicionales * $costoadicional->COSTOPAGOANIO), 2, ',', '.');
-                                }
+                                        echo number_format($contrato->COSTOPAGOANIO * $contrato->NUMBENEFICIARIOS, 2, ',', '.');
+                               
                                 ?>
-                                <br/><br/>
-                            </td>         
+                                
+                            </td>   
+                            <td>Beneficiarios registrados: </td>
+                            <td><?php echo $contrato->NUMBENEFICIARIOS ?></td>
+                        </tr><tr>  
+                         
                             <td>Estado:</td>
-                            <td
-    <?php if ($estadocontrato != "OK") echo "style='color: red;'";
-    else echo "style='color: green;'" ?>
-                                ><?php echo $estadocontrato ?></td>
+                            <td <?php if ($estadocontrato != "OK") echo "style='color: red;'";    else echo "style='color: green;'" ?> >
+                                   <?php echo $estadocontrato ?>
+                            <br/><br/>
+                            </td>
+                            
+                             <?php if ($proximopago <> "") { ?>   
+                                 <td>Próximo pago:</td>
+                                 <td><?php echo $proximopago ?>:</td>
+                                 <?php }  ?> 
+                            
 
                         </tr>
                         <tr><td colspan="4">                          
@@ -340,7 +337,7 @@ else
                                                 <tr><th>Inicio</th><th>Fin</th><th>Límite pago</th><th>Valor pago</th><th>Estado</th></TR>
     <?php foreach ($lstperiodos as $periodo) { ?>
                                                     <tr>
-                                                        <td>$ <?php echo $periodo['inicioperiodo'] ?></td>
+                                                        <td><?php echo $periodo['inicioperiodo'] ?></td>
                                                         <td><?php echo $periodo['finperiodo'] ?> </td>
                                                         <td><?php echo $periodo['limitepago'] ?> </td>   
                                                         <td>$ <?php echo number_format($periodo['valorapagar'], 2, ',', '.') ?></td>
@@ -349,7 +346,7 @@ else
     <?php } ?>
                                                     
                                                     <tr><td></td><td></td><th>Costos totales: </th>
-                                                        <td>$ <?php echo number_format($acumuladodeuda, 2, ',', '.') ?></td></tr>
+                                                        <td>$ <?php echo number_format($acumulado_total, 2, ',', '.') ?></td></tr>
                                             </table>
                                         </td>
                                     </tr>                                               
