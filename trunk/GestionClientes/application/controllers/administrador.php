@@ -156,10 +156,11 @@ class Administrador extends CI_Controller {
             $crud->display_as('NOMBRE', 'Nombre Plan');
             $crud->display_as('NUMBENEFICIARIOS', 'Número de beneficiarios');
             $crud->display_as('NOMBRECONVENIO', 'Nombre de Convenio');
+            $crud->display_as('DEBITOAUTOMATICO', 'Debito Automatico');
             $crud->display_as('BENEFICIARIOSILIMITADOS','Beneficiarios Ilimitados');
-            $crud->edit_fields('NOMBRE', 'NUMBENEFICIARIOS', 'NOMBRECONVENIO','BENEFICIARIOSILIMITADOS');
-            $crud->required_fields('NOMBRE', 'NUMBENEFICIARIOS','BENEFICIARIOSILIMITADOS');
-            $crud->add_fields('NOMBRE', 'NUMBENEFICIARIOS' ,'NOMBRECONVENIO','BENEFICIARIOSILIMITADOS');
+            $crud->edit_fields('NOMBRE', 'NUMBENEFICIARIOS', 'NOMBRECONVENIO','BENEFICIARIOSILIMITADOS','DEBITOAUTOMATICO');
+            $crud->required_fields('DEBITOAUTOMATICO','NOMBRE', 'NUMBENEFICIARIOS','BENEFICIARIOSILIMITADOS');
+            $crud->add_fields('NOMBRE', 'NUMBENEFICIARIOS' ,'NOMBRECONVENIO','BENEFICIARIOSILIMITADOS','DEBITOAUTOMATICO');
             $crud->unset_read();
 
             //$crud->field_type('FORMAPAGO', 'dropdown', array('1' => 'Domicilio', '2' => 'Debito Automático', '3' => 'Convenio'));
@@ -422,8 +423,8 @@ class Administrador extends CI_Controller {
         $crud->set_rules('NOMBRES', 'Nombres', 'required|trim|xss_clean|max_length[50]');
         $crud->set_rules('APELLIDOS', 'Apellidos', 'required|trim|xss_clean|max_length[50]');
         $crud->set_rules('NODOCUMENTO', 'No Documento', 'required|trim|xss_clean|max_length[20]');
-        $crud->set_rules('TELMOVIL', 'Telefono Móvil', 'required|trim|xss_clean|max_length[15]');
-        $crud->set_rules('EMAIL', 'E-mail', 'required|trim|xss_clean|valid_email|max_length[50]');
+        $crud->set_rules('TELMOVIL', 'Telefono Móvil', 'trim|xss_clean|max_length[15]');
+        $crud->set_rules('EMAIL', 'E-mail', 'trim|xss_clean|valid_email|max_length[50]');
         $crud->add_fields('NOMBRES', 'APELLIDOS', 'TIPODOC', 'NODOCUMENTO', 'TELMOVIL', 'EMAIL', 'TIPOPERSONA','CODIGOASESOR');
         $crud->unset_read();
         $crud->field_type('NODOCUMENTO', 'integer');

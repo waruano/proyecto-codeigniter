@@ -36,6 +36,7 @@ class Contratos extends CI_Controller {
                 $data['plan_nombre'] = $select_plan->NOMBRE;
                 $data['plan_beneficiarios'] = $select_plan->NUMBENEFICIARIOS;
                 $data['plan_convenio'] = $select_plan->NOMBRECONVENIO;
+                $data['debito'] = $select_plan->DEBITOAUTOMATICO;
             } else {
                 $data['plan_nombre'] = 'No se ha Especificado el Plan';
                 $data['plan_beneficiarios'] = '';
@@ -112,8 +113,11 @@ class Contratos extends CI_Controller {
 
             //tipos de los campos
             $crud->field_type('TIPOCONTRATO', 'dropdown', array(1 => 'Nuevo', 2 => 'Adición', 3 => 'Reactivación', 4 => 'Reemplazo'));
-            $crud->field_type('PERIODICIDAD', 'dropdown', array(1 => 'Mensual', 2 => 'Semestral', 3 => 'Anual'));
-
+            if ($select_plan->DEBITOAUTOMATICO == 0)
+                $crud->field_type('PERIODICIDAD', 'dropdown', array(1 => 'Mensual', 2 => 'Semestral', 3 => 'Anual'));
+            else {
+                $crud->field_type('PERIODICIDAD', 'dropdown', array(1 => 'Mensual'));
+            }
             $crud->field_type('PLANID', 'hidden', $plan_id);
 
             //callback
@@ -175,15 +179,14 @@ class Contratos extends CI_Controller {
         return true;
     }
 
-      
-    
     //solo para cuando se ingresan titulares antes del contrato
     function _callback_before_insert_contrato($post_array) {
         $titularId = $post_array['TITID'];
         if ($titularId != 1) {
             $this->db->where('TITID', $titularId);
             $contratos = $this->db->get('contrato');
-            $valor = $post_array["FECHAINICIO"];
+            list($día, $mes, $año) = split('/', $post_array["FECHAINICIO"]);
+            $valor = $año . '-' . $mes . '-' . $día;
             foreach ($contratos->result() as $contrato) {
                 $_estado = array('ESTADO' => '0', 'FECHAFIN' => $valor);
                 $this->db->where('ID', $contrato->ID);
@@ -292,7 +295,7 @@ class Contratos extends CI_Controller {
                 $crud->callback_after_insert(array($this, '_callback_after_insert_titular'));
                 //callback despues de actualizar
                 $crud->callback_after_update(array($this, '_callback_after_insert_titular'));
-                
+
                 //$crud->buttons_form('sinGuardar');
                 $crud->unset_add();
                 $content = 'Administrador/titulares';
@@ -413,11 +416,11 @@ class Contratos extends CI_Controller {
         return true;
     }
 
-    function _callback_after_insert_titular($post_array, $primary_key) {        
+    function _callback_after_insert_titular($post_array, $primary_key) {
         $this->actualizar_contador_beneficiarios($primary_key);
         return true;
     }
-    
+
     function beneficiariosEdit($titularId) {
         session_start();
         $_SESSION['_aux_var'] = $titularId;
@@ -531,13 +534,9 @@ class Contratos extends CI_Controller {
                     $select_plan = $this->contratosModel->get_plan($select_contrato->PLANID);
                     if ($select_plan != null) {
                         $data['plan_nombre'] = $select_plan->NOMBRE;
-                        if ($select_plan->BENEFICIARIOSILIMITADOS == 0) {
-                            $data['plan_beneficiarios'] = $select_plan->NUMBENEFICIARIOS;                            
-                            if($total_beneficiarios==$select_plan->NUMBENEFICIARIOS){
-                                $crud->unset_add();
-                            }
-                        }else{
-                            $data['plan_beneficiarios'] = "Ilimitado";
+                        $data['plan_ilimitado'] = $select_plan->BENEFICIARIOSILIMITADOS;
+                        if ($select_plan->BENEFICIARIOSILIMITADOS == 0 && $total_beneficiarios >= $select_plan->NUMBENEFICIARIOS) {
+                            $crud->unset_add();
                         }
                         $data['plan_convenio'] = $select_plan->NOMBRECONVENIO;
                     }
@@ -549,7 +548,7 @@ class Contratos extends CI_Controller {
                     $data['plan_beneficiarios'] = '';
                     $data['plan_convenio'] = '';
                 }
-                
+
                 //vista del wizard para agregar titular
                 $content = 'Administrador/beneficiarios_wizard';
             } else {
@@ -620,7 +619,7 @@ class Contratos extends CI_Controller {
             $crud->columns('NODOCUMENTO', 'NOMBRES', 'APELLIDOS', 'EPS');
             $crud->required_fields('NOMBRES', 'TIPODOC', 'NODOCUMENTO', 'APELLIDOS', 'FECHANACIMIENTO', 'GENERO', 'ESTRATODOMICILIO', 'DIRECCION', 'BARRIO', 'MUNICIPIO', 'DEPTO', 'EPS', 'NOHIJOS', 'OCUPACION', 'ESTADOCIVIL');
             $crud->set_rules('EMAIL', 'E-mail', 'trim|xss_clean|valid_email|max_length[100]');
-            
+
             //definicion de tipos de los campos
 
             $crud->field_type('NODOCUMENTO', 'integer');
@@ -629,7 +628,7 @@ class Contratos extends CI_Controller {
             $crud->field_type('TELMOVIL', 'integer');
 
             $crud->field_type('TITID', 'hidden', $valTitId);
-            $crud->field_type('TIPODOC', 'dropdown', array(1 => 'Cédula de Ciudadanía', 2 => 'Tarjeta de Identidad', 3 => 'Cedula Extrangera'));
+            $crud->field_type('TIPODOC', 'dropdown', array(1 => 'Cédula de Ciudadanía', 2 => 'Tarjeta de Identidad', 3 => 'Cedula Extrangera',4 => 'Registro Civil'));
             $crud->field_type('GENERO', 'dropdown', array(1 => 'Masculino', 2 => 'Femenino'));
             $crud->field_type('ESTADOCIVIL', 'dropdown', array(1 => 'Soltero', 2 => 'Casado', 3 => 'Divorciado', 4 => 'Unión Libre', 5 => 'Viudo'));
             $crud->field_type('OCUPACION', 'dropdown', array(1 => 'Empleado', 2 => 'Independiente', 3 => 'Jubilado', 4 => 'Ama de Casa', 5 => 'Estudiante', 6 => 'Desempleado'));
@@ -647,35 +646,74 @@ class Contratos extends CI_Controller {
             redirect('');
         }
     }
-    
+
+    function finalizar_wizard() {
+        if ($this->is_session_started() === FALSE)
+                session_start();
+        if (isset($_SESSION['_aux_primary_key']) && isset($_SESSION['_aux_var']) && isset($_SESSION['_aux_wizard']) && $_SESSION['_aux_wizard']) {
+            
+            //informacion del titular
+            $titularId = $_SESSION['_aux_var'];
+            $valTitId = $titularId;
+            $query = $this->db->query("SELECT NOMBRES, APELLIDOS, NODOCUMENTO, documento.numero,  BENEFICIARIO, plan.NUMBENEFICIARIOS
+                                   FROM Titular Left Join CONTRATO on Contrato.TitId = Titular.ID   and contrato.estado = 1
+                                   left join documento on documento.id = contrato.docId   
+                                   left join plan on plan.id = contrato.planid 
+                                   WHERE Titular.ID = " . $valTitId);
+            if ($query->num_rows() > 0) {
+                $row = $query->row(0);
+            }
+            $_beneficiarios = $this->contratosModel->get_beneficiarios($titularId);
+            $row = $query->row(0);
+            if ($row->BENEFICIARIO == 1) {
+                $total_beneficiarios = 1;
+            } else {
+                $total_beneficiarios = 0;
+            }
+            if ($_beneficiarios != null) {
+                $total_beneficiarios+=$_beneficiarios->num_rows();
+            }
+            $total_beneficiarios;
+            //informacion del Contrato y el Plan
+            $contrato_id = $_SESSION['_aux_primary_key'];
+            $this->load->model('contratosModel');
+            $select_contrato = $this->contratosModel->get_contrato($contrato_id);
+            $select_plan = $this->contratosModel->get_plan($select_contrato->PLANID);
+            if ($select_plan->BENEFICIARIOSILIMITADOS == 1 && $total_beneficiarios < $select_plan->NUMBENEFICIARIOS) {
+                redirect('contratos/beneficiarios');
+            }else{
+                redirect('home/remap/administrador/planes');
+            }
+        }else
+            redirect('home/remap/administrador/planes');
+    }
+
     function _callback_after_insert_beneficiarios($post_array, $primary_key) {
         $titularId = $post_array['TITID'];
         $this->actualizar_contador_beneficiarios($titularId);
         return true;
     }
-    
-    function actualizar_contador_beneficiarios($titular_id)
-    {   
+
+    function actualizar_contador_beneficiarios($titular_id) {
         $strQuery = "SELECT ID  FROM Contrato WHERE Contrato.TItid = " . $titular_id . " and Contrato.estado = 1 ";
         $qcontrato = $this->db->query($strQuery);
         if ($qcontrato->num_rows() > 0) {
             $contrato = $qcontrato->row(0);
-            
+
             $strSQL = "SELECT case when Titular.BENEFICIARIO = 1 then 1 else 0 end + ifnull(subconsulta.contador,0) as totalbeneficiarios
                         FROM Titular left join (
                             select count(*) contador, beneficiario.TITID from beneficiario where beneficiario.titID = " . $titular_id . " 
                             group by beneficiario.titid) subconsulta
-                        on subconsulta.titID = titular.id where titular.id = " . $titular_id ;
+                        on subconsulta.titID = titular.id where titular.id = " . $titular_id;
             $qcantidad = $this->db->query($strSQL);
-            if($qcantidad->num_rows() > 0 )
-            {
+            if ($qcantidad->num_rows() > 0) {
                 $cantidad = $qcantidad->row(0);
                 $strUpdate = "UPDATE contrato SET NUMBENEFICIARIOS = " . $cantidad->totalbeneficiarios . " WHERE ID = " . $contrato->ID;
                 $this->db->query($strUpdate);
             }
         }
     }
-    
+
     function direccion_eliminar_beneficiario($primary_key, $row) {
         return base_url() . 'contratos/eliminar_beneficiario/' . $primary_key;
     }
