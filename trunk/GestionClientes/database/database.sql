@@ -81,6 +81,7 @@ create table CONTRATO
    FECHAINICIO          date,
    FECHAFIN             date,
    ESTADO               int,
+   NUMBENEFICIARIOS     int, 
    primary key (ID)
 );
 
