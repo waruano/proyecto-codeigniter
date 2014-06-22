@@ -55,7 +55,8 @@ $estrato = array(
 	'name'	=> 'estrato',
 	'id'	=> 'estrato',	
         'value' => $valestrato,
-	'size'	=> 30
+	'size'	=> 30,
+        'options' => array(1 => 1, 2 => 2, 3 => 3, 4 => 4, 5 => 5, 6 => 6)
 );
 $eps = array(
 	'name'	=> 'eps',
@@ -130,13 +131,6 @@ $asesor = array(
 
 <div class="row"  >
     <div class="col-md-1">         
-         <?php echo form_label('Teléfono', $telefono['id']); ?> 
-        </div>
-         <div class="col-md-3"> 
-        <?php echo form_input($telefono); ?>
-        <div style="color: red;"><?php echo form_error($telefono['name']); ?><?php echo isset($errors[$telefono['name']])?$errors[$telefono['name']]:''; ?>        </div>
-    </div>   
-    <div class="col-md-1">         
          <?php echo form_label('Género', $genero['id']); ?> 
         </div>
          <div class="col-md-3"> 
@@ -152,23 +146,20 @@ $asesor = array(
         <?php echo form_input($direccion); ?>
         <div style="color: red;"><?php echo form_error($direccion['name']); ?><?php echo isset($errors[$direccion['name']])?$errors[$direccion['name']]:''; ?>        </div>
     </div>   
-</div>
-
-<div class="row" style="padding-top: 5px;" >
-    <div class="col-md-1">         
-         <?php echo form_label('Correo', $correo['id']); ?> 
-        </div>
-         <div class="col-md-3"> 
-        <?php echo form_input($correo); ?>
-        <div style="color: red;"><?php echo form_error($correo['name']); ?><?php echo isset($errors[$correo['name']])?$errors[$correo['name']]:''; ?>        </div>
-    </div>   
     <div class="col-md-1">         
          <?php echo form_label('Estrato', $estrato['id']); ?> 
         </div>
          <div class="col-md-3"> 
-        <?php echo form_input($estrato); ?>
+             
+        <?php 
+        echo form_dropdown($estrato['name'], $estrato['options'], $estrato['value'], 'style="width:215px; height: 26px; "');                 
+        ?>
         <div style="color: red;"><?php echo form_error($estrato['name']); ?><?php echo isset($errors[$estrato['name']])?$errors[$estrato['name']]:''; ?>        </div>
     </div>   
+
+</div>
+
+<div class="row" style="padding-top: 5px;" >
     <div class="col-md-1">         
          <?php echo form_label('Eps', $eps['id']); ?> 
         </div>
@@ -176,16 +167,6 @@ $asesor = array(
         <?php echo form_input($eps); ?>
         <div style="color: red;"><?php echo form_error($eps['name']); ?><?php echo isset($errors[$eps['name']])?$errors[$eps['name']]:''; ?>        </div>
     </div>   
-</div>
-
-<div class="row" style="padding-top: 5px; padding-bottom: 5px;" >
-        <div class="col-md-1">         
-         <?php echo form_label('Asesor', $asesor['id']); ?> 
-        </div>
-         <div class="col-md-3"> 
-        <?php echo form_input($asesor); ?>
-        <div style="color: red;"><?php echo form_error($asesor['name']); ?><?php echo isset($errors[$asesor['name']])?$errors[$asesor['name']]:''; ?>        </div>
-    </div> 
     <div class="col-md-1">         
          <?php echo form_label('Plan', $plan['id']); ?> 
         </div>
@@ -199,7 +180,18 @@ $asesor = array(
          <div class="col-md-3"> 
         <?php echo form_input($convenio); ?>
         <div style="color: red;"><?php echo form_error($convenio['name']); ?><?php echo isset($errors[$convenio['name']])?$errors[$convenio['name']]:''; ?>        </div>
-    </div>   
+    </div>
+</div>
+
+<div class="row" style="padding-top: 5px; padding-bottom: 5px;" >
+        <div class="col-md-1">         
+         <?php echo form_label('Asesor', $asesor['id']); ?> 
+        </div>
+         <div class="col-md-3"> 
+        <?php echo form_input($asesor); ?>
+        <div style="color: red;"><?php echo form_error($asesor['name']); ?><?php echo isset($errors[$asesor['name']])?$errors[$asesor['name']]:''; ?>        </div>
+    </div> 
+       
 </div>
     <center>
             <input type="submit" value="Consultar" />       
