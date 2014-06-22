@@ -152,11 +152,11 @@ class Administrador extends CI_Controller {
             $crud = new Grocery_CRUD();
             $crud->set_table('plan');
             $crud->set_subject("planes");
-            $crud->columns('NOMBRE', 'NUMBENEFICIARIOS', 'NOMBRECONVENIO');
+            $crud->columns('NOMBRE', 'NUMBENEFICIARIOS', 'NOMBRECONVENIO', 'DEBITOAUTOMATICO', 'BENEFICIARIOSILIMITADOS');
             $crud->display_as('NOMBRE', 'Nombre Plan');
             $crud->display_as('NUMBENEFICIARIOS', 'Número de beneficiarios');
-            $crud->display_as('NOMBRECONVENIO', 'Nombre de Convenio');
-            $crud->display_as('DEBITOAUTOMATICO', 'Debito Automatico');
+            $crud->display_as('NOMBRECONVENIO', 'Convenio');
+            $crud->display_as('DEBITOAUTOMATICO', 'Débito Automatico');
             $crud->display_as('BENEFICIARIOSILIMITADOS','Beneficiarios Ilimitados');
             $crud->edit_fields('NOMBRE', 'NUMBENEFICIARIOS', 'NOMBRECONVENIO','BENEFICIARIOSILIMITADOS','DEBITOAUTOMATICO');
             $crud->required_fields('DEBITOAUTOMATICO','NOMBRE', 'NUMBENEFICIARIOS','BENEFICIARIOSILIMITADOS');
@@ -354,10 +354,11 @@ class Administrador extends CI_Controller {
         $data['username'] = $this->tank_auth->get_username();
         $data['selectedoption'] = 2;
 
-        $query = $this->db->query("SELECT concat(NOMBRE , ' (' , NUMBENEFICIARIOS, ' beneficiarios)') AS NOMBRE FROM PLAN WHERE ID = " . $planid);
+        $query = $this->db->query("SELECT concat(NOMBRE , ' (' , NUMBENEFICIARIOS, ' beneficiarios)') AS NOMBRE, DEBITOAUTOMATICO FROM PLAN WHERE ID = " . $planid);
         if ($query->num_rows() > 0) {
             $row = $query->row(0);
             $data['planFullName'] = $row->NOMBRE;
+            $data['debito'] = $row->DEBITOAUTOMATICO;
         } else {
             $data['planFullName'] = 'Plan sin definir o no existe';
         }
@@ -367,16 +368,29 @@ class Administrador extends CI_Controller {
         $crud->set_table('costoplan');
         $crud->where('PLANID', $planid);
         $crud->set_subject("Tarifa");
-        $crud->columns('COSTOAFILIACION', 'COSTOPAGOMES', 'COSTOPAGOSEMESTRE', 'COSTOPAGOANIO', 'FECHADESDE', 'FECHAHASTA');
+        
         $crud->display_as('COSTOAFILIACION', 'Costo afiliación');
         $crud->display_as('COSTOPAGOMES', 'Costo mensual');
         $crud->display_as('COSTOPAGOSEMESTRE', 'Costo semestral');
         $crud->display_as('COSTOPAGOANIO', 'Costo anual');
         $crud->display_as('FECHADESDE', 'Aplica desde');
         $crud->display_as('FECHAHASTA', 'Aplica hasta');
-        $crud->edit_fields('COSTOAFILIACION', 'COSTOPAGOMES', 'COSTOPAGOSEMESTRE', 'COSTOPAGOANIO', 'FECHADESDE', 'FECHAHASTA', 'PLANID');
-        $crud->required_fields('COSTOAFILIACION', 'COSTOPAGOMES', 'COSTOPAGOSEMESTRE', 'COSTOPAGOANIO', 'FECHADESDE', 'FECHAHASTA');
-        $crud->add_fields('COSTOAFILIACION', 'COSTOPAGOMES', 'COSTOPAGOSEMESTRE', 'COSTOPAGOANIO', 'FECHADESDE', 'FECHAHASTA', 'PLANID');
+                
+        if($data['debito'] == 1)
+        {
+            $crud->columns('COSTOAFILIACION', 'COSTOPAGOMES', 'FECHADESDE', 'FECHAHASTA');
+            $crud->required_fields('COSTOAFILIACION', 'COSTOPAGOMES', 'FECHADESDE', 'FECHAHASTA');
+            $crud->edit_fields('COSTOAFILIACION', 'COSTOPAGOMES', 'FECHADESDE', 'FECHAHASTA', 'PLANID');
+            $crud->add_fields('COSTOAFILIACION', 'COSTOPAGOMES', 'FECHADESDE', 'FECHAHASTA', 'PLANID');    
+        }
+        else
+        {
+            $crud->columns('COSTOAFILIACION', 'COSTOPAGOMES', 'COSTOPAGOSEMESTRE', 'COSTOPAGOANIO', 'FECHADESDE', 'FECHAHASTA');
+            $crud->required_fields('COSTOAFILIACION', 'COSTOPAGOMES', 'COSTOPAGOSEMESTRE', 'COSTOPAGOANIO', 'FECHADESDE', 'FECHAHASTA');
+            $crud->edit_fields('COSTOAFILIACION', 'COSTOPAGOMES', 'COSTOPAGOSEMESTRE', 'COSTOPAGOANIO', 'FECHADESDE', 'FECHAHASTA', 'PLANID');
+            $crud->add_fields('COSTOAFILIACION', 'COSTOPAGOMES', 'COSTOPAGOSEMESTRE', 'COSTOPAGOANIO', 'FECHADESDE', 'FECHAHASTA', 'PLANID');    
+        }
+        
         $crud->unset_read();
         $crud->field_type('PLANID', 'hidden', $planid);
         $crud->field_type('COSTOAFILIACION', 'integer');
@@ -444,5 +458,49 @@ class Administrador extends CI_Controller {
         }
     }
 
+    function otroscargos($titularid) {
+        //informacion de Usuario
+        $data['user_id'] = $this->tank_auth->get_user_id();
+        $data['username'] = $this->tank_auth->get_username();
+        $data['selectedoption'] = 3;
+
+        $query = $this->db->query("SELECT * FROM TITULAR WHERE ID = " . $titularid);
+        if ($query->num_rows() > 0) {
+            $row = $query->row(0);
+            $data['titular'] = $row;        
+        }
+        
+          
+            
+        //Configuracion Grocery_CRUD listado de usuarios
+        $crud = new Grocery_CRUD();
+        $crud->set_table('otroscargos');
+        $crud->where('TITID', $titularid);
+        $crud->set_subject("Cargos Adicionales");
+        
+        $crud->display_as('DESCRIPCION', 'Descripción');
+        $crud->display_as('VALOR', 'Valor');
+        $crud->display_as('FECHA', 'Fecha');
+                 
+        $crud->columns('DESCRIPCION', 'TITID', 'VALOR', 'FECHA');
+        $crud->required_fields('DESCRIPCION', 'TITID', 'VALOR', 'FECHA');
+        $crud->edit_fields('DESCRIPCION', 'TITID', 'VALOR', 'FECHA');
+        $crud->add_fields('DESCRIPCION', 'TITID', 'VALOR', 'FECHA');    
+        $crud->unset_read();
+        $crud->field_type('TITID', 'hidden', $titularid);
+        $crud->field_type('VALOR', 'integer');
+        $crud->field_type('FECHA', 'date');
+
+
+        $output = $crud->render();
+
+        //Configuracion de la Plantilla
+        $this->template->write_view('login', $this->tank_auth->get_login(), $data);
+        $this->template->write('title', 'Costos por plan');
+        $this->template->write_view('sidebar', $this->tank_auth->get_sidebar());
+        $this->template->write_view('content', 'Administrador/otroscargos', $output);
+        $this->template->render();
+    }
+    
 }
 
