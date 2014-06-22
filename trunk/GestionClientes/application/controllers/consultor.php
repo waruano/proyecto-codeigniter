@@ -390,6 +390,69 @@ class Consultor extends CI_Controller {
             $data['lstperiodos'] = $lstPeriodos;
             $data['acumuladodeuda'] = $acumulado_en_mora;
             $data['acumuladoporpagar'] = $acumulado_por_pagar;
+            
+            $sqlOtrosConceptos = "
+                SELECT VALOR, FECHA, DESCRIPCION FROM otroscargos 
+                WHERE TITID = " . $valTitId . " AND FECHA >= '" . $contrato->FECHAINICIO . "' "; 
+            if($contrato->ESTADO == 0)
+            {
+                $sqlOtrosConceptos = $sqlOtrosConceptos . " AND FECHA <= '" . $contrato->FECHAFINAL ."' ";                
+            }
+            $qotrosConceptos = $this->db->query($sqlOtrosConceptos);
+            if ($qotrosConceptos->num_rows() > 0) {
+                $data['otrosconceptos'] = $qotrosConceptos->result();
+            }
+            else
+            {
+                $data['otrosconceptos'] = NULL;
+            }
+            
+            $sqlOtrosPagos = "
+                SELECT PAGO.VALOR, PAGO.FECHA, DOCUMENTO.NUMERO FROM PAGO 
+                INNER JOIN DOCUMENTO ON DOCUMENTO.ID = PAGO.RECID
+                INNER JOIN PERSONA ON PERSONA.ID = DOCUMENTO.EMPID
+                WHERE PAGO.TIPOCONCEPTO = 3 AND  TITID = " . $valTitId . " AND FECHA >= '" . $contrato->FECHAINICIO . "' "; 
+            if($contrato->ESTADO == 0)
+            {
+                $sqlOtrosPagos = $sqlOtrosPagos . " AND FECHA <= '" . $contrato->FECHAFINAL ."' ";                
+            }
+            
+            $qotrospagos = $this->db->query($sqlOtrosPagos);
+            if ($qotrospagos->num_rows() > 0) {
+                $data['otrospagos'] = $qotrospagos->result();
+            }
+            else
+            {
+                $data['otrospagos'] = NULL;
+            }
+            
+            $sqlOtrosConceptos = str_replace("VALOR, FECHA, DESCRIPCION", " SUM(VALOR) as TOTAL ", $sqlOtrosConceptos);
+            //echo $sqlOtrosConceptos;
+            $qtotalOtros = $this->db->query($sqlOtrosConceptos);
+            
+            if ($qtotalOtros->num_rows() > 0) {
+                $rtotalOtros = $qtotalOtros->row(0);
+                $data['totalotros'] = $rtotalOtros->TOTAL;
+            }
+            else
+            {
+                $data['totalotros'] = 0;
+            }
+            
+            $sqlOtrosPagos = str_replace("PAGO.VALOR, PAGO.FECHA, DOCUMENTO.NUMERO", " SUM(VALOR) TOTAL ", $sqlOtrosPagos);
+            //echo $sqlOtrosPagos;
+            $qtotalOtrosPagos = $this->db->query($sqlOtrosPagos);
+            if ($qtotalOtrosPagos->num_rows() > 0) {
+                $rtotalOtrosPAgos = $qtotalOtrosPagos->row(0);
+                $data['totalotrospagos'] = $rtotalOtrosPAgos->TOTAL;
+            }
+            else
+            {
+                $data['totalotrospagos'] = 0;
+            }
+            
+            $acumulado_en_mora = $acumulado_en_mora + $data['totalotros'] - $data['totalotrospagos'];
+            
         } else {
             $data['tienecontrato'] = false;
         }
@@ -572,6 +635,45 @@ class Consultor extends CI_Controller {
                 
                 $factual->add(new DateInterval($invervalo));
             }
+            
+            $sqlOtrosConceptos = "
+                SELECT  SUM(VALOR) as TOTAL  FROM otroscargos 
+                WHERE TITID = " . $contrato->TITID . " AND FECHA >= '" . $contrato->FECHAINICIO . "' "; 
+            if($contrato->ESTADO == 0)
+            {
+                $sqlOtrosConceptos = $sqlOtrosConceptos . " AND FECHA <= '" . $contrato->FECHAFINAL ."' ";                
+            }            
+            $qtotalOtros = $this->db->query($sqlOtrosConceptos);
+            
+            if ($qtotalOtros->num_rows() > 0) {
+                $rtotalOtros = $qtotalOtros->row(0);
+                $data['totalotros'] = $rtotalOtros->TOTAL;
+            }
+            else
+            {
+                $data['totalotros'] = 0;
+            }
+            
+            $sqlOtrosPagos = "
+                SELECT  SUM(VALOR) TOTAL  FROM PAGO 
+                INNER JOIN DOCUMENTO ON DOCUMENTO.ID = PAGO.RECID
+                INNER JOIN PERSONA ON PERSONA.ID = DOCUMENTO.EMPID
+                WHERE PAGO.TIPOCONCEPTO = 3 AND  TITID = " . $contrato->TITID . " AND FECHA >= '" . $contrato->FECHAINICIO . "' "; 
+            if($contrato->ESTADO == 0)
+            {
+                $sqlOtrosPagos = $sqlOtrosPagos . " AND FECHA <= '" . $contrato->FECHAFINAL ."' ";                
+            }
+            $qtotalOtrosPagos = $this->db->query($sqlOtrosPagos);
+            if ($qtotalOtrosPagos->num_rows() > 0) {
+                $rtotalOtrosPAgos = $qtotalOtrosPagos->row(0);
+                $data['totalotrospagos'] = $rtotalOtrosPAgos->TOTAL;
+            }
+            else
+            {
+                $data['totalotrospagos'] = 0;
+            }
+            
+            $acumulado_en_mora = $acumulado_en_mora + $data['totalotros'] - $data['totalotrospagos'];
         }
         
         if(($acumulado_en_mora) > 0)
