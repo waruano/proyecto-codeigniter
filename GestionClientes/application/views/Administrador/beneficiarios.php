@@ -40,7 +40,7 @@
              
                     <?php } else { ?>
                         <h4 style="color: red">Total de Beneficiarios: <?php echo $total_beneficiarios."/".$plan_beneficiarios; ?></h4>
-                            <h5 style="color: red">Ha alcanzado su limite de beneficiarios,los beneficiarios extra tendrán un costo adicional.</h5>
+                            <h5 style="color: red">Ha alcanzado su limite de beneficiarios.</h5>
                     <?php } ?>
              <?php else: ?>
                         <h5 style="color: red">Sin contrato Activo.</h5>    
