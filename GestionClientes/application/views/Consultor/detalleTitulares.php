@@ -309,11 +309,13 @@ else
                         <tr><td colspan="4">                          
                                 <table width="100%"  class="table table-condensed">                         
                                     <TR>
-                                    <tr><th colspan="9">Historial de pagos</th></tr>                  
+                                    <tr><th colspan="9">Historial de pagos <?php 
+                                            $valor = array(1 => 'Mensuales', 2 => 'Semestrales', 3 => 'Anuales');
+                                            echo $valor[$contrato->PERIODICIDAD] ?> </th></tr>                  
                                     <tr>
-                                        <th align="center">Pagos</td>
+                                        <th align="center">Pagos</th>
                                         <td style="width:20px;"></td>
-                                        <th align="center">Periodo</td>                                
+                                        <th align="center">Periodo</th>                                
                                     </tr>
                                     <tr>
                                         <td>
@@ -352,6 +354,72 @@ else
                                     </tr>                                               
                                 </table>
                             </td></tr>    
+                        
+                        <tr>
+                            <td colspan="4" stule="padding-top: 20px;">
+                                <table width="100%"  class="table table-condensed">                         
+                                    <TR>
+                                    <tr><th colspan="9">Historial de pagos y deudas por otros conceptos</th></tr>                  
+                                    <tr>
+                                        <th align="center">Cargos adicionales</th>                                        
+                                        <td style="width:20px;"></td>
+                                        <th align="center">Pagos adicionales</th>                                
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <table width="100%">
+                                                <tr>
+                                                    <th>Fecha</th>
+                                                    <th>Descripción</th>
+                                                    <th>Valor</th>
+                                                </tr>
+    <?php 
+    if($otrosconceptos != NULL){
+        foreach ($otrosconceptos as $itemconcepto) { ?>
+                                                    <tr>
+                                                        <td><?php echo $itemconcepto->FECHA; ?></td>
+                                                        <td><?php echo $itemconcepto->DESCRIPCION; ?></td>
+                                                        <td>
+                                                            $ <?php echo number_format($itemconcepto->VALOR, 2, ',', '.') ?>
+                                                            </td>
+                                                    </tr>
+    <?php } 
+    }?>
+                                                    <tr><td></td><th>Total adicionales: </th>
+                                                        <td>$ <?php echo number_format($totalotros, 2, ',', '.') ?></td></tr>
+                                                    
+                                            </table>                                            
+                                        </td>
+                                        <td></td>
+                                        <td>
+                                            <table width="100%">
+                                                <tr>
+                                                    <th>Fecha</th>
+                                                    <th>Recibo de Caja</th>
+                                                    <th>Valor</th>
+                                                </tr>
+<?php 
+    if($otrospagos != NULL){
+        foreach ($otrospagos as $itempagoconcepto) { ?>
+                                                    <tr>
+                                                        <td><?php echo $itempagoconcepto->FECHA; ?></td>
+                                                        <td><?php echo $itempagoconcepto->NUMERO; ?></td>
+                                                        <td>
+                                                            $ <?php echo number_format($itempagoconcepto->VALOR, 2, ',', '.') ?>
+                                                            </td>
+                                                    </tr>
+    <?php } 
+    }?>
+                                                    <tr><td></td><th>Total pagos adicionales: </th>
+                                                        <td>$ <?php echo number_format($totalotrospagos, 2, ',', '.') ?></td></tr>
+                                            </table>
+                                            
+                                        </td>                               
+                                    </tr>
+                                    <tr>
+                                </table>
+                            </td>
+                        </tr>
                     </table>
 <?php } ?>
 
