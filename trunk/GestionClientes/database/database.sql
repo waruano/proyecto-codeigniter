@@ -130,6 +130,19 @@ create table PAGO
 );
 
 /*==============================================================*/
+/* Table: OTROS CARGOS                                                  */
+/*==============================================================*/
+create table OTROSCARGOS
+(
+   ID                   bigint not null AUTO_INCREMENT,
+   DESCRIPCION          varchar(1024),
+   TITID                bigint,
+   VALOR                bigint,
+   FECHA                date,
+   primary key (ID)
+);
+
+/*==============================================================*/
 /* Table: PERSONA                                               */
 /*==============================================================*/
 create table PERSONA
@@ -206,6 +219,9 @@ alter table CONTACTO add constraint FK_TITULARCONTACTO foreign key (TITID)
       references TITULAR (ID) on delete restrict on update restrict;
 
 alter table CONTRATO add constraint FK_CONTRATOTITULAR foreign key (TITID)
+      references TITULAR (ID) on delete restrict on update restrict;
+
+alter table OTROSCARGOS add constraint FK_OTROSCARGOSTITULAR foreign key (TITID)
       references TITULAR (ID) on delete restrict on update restrict;
 
 alter table CONTRATO add constraint FK_DOCUMENTOCONTRATO foreign key (DOCID)
