@@ -29,6 +29,7 @@
             </table>
         </div>
         
+        
         <div style="float: right; width: 50%; ">
             <?php $this->load->view('Administrador/sidebar_add_titular');?>
         </div>
@@ -59,4 +60,70 @@ echo $output;
         <input type="button" class="btn btn-large"  onclick="window.location = '<?php echo base_url() . "contratos/titulares"; ?>'" value="Regresar a Titulares"/>  
 <?php } ?>
 </div>
+    
+    <script language="javascript" type="text/javascript">
+    jQuery(document).ready(function()
+    {   
+        jQuery("div[id$='FECHANACIMIENTO_field_box']").css('height','55px');            
+        jQuery("div[id$='TELMOVIL_field_box']").css('height','55px');
+        
+        jQuery("div[id$='TELMOVIL_field_box']").append('<input type="checkbox" id="disbledir" onchange="javascript: return copiardireccion();" >Utilizar dirección del titular como domicilio');
+        
+        jQuery("select[id$='field-BARRIO']").css('display', 'block');
+        jQuery("div[id$='field_BARRIO_chzn']").css('display', 'none');
+        jQuery("select[id$='field-MUNICIPIO']").css('display', 'block');
+        jQuery("div[id$='field_MUNICIPIO_chzn']").css('display', 'none');
+        
+        jQuery("select[id$='field-MUNICIPIO']").change(function(){            
+            loadBarrios('field-MUNICIPIO', 'field-BARRIO', '');
+        }); 
+        
+        loadBarrios('field-MUNICIPIO', 'field-BARRIO',"<?php echo $BARRIO ?>");
+        
+        jQuery("input[id$='form-button-save']").click(function(){
+         copiardireccion();   
+        });
+    });
+    function copiardireccion()
+    {
+        if(jQuery("input[id$='disbledir']").is(':checked'))
+        {
+            jQuery("div[id$='DIRECCION_field_box']").css('visibility','hidden');            
+            jQuery("div[id$='BARRIO_field_box']").css('visibility','hidden');
+            jQuery("div[id$='MUNICIPIO_field_box']").css('visibility','hidden');
+            jQuery("div[id$='ESTRATODOMICILIO_field_box']").css('visibility','hidden');
+            jQuery("div[id$='TELDOMICILIO_field_box']").css('visibility','hidden');
+            
+            jQuery("input[id$='field-DIRECCION']").val('<?php echo $cobrodireccion; ?>');
+            jQuery("select[id$='field-MUNICIPIO']").val('<?php echo  $cobromunicipio ?>');
+            
+            loadBarrios('field-MUNICIPIO', 'field-BARRIO',"<?php echo str_replace(" ", "_", $cobrobarrio) ?>");
+            jQuery("select[id$='field-ESTRATODOMICILIO']").val('<?php echo $estrato?>');
+            jQuery("input[id$='field-TELDOMICILIO']").val('<?php echo $teldomicilio ?>');
+            
+        }
+        else
+        {
+            jQuery("div[id$='DIRECCION_field_box']").css('visibility','visible');            
+            jQuery("div[id$='BARRIO_field_box']").css('visibility','visible');
+            jQuery("div[id$='MUNICIPIO_field_box']").css('visibility','visible');
+            jQuery("div[id$='ESTRATODOMICILIO_field_box']").css('visibility','visible');
+            jQuery("div[id$='TELDOMICILIO_field_box']").css('visibility','visible');
+            
+        }
+            
+        return false;
+    }
+    
+    function loadBarrios(selCiudades, selBarrios, sSeleccionado)
+    {        
+        jQuery.ajax({
+            'url': '<?php echo base_url()."administrador/listadobarrios/"; ?>' + jQuery("select[id$='" + selCiudades + "']").val() + "/" + sSeleccionado ,
+            'success':function(data){                        
+                jQuery("select[id$='" + selBarrios + "']").empty();
+                jQuery("select[id$='" + selBarrios + "']").append(data);
+            }
+            });
+    }
+    </script>
 
