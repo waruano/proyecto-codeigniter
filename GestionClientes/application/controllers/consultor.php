@@ -63,13 +63,14 @@ class Consultor extends CI_Controller {
             $crud->display_as('NumeroContrato', 'Numero Contrato');
             $crud->display_as('NombreTitular', 'Titular');
             $crud->display_as('FechaAfiliacion', 'Fecha Afiliacion');
+            
             $crud->unset_add();
             $crud->unset_edit();
             $crud->unset_delete();
             $crud->unset_read();
             $crud->add_action('Detalles', base_url() . 'images/magnifier.png', 'Detalles', '', array($this, 'direccion_contratos'));
             $crud->unset_jquery();
-            $crud->callback_column('EstadoCartera', array($this, 'callback_column_estado'));
+           // $crud->callback_column('EstadoCartera', array($this, 'callback_column_estado'));
             
             $output = $crud->render();
             
@@ -102,6 +103,7 @@ class Consultor extends CI_Controller {
             $data['valplan'] = $this->input->post('plan');
             $data['valconvenio'] = $this->input->post('convenio');
             $data['valasesor'] = $this->input->post('asesor');            
+            $data['valestadocartera'] = $this->input->post('estadocartera');            
             
             //informacion de Usuario
             $data['user_id'] = $this->tank_auth->get_user_id();
@@ -111,7 +113,7 @@ class Consultor extends CI_Controller {
             $crud = new grocery_CRUD();
             $crud->set_model('Custom_query_model');
             $crud->set_table('persona'); //Change to your table name
-
+            $crud->basic_model->set_estado($data['valestadocartera']);
             $strSQL = "
                 select 'EstadoCartera' as EstadoCartera, documento.Numero as NumeroContrato, 
                 CONCAT(titular.Nombres, ' ', ifnull(titular.Apellidos, '')) as NombreTitular, 
@@ -183,7 +185,7 @@ class Consultor extends CI_Controller {
             $crud->unset_read();
             $crud->add_action('Detalles', base_url() . 'images/magnifier.png', 'Detalles', '', array($this, 'direccion_general'));
             $crud->unset_jquery();
-            $crud->callback_column('EstadoCartera', array($this, 'callback_column_estado'));
+            //$crud->callback_column('EstadoCartera', array($this, 'callback_column_estado'));
             
             $output = $crud->render();
             
@@ -353,6 +355,8 @@ class Consultor extends CI_Controller {
                 $limitepago = clone $factual;
                 $finperiodo->add(new DateInterval($invervalo));
                 $limitepago->add(new DateInterval('P9D'));
+                
+                                
                 $valor_pagar = $this->ObtenerValorPago($noContrato, $factual, $contrato->NUMBENEFICIARIOS);
                 $valor_pagar_orig = $valor_pagar;
                 $acumulado_total = $acumulado_total + $valor_pagar_orig;
@@ -517,7 +521,8 @@ class Consultor extends CI_Controller {
         $this->template->write_view('content', 'consultor/detalleTitulares');
         $this->template->render();
     }
-    
+        
+    /// LOGICA DUPLICADA EN MODELO CUSTOM_QUERY_MODEL
     function ObtenerValorPago($noContrato, $factual, $numbeneficiarios) {
         $strQuery = "select plan.nombre, costoplan.COSTOAFILIACION,
             case when contrato.PERIODICIDAD = 1 then costoplan.COSTOPAGOMES
@@ -537,246 +542,10 @@ class Consultor extends CI_Controller {
             $valor_total = $numbeneficiarios * $valnormal->COSTOBENEFICIARIO;
         }
         return $valor_total;
-    }
-
-    function ObtenerEstado($contratoId, $condetalle) {
-        $qcontrato = $this->db->query("
-            SELECT subconsulta.*, TIMESTAMPDIFF(MONTH,subconsulta.FECHAINICIAL, subconsulta.FECHAFINAL) AS DIFERENCIA
-            FROM (  
-                SELECT CONTRATO.FECHAINICIO, PLAN.NOMBRE, CONTRATO.PERIODICIDAD, PLAN.NOMBRECONVENIO, 
-                DOCUMENTO.NUMERO, DOCUMENTO.TIPO, PLAN.NUMBENEFICIARIOS AS BeneficPlan, COSTOPLAN.COSTOPAGOMES, 
-                COSTOPLAN.COSTOPAGOSEMESTRE, COSTOPLAN.COSTOPAGOANIO, CONTRATO.ESTADO, 
-                CASE WHEN CONTRATO.PERIODICIDAD = 1 THEN
-                   date_add( DATE_FORMAT(CONTRATO.FECHAINICIO, '%Y-%m-01'), INTERVAL 1 MONTH)
-                ELSE CONTRATO.FECHAINICIO END  AS FECHAINICIAL,
-                CASE WHEN CONTRATO.ESTADO = 1 THEN  CURDATE()
-                ELSE CONTRATO.FECHAFIN END  AS FECHAFINAL, CAfilia.COSTOAFILIACION, CONTRATO.NUMBENEFICIARIOS, CONTRATO.TITID
-                FROM CONTRATO 
-                INNER JOIN PLAN ON PLAN.ID = CONTRATO.PLANID 
-                INNER JOIN DOCUMENTO ON DOCUMENTO.ID = CONTRATO.DOCID 
-                INNER JOIN COSTOPLAN ON (COSTOPLAN.PLANID = PLAN.ID AND CURDATE() BETWEEN COSTOPLAN.FECHADESDE AND COSTOPLAN.FECHAHASTA)
-                INNER JOIN COSTOPLAN AS CAfilia ON (CAfilia.PLANID = PLAN.ID AND CONTRATO.FECHAINICIO BETWEEN CAfilia.FECHADESDE AND CAfilia.FECHAHASTA)
-                WHERE contrato.id = " . $contratoId . "
-            ) AS subconsulta; ");
-        
-        if ($qcontrato->num_rows() > 0) {
-            $contrato = $qcontrato->row(0);
-                
-            // Se consultan todos los pagos realizados por el titular para el contrato
-            $strQueryPagos = "
-                SELECT PAGO.VALOR, PAGO.FECHA, PAGO.TIPOCONCEPTO, DOCUMENTO.NUMERO, 
-                PERSONA.NOMBRES, PERSONA.APELLIDOS 
-                FROM PAGO 
-                INNER JOIN DOCUMENTO ON DOCUMENTO.ID = PAGO.RECID
-                INNER JOIN PERSONA ON PERSONA.ID = DOCUMENTO.EMPID
-                WHERE PAGO.TIPOCONCEPTO = 1 AND  TITID = " . $contrato->TITID . " AND FECHA >= '" . $contrato->FECHAINICIO . "' "; 
-            if($contrato->ESTADO == 0)
-            {
-                $strQueryPagos = $strQueryPagos . " AND FECHA <= '" . $contrato->FECHAFINAL ."' ";                
-            }
-            
-            $qpagos = $this->db->query($strQueryPagos);
-            
-            // Para cada pago que se debería haber realizado se genera un elemento del array
-            
-            $acumulado_en_pagos = 0;
-            for($idx = 0; $idx < $qpagos->num_rows(); $idx++ )
-            {
-                $pagoind = $qpagos->row($idx);
-                $valorpagado = $pagoind->VALOR;
-                $acumulado_en_pagos = $acumulado_en_pagos + $valorpagado;
-            }
-            
-             // Se calcula el numero de pagos que se deberian haber realizado            
-            $cantidadpagos = ($contrato->DIFERENCIA + 1);
-            
-            $invervalo = 'P1M';
-            if ($contrato->PERIODICIDAD == 2) {
-                $cantidadpagos = ceil($contrato->DIFERENCIA / 6);
-                $invervalo = 'P6M';
-            } else if ($contrato->PERIODICIDAD == 3) {
-                $cantidadpagos = ceil($contrato->DIFERENCIA / 12);
-                $invervalo = 'P1Y';
-            }
-            $inicio = date_parse($contrato->FECHAINICIAL);
-            
-            $factual = new DateTime($inicio['year'] . '-' . $inicio['month'] . '-' . $inicio['day']);
-            $ahora = new DateTime('NOW');
-                        
-            $acumulado_en_mora = 0;
-            $acumulado_por_pagar = 0;
-            $acumulado_total = 0;
-            //$acumulado_vencido = 0;
-            for ($i = 0; $i < $cantidadpagos; $i++) {
-                $finperiodo = clone $factual;
-                $limitepago = clone $factual;
-                $finperiodo->add(new DateInterval($invervalo));
-                $limitepago->add(new DateInterval('P9D'));
-                $valor_pagar = $this->ObtenerValorPago($contratoId, $factual, $contrato->NUMBENEFICIARIOS);
-                $valor_pagar_orig = $valor_pagar;
-                $acumulado_total = $acumulado_total + $valor_pagar_orig;
-                if($valor_pagar > $acumulado_en_pagos)
-                {
-                    $valor_pagar = $valor_pagar - $acumulado_en_pagos;
-                    $acumulado_en_pagos = 0;
-                    if($ahora > $limitepago)
-                    {
-                        $acumulado_en_mora = $acumulado_en_mora + $valor_pagar;
-                    }
-                    else
-                    {
-                        $acumulado_por_pagar = $acumulado_por_pagar + $valor_pagar;
-                    }
-                }
-                else
-                {
-                    $acumulado_en_pagos = $acumulado_en_pagos -  $valor_pagar;
-                }
-                
-                $factual->add(new DateInterval($invervalo));
-            }
-            
-            $sqlOtrosConceptos = "
-                SELECT  SUM(VALOR) as TOTAL  FROM otroscargos 
-                WHERE TITID = " . $contrato->TITID . " AND FECHA >= '" . $contrato->FECHAINICIO . "' "; 
-            if($contrato->ESTADO == 0)
-            {
-                $sqlOtrosConceptos = $sqlOtrosConceptos . " AND FECHA <= '" . $contrato->FECHAFINAL ."' ";                
-            }            
-            $qtotalOtros = $this->db->query($sqlOtrosConceptos);
-            
-            if ($qtotalOtros->num_rows() > 0) {
-                $rtotalOtros = $qtotalOtros->row(0);
-                $data['totalotros'] = $rtotalOtros->TOTAL;
-            }
-            else
-            {
-                $data['totalotros'] = 0;
-            }
-            
-            $sqlOtrosPagos = "
-                SELECT  SUM(VALOR) TOTAL  FROM PAGO 
-                INNER JOIN DOCUMENTO ON DOCUMENTO.ID = PAGO.RECID
-                INNER JOIN PERSONA ON PERSONA.ID = DOCUMENTO.EMPID
-                WHERE PAGO.TIPOCONCEPTO = 3 AND  TITID = " . $contrato->TITID . " AND FECHA >= '" . $contrato->FECHAINICIO . "' "; 
-            if($contrato->ESTADO == 0)
-            {
-                $sqlOtrosPagos = $sqlOtrosPagos . " AND FECHA <= '" . $contrato->FECHAFINAL ."' ";                
-            }
-            $qtotalOtrosPagos = $this->db->query($sqlOtrosPagos);
-            if ($qtotalOtrosPagos->num_rows() > 0) {
-                $rtotalOtrosPAgos = $qtotalOtrosPagos->row(0);
-                $data['totalotrospagos'] = $rtotalOtrosPAgos->TOTAL;
-            }
-            else
-            {
-                $data['totalotrospagos'] = 0;
-            }
-            
-            $acumulado_en_mora = $acumulado_en_mora + $data['totalotros'] - $data['totalotrospagos'];
-        }
-        
-        if(($acumulado_en_mora) > 0)
-        {            
-            if($condetalle)
-            {                    
-                $estado = "EN MORA $ " . number_format(($acumulado_en_mora), 2, ',', '.') ;   
-            }
-            else
-            {
-                $estado = "EN MORA";        
-            }    
-        }
-        else
-        {
-            $estado = "OK";    
-        }
-               
-        
-        /// Se consulta la informacion del contrato y los pagos realizados por el titular desde la vigencia del contrato
-      /*  $qcontrato = $this->db->query("
-            SELECT CONTRATO.FECHAINICIO, PLAN.NOMBRE, CONTRATO.PERIODICIDAD, 
-            PLAN.NOMBRECONVENIO, DOCUMENTO.NUMERO, DOCUMENTO.TIPO, PLAN.NUMBENEFICIARIOS,            
-            CASE WHEN CONTRATO.ESTADO = 1 THEN
-                TIMESTAMPDIFF(MONTH,CONTRATO.FECHAINICIO,CURDATE()) 
-            ELSE
-                TIMESTAMPDIFF(MONTH,CONTRATO.FECHAINICIO,CONTRATO.FECHAFIN) END
-            AS DIFERENCIA, 
-            CONTRATO.TITID, CONTRATO.FECHAFIN, CONTRATO.ESTADO
-            FROM CONTRATO INNER JOIN PLAN ON PLAN.ID = CONTRATO.PLANID 
-            INNER JOIN DOCUMENTO ON DOCUMENTO.ID = CONTRATO.DOCID 
-            WHERE contrato.id = " . $contratoId);
-
-        $estado = "OK";
-
-        if ($qcontrato->num_rows() > 0) {
-            $contrato = $qcontrato->row(0);
-            $strQueryPagos = "
-                SELECT IFNULL(SUM(PAGO.VALOR),0) AS VALOR
-                FROM PAGO 
-                INNER JOIN DOCUMENTO ON DOCUMENTO.ID = PAGO.RECID
-                INNER JOIN PERSONA ON PERSONA.ID = DOCUMENTO.EMPID
-                WHERE PAGO.TIPOCONCEPTO = 1 AND  TITID = " . $contrato->TITID . " AND FECHA >= '" . $contrato->FECHAINICIO  ."' "; 
-            if($contrato->ESTADO == 0)
-            {
-                $strQueryPagos = $strQueryPagos . " AND FECHA <= '" . $contrato->FECHAFIN ."' ";                
-            }
-            $qpagos = $this->db->query($strQueryPagos);
-            $rtotal = $qpagos->row(0);
-            $totalpagado = $rtotal->VALOR;
-            
-
-            // Se calcula el numero de pagos que se deberian haber realizado            
-            $cantidadpagos = ($contrato->DIFERENCIA + 1);
-            $pagosidx = 0;
-            $invervalo = 'P1M';
-            if ($contrato->PERIODICIDAD == 2) {
-                $cantidadpagos = ceil($contrato->DIFERENCIA / 6);
-                $invervalo = 'P6M';
-            } else if ($contrato->PERIODICIDAD == 3) {
-                $cantidadpagos = ceil($contrato->DIFERENCIA / 12);
-                $invervalo = 'P1Y';
-            }
-            $inicio = date_parse($contrato->FECHAINICIO);
-            $factual = new DateTime($inicio['year'] . '-' . $inicio['month'] . '-' . $inicio['day']);
-
-            $coutas_pendientes = 0;
-            $total_deuda = 0;
-            
-            for ($i = 0; $i < $cantidadpagos; $i++) {
-                
-                $limitepago = clone $factual;
-                
-                $limitepago->add(new DateInterval('P10D'));
-                $valorPago = $this->ObtenerValorPago($contratoId, $factual, $contrato->NUMBENEFICIARIOS );
-                
-                if($valorPago >= 0 )
-                {
-                    $total_deuda = $total_deuda + $valorPago;       
-                }
-                else {
-                    $estado = 'Error en definicion de tarifas! (Plan: ' . $contrato->NOMBRE . ' Fecha: ' . $factual->format('Y-m-d') . ' ) ';
-                    return $estado;
-                }
-                $pagosidx = $pagosidx + 1;
-                $factual->add(new DateInterval($invervalo));
-            }
-            
-            if ($total_deuda < $total_deuda) {
-                if($condetalle)
-                {                    
-                    $estado = "EN MORA ($ " . number_format(($total_deuda - $totalpagado), 2, ',', '.') .")";    
-                }
-                else
-                {
-                    $estado = "EN MORA";        
-                }                
-            } 
-        } else {
-            $estado = "CONTRATO INACTIVO Ó INEXISTENTE";
-        }*/
-        return $estado;
-    }
+    }   
+    
+    
+    
 
     function consultaDocumentos() {
         $session_rol = $this->tank_auth->get_rol();
