@@ -201,7 +201,7 @@ class Contratos extends CI_Controller {
 
         //informacion de Usuario
         $session_rol = $this->tank_auth->get_rol();
-
+        
         if ($session_rol == 1 || $session_rol == 2) {
 
 
@@ -307,9 +307,9 @@ class Contratos extends CI_Controller {
             $crud->set_subject("Titulares");
             //definicion de los campos
             //$crud->fields('TIPODOC', 'NODOCUMENTO', 'FECHANACIMIENTO', 'GENERO', 'NOMBRES', 'APELLIDOS','PAIS','CIUDAD', 'COBRODIRECCION', 'COBROBARRIO', 'COBROMUNICIPIO', 'COBRODEPTO', 'DOMIDIRECCION', 'DOMIBARRIO', 'DOMIMUNICIPIO', 'DOMIDEPTO', 'TELDOMICILIO', 'TELOFICINA', 'TELMOVIL', 'EMAIL', 'NOHIJOS', 'NODEPENDIENTES', 'ESTRATO', 'ESTADOCIVIL', 'OCUPACION', 'EPS', 'COMOUBICOSERVICIO','BENEFICIARIO', 'PERMITEUSODATOS');
-            $crud->fields('TIPODOC', 'NODOCUMENTO', 'FECHANACIMIENTO', 'GENERO', 'NOMBRES', 'APELLIDOS', 'COBRODIRECCION', 'COBROBARRIO', 'COBROMUNICIPIO', 'DOMIDIRECCION', 'DOMIBARRIO', 'DOMIMUNICIPIO', 'TELDOMICILIO', 'TELOFICINA', 'TELMOVIL', 'EMAIL', 'NOHIJOS', 'NODEPENDIENTES', 'ESTRATO', 'ESTADOCIVIL', 'OCUPACION', 'EPS', 'COMOUBICOSERVICIO', 'BENEFICIARIO', 'PERMITEUSODATOS');
+            $crud->fields('TIPODOC', 'NODOCUMENTO', 'FECHANACIMIENTO', 'GENERO', 'NOMBRES', 'APELLIDOS', 'COBRODIRECCION', 'COBROMUNICIPIO', 'COBROBARRIO',  'DOMIDIRECCION', 'DOMIMUNICIPIO', 'DOMIBARRIO', 'TELDOMICILIO', 'TELOFICINA', 'TELMOVIL', 'EMAIL', 'NOHIJOS', 'NODEPENDIENTES', 'ESTRATO', 'ESTADOCIVIL', 'OCUPACION', 'EPS', 'COMOUBICOSERVICIO', 'BENEFICIARIO', 'PERMITEUSODATOS');
             
-            $crud->add_fields('TIPODOC', 'NODOCUMENTO', 'FECHANACIMIENTO', 'GENERO', 'NOMBRES', 'APELLIDOS', 'COBRODIRECCION', 'COBROBARRIO', 'COBROMUNICIPIO', 'DOMIDIRECCION', 'DOMIBARRIO', 'DOMIMUNICIPIO', 'TELDOMICILIO', 'TELOFICINA', 'TELMOVIL', 'EMAIL', 'NOHIJOS', 'NODEPENDIENTES', 'ESTRATO', 'ESTADOCIVIL', 'OCUPACION', 'EPS', 'COMOUBICOSERVICIO', 'BENEFICIARIO', 'PERMITEUSODATOS');
+            $crud->add_fields('TIPODOC', 'NODOCUMENTO', 'FECHANACIMIENTO', 'GENERO', 'NOMBRES', 'APELLIDOS', 'COBRODIRECCION', 'COBROMUNICIPIO', 'COBROBARRIO',  'DOMIDIRECCION', 'DOMIMUNICIPIO', 'DOMIBARRIO',  'TELDOMICILIO', 'TELOFICINA', 'TELMOVIL', 'EMAIL', 'NOHIJOS', 'NODEPENDIENTES', 'ESTRATO', 'ESTADOCIVIL', 'OCUPACION', 'EPS', 'COMOUBICOSERVICIO', 'BENEFICIARIO', 'PERMITEUSODATOS');
             //renombrado de los campos
             $crud->display_as('NOMBRES', 'Nombres');
             $crud->display_as('APELLIDOS', 'Apellidos');
@@ -322,14 +322,15 @@ class Contratos extends CI_Controller {
             $crud->display_as('BENEFICIARIO', 'Es Beneficiario');
             $crud->display_as('FECHANACIMIENTO', 'Fecha de Nacimiento');
             $crud->display_as('GENERO', 'Género');
-            $crud->display_as('COBRODIRECCION', 'Dirección de Cobro / Correspondencia');
-            $crud->display_as('COBROBARRIO', 'Barrio');
-            $crud->display_as('COBROMUNICIPIO', 'Municipio');
-            $crud->display_as('COBRODEPTO', 'Departamento');
+            $crud->display_as('COBRODIRECCION', 'Dirección de Cobro');
+            $crud->display_as('COBROBARRIO', 'Barrio (dir cobro)');
+            $crud->display_as('COBROMUNICIPIO', 'Ciudad (dir cobro)');
+            /* $crud->display_as('COBRODEPTO', 'Departamento'); */
             $crud->display_as('DOMIDIRECCION', 'Dirección de Domicilio');
-            $crud->display_as('DOMIBARRIO', 'Barrio');
-            $crud->display_as('DOMIMUNICIPIO', 'Municipio');
-            $crud->display_as('DOMIDEPTO', 'Departamento');
+            
+            $crud->display_as('DOMIBARRIO', 'Barrio (dir domicilio)');
+            $crud->display_as('DOMIMUNICIPIO', 'Ciudad (dir domicilio)');/*
+            $crud->display_as('DOMIDEPTO', 'Departamento'); */
             $crud->display_as('TELDOMICILIO', 'Telefono de Domicilio');
             $crud->display_as('TELOFICINA', 'Telefono de Oficina');
             $crud->display_as('NOHIJOS', 'Numero de Hijos');
@@ -356,7 +357,12 @@ class Contratos extends CI_Controller {
             $crud->field_type('ESTRATO', 'dropdown', array(1 => 1, 2 => 2, 3 => 3, 4 => 4, 5 => 5, 6 => 6));
             $crud->field_type('OCUPACION', 'dropdown', array(1 => 'Empleado', 2 => 'Independiente', 3 => 'Jubilado', 4 => 'Ama de Casa', 5 => 'Estudiante', 6 => 'Desempleado'));
             $crud->field_type('COMOUBICOSERVICIO', 'dropdown', array(1 => 'Referido', 2 => 'Eventos', 3 => 'Convenio Especial', 4 => 'Directorio Telefónico', 5 => 'Servicio Médico Atendido', 6 => 'Medios de Comunicación'));
-
+            
+            $crud->field_type('DOMIBARRIO', 'dropdown', array('' => ''));
+            $crud->field_type('COBROBARRIO', 'dropdown', array('' => ''));
+            $crud->field_type('DOMIMUNICIPIO', 'dropdown', $this->ObtenerListadoCiudades());
+            $crud->field_type('COBROMUNICIPIO', 'dropdown', $this->ObtenerListadoCiudades());
+            
             //definicion de las reglas
             $crud->required_fields('NOMBRES', 'APELLIDOS', 'TIPODOC', 'NODOCUMENTO', 'BENEFICIARIO', 'FECHANACIMIENTO', 'GENERO', 'COBRODIRECCION', 'COBROBARRIO', 'COBROMUNICIPIO', 'COBRODEPTO', 'DOMIDIRECCION', 'DOMIBARRIO', 'DOMIMUNICIPIO', 'DOMIDEPTO', 'NOHIJOS', 'NODEPENDIENTES', 'ESTRATO', 'ESTADOCIVIL', 'OCUPACION', 'EPS', 'COMOUBICOSERVICIO', 'PERMITEUSODATOS');
             $crud->set_rules('EMAIL', 'E-mail', 'trim|xss_clean|valid_email|max_length[100]');
@@ -370,6 +376,21 @@ class Contratos extends CI_Controller {
             //Rederizacion del CRUD
             $output = $crud->render();
 
+            
+            if (! ($this->uri->segment(4) === FALSE))
+            {
+                $strSQL = 'SELECT DOMIBARRIO, COBROBARRIO FROM TITULAR WHERE ID = ' . $this->uri->segment(4);
+                $qresult = $this->db->query($strSQL);
+                if($qresult->num_rows() > 0)
+                {
+                    $result = $qresult->row(0);
+                    $data['DOMIBARRIO'] = str_replace(" ", "_", $result->DOMIBARRIO);  
+                    $data['COBROBARRIO'] = str_replace(" ", "_", $result->COBROBARRIO);  
+                    
+                }
+            }
+            
+            
             //configuracion de la plantilla
             $this->template->write_view('login', $this->tank_auth->get_login(), $data);
             $this->template->write('title', 'Titulares');
@@ -463,11 +484,13 @@ class Contratos extends CI_Controller {
             //informacion del titular
             $titularId = $_SESSION['_aux_var'];
             $valTitId = $titularId;
-            $query = $this->db->query("SELECT NOMBRES, APELLIDOS, NODOCUMENTO, documento.numero,  BENEFICIARIO, plan.NUMBENEFICIARIOS
-                                   FROM Titular Left Join CONTRATO on Contrato.TitId = Titular.ID   and contrato.estado = 1
-                                   left join documento on documento.id = contrato.docId   
-                                   left join plan on plan.id = contrato.planid 
-                                   WHERE Titular.ID = " . $valTitId);
+            $query = $this->db->query("
+                SELECT NOMBRES, APELLIDOS, NODOCUMENTO, documento.numero, BENEFICIARIO, plan.NUMBENEFICIARIOS,
+                Titular.ESTRATO, Titular.COBRODIRECCION, Titular.COBROBARRIO, Titular.TELDOMICILIO, Titular.COBROMUNICIPIO
+                FROM Titular Left Join CONTRATO on Contrato.TitId = Titular.ID   and contrato.estado = 1
+                left join documento on documento.id = contrato.docId   
+                left join plan on plan.id = contrato.planid 
+                WHERE Titular.ID = " . $valTitId);
             if ($query->num_rows() > 0) {
                 $row = $query->row(0);
                 $data['titularFullName'] = $row->NOMBRES . ' ' . $row->APELLIDOS;
@@ -479,11 +502,21 @@ class Contratos extends CI_Controller {
                     $data['titularContrato'] = $row->numero;
                     $data['plan_beneficiarios'] = $row->NUMBENEFICIARIOS;
                 }
+                $data['estrato'] = $row->ESTRATO;
+                $data['cobrodireccion'] = $row->COBRODIRECCION;
+                $data['cobrobarrio'] = $row->COBROBARRIO;
+                $data['teldomicilio'] = $row->TELDOMICILIO;
+                $data['cobromunicipio'] = $row->COBROMUNICIPIO;
             } else {
                 $data['titularFullName'] = 'Titular sin definir o no existe';
                 $data['titularIdentificacion'] = '';
                 $data['titularContrato'] = '';
                 $data['plan_beneficiarios'] = 1;
+                $data['estrato'] = '';
+                $data['cobrodireccion'] = '';
+                $data['cobrobarrio'] = '';
+                $data['teldomicilio'] = '';
+                $data['cobromunicipio'] = '';
             }
             //creacion  del crud
             $crud = new Grocery_CRUD();
@@ -599,7 +632,7 @@ class Contratos extends CI_Controller {
             $crud->unset_back_to_list();
             //$crud->unset_jquery_ui();
             //definicion de los campos
-            $crud->fields('NOMBRES', 'APELLIDOS', 'TIPODOC', 'NODOCUMENTO', 'TELMOVIL', 'EMAIL', 'TITID', 'FECHANACIMIENTO', 'GENERO', 'ESTRATODOMICILIO', 'DIRECCION', 'BARRIO', 'MUNICIPIO', 'TELDOMICILIO', 'TELOFICINA', 'EPS', 'NOHIJOS', 'OCUPACION', 'ESTADOCIVIL');
+            $crud->fields('NOMBRES', 'APELLIDOS', 'TIPODOC', 'NODOCUMENTO', 'GENERO', 'EMAIL', 'TITID', 'FECHANACIMIENTO', 'TELMOVIL', 'DIRECCION', 'MUNICIPIO', 'BARRIO', 'ESTRATODOMICILIO', 'TELDOMICILIO', 'TELOFICINA', 'EPS', 'NOHIJOS', 'OCUPACION', 'ESTADOCIVIL');
 
             //renombrado de los campos
             $crud->display_as('NOMBRES', 'Nombres');
@@ -612,9 +645,10 @@ class Contratos extends CI_Controller {
             $crud->display_as('GENERO', 'Genero');
             $crud->display_as('ESTRATODOMICILIO', 'Estrato Domicilio');
             $crud->display_as('DIRECCION', 'Direccion');
+            $crud->display_as('MUNICIPIO', 'Ciudad');            
             $crud->display_as('BARRIO', 'Barrio');
-            $crud->display_as('MUNICIPIO', 'Municipio');
-            $crud->display_as('DEPTO', 'Departamento');
+//            $crud->display_as('MUNICIPIO', 'Municipio');
+  //          $crud->display_as('DEPTO', 'Departamento');
             $crud->display_as('TELDOMICILIO', 'Telefono de Domicilio');
             $crud->display_as('TELOFICINA', 'Telefono de Oficina');
             $crud->display_as('EPS', 'Eps');
@@ -622,9 +656,11 @@ class Contratos extends CI_Controller {
             $crud->display_as('OCUPACION', 'Ocupacion');
             $crud->display_as('ESTADOCIVIL', 'Estado Civil');
 
+            
+            $crud->field_type('MUNICIPIO', 'dropdown', $this->ObtenerListadoCiudades());
             //definicion de las columnas a mostrar
             $crud->columns('NODOCUMENTO', 'NOMBRES', 'APELLIDOS', 'EPS');
-            $crud->required_fields('NOMBRES', 'TIPODOC', 'NODOCUMENTO', 'APELLIDOS', 'FECHANACIMIENTO', 'GENERO', 'ESTRATODOMICILIO', 'DIRECCION', 'BARRIO', 'MUNICIPIO', 'EPS', 'NOHIJOS', 'OCUPACION', 'ESTADOCIVIL');
+            $crud->required_fields('NOMBRES', 'TIPODOC', 'NODOCUMENTO', 'APELLIDOS', 'FECHANACIMIENTO', 'GENERO', 'ESTRATODOMICILIO', 'DIRECCION', 'BARRIO', 'EPS', 'NOHIJOS', 'OCUPACION', 'ESTADOCIVIL');
             $crud->set_rules('EMAIL', 'E-mail', 'trim|xss_clean|valid_email|max_length[100]');
                 
             //definicion de tipos de los campos
@@ -641,9 +677,22 @@ class Contratos extends CI_Controller {
             $crud->field_type('ESTADOCIVIL', 'dropdown', array(1 => 'Soltero', 2 => 'Casado', 3 => 'Divorciado', 4 => 'Unión Libre', 5 => 'Viudo'));
             $crud->field_type('OCUPACION', 'dropdown', array(1 => 'Empleado', 2 => 'Independiente', 3 => 'Jubilado', 4 => 'Ama de Casa', 5 => 'Estudiante', 6 => 'Desempleado'));
             $crud->field_type('ESTRATODOMICILIO', 'dropdown', array(1 => 1, 2 => 2, 3 => 3, 4 => 4, 5 => 5, 6 => 6));
-            //Rederizacion del CRUD
+            $crud->field_type('BARRIO', 'dropdown', array('' => ''));
+
+//Rederizacion del CRUD
             $output = $crud->render();
 
+            if (! ($this->uri->segment(5) === FALSE))
+            {
+                $strSQL = 'SELECT BARRIO FROM BENEFICIARIO WHERE ID = ' . $this->uri->segment(5);
+                $qresult = $this->db->query($strSQL);
+                if($qresult->num_rows() > 0)
+                {
+                    $result = $qresult->row(0);
+                    $data['BARRIO'] = str_replace(" ", "_", $result->BARRIO);                      
+                }
+            }
+            
             //configuracion de la plantilla
             $this->template->write_view('login', $this->tank_auth->get_login(), $data);
             $this->template->write('title', 'Beneficiarios');
@@ -795,7 +844,15 @@ class Contratos extends CI_Controller {
             return $update;
         }
     }
-
+    
+    function ObtenerListadoCiudades()
+    {
+        $this->load->library('DireccionUtils');
+        $DireccionUtils = new DireccionUtils();        
+        return $DireccionUtils->ObtenerListadoCiudades();;
+    }
+        
+    
 }
 
 ?>

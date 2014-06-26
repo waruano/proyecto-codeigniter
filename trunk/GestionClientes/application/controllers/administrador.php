@@ -502,5 +502,13 @@ class Administrador extends CI_Controller {
         $this->template->render();
     }
     
+    function listadobarrios($parametro, $seleccionado)
+    {        
+        $this->load->library('DireccionUtils');
+        $varUtils = new DireccionUtils();
+        $this->output->enable_profiler(FALSE);
+        echo $varUtils->getOptions($parametro, $seleccionado);
+    } 
+    
 }
 
