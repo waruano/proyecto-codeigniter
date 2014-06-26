@@ -56,7 +56,7 @@ $estrato = array(
 	'id'	=> 'estrato',	
         'value' => $valestrato,
 	'size'	=> 30,
-        'options' => array(1 => 1, 2 => 2, 3 => 3, 4 => 4, 5 => 5, 6 => 6)
+        'options' => array('' => '', 1 => 1, 2 => 2, 3 => 3, 4 => 4, 5 => 5, 6 => 6)
 );
 $eps = array(
 	'name'	=> 'eps',
@@ -64,19 +64,7 @@ $eps = array(
         'value' => $valeps,
 	'size' 	=> 30
 );
-/*
-$afiliaciondesde = array(
-	'name'	=> 'afiliaciondesde',
-	'id'	=> 'afiliaciondesde',
-	'value' => $valafiliaciondesde,
-	'size' 	=> 30
-); 
-$afiliacionhasta = array(
-	'name'	=> 'afiliacionhasta',
-	'id'	=> 'afiliacionhasta',	
-        'value' => $valafiliacionhasta,
-	'size'	=> 30
-); */
+
 $plan = array(
 	'name'	=> 'plan',
 	'id'	=> 'plan',
@@ -95,6 +83,14 @@ $asesor = array(
 	'id'	=> 'asesor',
         'value' => $valasesor,
 	'size' 	=> 30
+);
+
+$estadocartera = array(
+	'name'	=> 'estadocartera',
+	'id'	=> 'estadocartera',	
+        'value' => $valestadocartera,
+	'size'	=> 30,
+        'options' => array('' => '', 'OK' => 'OK', 'EN MORA' => 'EN MORA')
 );
 
 ?>
@@ -181,6 +177,7 @@ $asesor = array(
         <?php echo form_input($convenio); ?>
         <div style="color: red;"><?php echo form_error($convenio['name']); ?><?php echo isset($errors[$convenio['name']])?$errors[$convenio['name']]:''; ?>        </div>
     </div>
+    
 </div>
 
 <div class="row" style="padding-top: 5px; padding-bottom: 5px;" >
@@ -191,7 +188,16 @@ $asesor = array(
         <?php echo form_input($asesor); ?>
         <div style="color: red;"><?php echo form_error($asesor['name']); ?><?php echo isset($errors[$asesor['name']])?$errors[$asesor['name']]:''; ?>        </div>
     </div> 
-       
+    <div class="col-md-1">         
+         <?php echo form_label('Estado cartera', $estrato['id']); ?> 
+        </div>
+         <div class="col-md-3"> 
+             
+        <?php 
+        echo form_dropdown($estadocartera['name'], $estadocartera['options'], $estadocartera['value'], 'style="width:215px; height: 26px; "');                 
+        ?>
+        <div style="color: red;"><?php echo form_error($estadocartera['name']); ?><?php echo isset($errors[$estadocartera['name']])?$errors[$estadocartera['name']]:''; ?>        </div>
+    </div> 
 </div>
     <center>
             <input type="submit" value="Consultar" />       
