@@ -50,7 +50,7 @@ create table BENEFICIARIO
    OCUPACION            int,
    ESTADOCIVIL          int,
    primary key (ID)
-);
+) ENGINE=InnoDB ;
 
 /*==============================================================*/
 /* Table: CONTACTO                                              */
@@ -65,7 +65,7 @@ create table CONTACTO
    ID                   bigint not null AUTO_INCREMENT,
    TITID                bigint,
    primary key (ID)
-);
+) ENGINE=InnoDB ;
 
 /*==============================================================*/
 /* Table: CONTRATO                                              */
@@ -83,7 +83,7 @@ create table CONTRATO
    ESTADO               int,
    NUMBENEFICIARIOS     int, 
    primary key (ID)
-);
+) ENGINE=InnoDB ;
 
 /*==============================================================*/
 /* Table: COSTOPLAN                                             */
@@ -99,7 +99,7 @@ create table COSTOPLAN
    FECHADESDE           date,
    FECHAHASTA           date,   
    primary key (ID)
-);
+) ENGINE=InnoDB ;
 
 /*==============================================================*/
 /* Table: DOCUMENTO                                             */
@@ -112,7 +112,7 @@ create table DOCUMENTO
    TIPO                 int not null,
    ESTADO               int not null,
    primary key (ID)
-);
+) ENGINE=InnoDB ;
 
 /*==============================================================*/
 /* Table: PAGO                                                  */
@@ -127,7 +127,7 @@ create table PAGO
    VALOR                bigint,
    FECHA                date,
    primary key (ID)
-);
+) ENGINE=InnoDB ;
 
 /*==============================================================*/
 /* Table: OTROS CARGOS                                                  */
@@ -140,7 +140,7 @@ create table OTROSCARGOS
    VALOR                bigint,
    FECHA                date,
    primary key (ID)
-);
+) ENGINE=InnoDB ;
 
 /*==============================================================*/
 /* Table: PERSONA                                               */
@@ -157,7 +157,7 @@ create table PERSONA
    TIPOPERSONA          int,
    CODIGOASESOR         int,
    primary key (ID)
-);
+) ENGINE=InnoDB ;
 
 /*==============================================================*/
 /* Table: PLAN                                                  */
@@ -171,7 +171,7 @@ create table PLAN
    DEBITOAUTOMATICO     bool,
    BENEFICIARIOSILIMITADOS    bool,
    primary key (ID)
-);
+) ENGINE=InnoDB ;
 
 /*==============================================================*/
 /* Table: TITULAR                                               */
@@ -210,7 +210,7 @@ create table TITULAR
    COMOUBICOSERVICIO    int,
    PERMITEUSODATOS      bool,
    primary key (ID)
-);
+) ENGINE=InnoDB ;
 
 alter table BENEFICIARIO add constraint FK_TITULARBENEFICIARIO foreign key (TITID)
       references TITULAR (ID) on delete restrict on update restrict;
