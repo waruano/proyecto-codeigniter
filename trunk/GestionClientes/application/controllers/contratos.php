@@ -520,8 +520,10 @@ class Contratos extends CI_Controller {
             }
             //creacion  del crud
             $crud = new Grocery_CRUD();
+            $index_id = 5;
             //informacion del contrato y del plan
             if (isset($_SESSION['_aux_wizard']) && $_SESSION['_aux_wizard']) {
+                $index_id = 4;
                 //comprobacion para beneficiarios
                 $_beneficiarios = $this->contratosModel->get_beneficiarios($titularId);
                 $row = $query->row(0);
@@ -682,9 +684,9 @@ class Contratos extends CI_Controller {
 //Rederizacion del CRUD
             $output = $crud->render();
 
-            if (! ($this->uri->segment(5) === FALSE))
+            if (! ($this->uri->segment($index_id) === FALSE))
             {
-                $strSQL = 'SELECT BARRIO FROM BENEFICIARIO WHERE ID = ' . $this->uri->segment(5);
+                $strSQL = 'SELECT BARRIO FROM BENEFICIARIO WHERE ID = ' . $this->uri->segment($index_id);
                 $qresult = $this->db->query($strSQL);
                 if($qresult->num_rows() > 0)
                 {

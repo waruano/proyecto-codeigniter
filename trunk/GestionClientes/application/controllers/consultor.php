@@ -170,7 +170,7 @@ class Consultor extends CI_Controller {
             if ($data['valasesor'] != '') {
                 $strSQL = $strSQL . " AND CONCAT(persona.Nombres, ' ', persona.Apellidos) like '%" . $data['valasesor'] . "%' ";
             }
-            
+            //echo $strSQL;
             // Se define el CRUD
             $crud->basic_model->set_query_str($strSQL); //Query text here
             $crud->columns('EstadoCartera', 'NumeroContrato', 'NombreTitular', 'Identificacion', 'FechaAfiliacion',  'EstadoContrato');
