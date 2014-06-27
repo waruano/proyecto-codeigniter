@@ -128,7 +128,7 @@ class Administrador extends CI_Controller {
     }
 
     function registrar_usuario_callback($post_array) {
-        echo '<script>alert("callback");</script>';
+        
         $data['errors'] = array();
         $email_activation = $this->config->item('email_activation', 'tank_auth');
         if (!is_null($data = $this->tank_auth->create_user_rol($post_array['username'], $post_array['email'], $post_array['password'], $email_activation, $post_array['identificadorRol']))) {         // success
@@ -150,7 +150,7 @@ class Administrador extends CI_Controller {
             $data['selectedoption'] = 2;
             //Configuracion Grocery_CRUD listado de usuarios
             $crud = new Grocery_CRUD();
-            $crud->set_table('plan');
+            $crud->set_table('PLAN');
             $crud->set_subject("planes");
             $crud->columns('NOMBRE', 'NUMBENEFICIARIOS', 'NOMBRECONVENIO', 'DEBITOAUTOMATICO', 'BENEFICIARIOSILIMITADOS');
             $crud->display_as('NOMBRE', 'Nombre Plan');
