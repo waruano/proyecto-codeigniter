@@ -6,7 +6,8 @@
 
     <script src="<?php echo $file; ?>"></script>
 <?php endforeach; ?>
-<div>
+   
+    <div>
     
     <div class="titlerow">Beneficiarios</div>
     <div  style="padding-left: 0px; margin-bottom: 5px;   display: inline-block; ">
@@ -61,7 +62,8 @@ echo $output;
 <?php } ?>
 </div>
     
-    <script language="javascript" type="text/javascript">
+    
+<script language="javascript" type="text/javascript">
     jQuery(document).ready(function()
     {   
         jQuery("div[id$='FECHANACIMIENTO_field_box']").css('height','55px');            
@@ -117,8 +119,9 @@ echo $output;
     
     function loadBarrios(selCiudades, selBarrios, sSeleccionado)
     {        
+        if(sSeleccionado == '') sSeleccionado = -1;
         jQuery.ajax({
-            'url': '<?php echo base_url()."administrador/listadobarrios/"; ?>' + jQuery("select[id$='" + selCiudades + "']").val() + "/" + sSeleccionado ,
+            'url': '<?php echo base_url()."index.php/administrador/listadobarrios/"; ?>' + jQuery("select[id$='" + selCiudades + "']").val() + "/" + sSeleccionado ,
             'success':function(data){                        
                 jQuery("select[id$='" + selBarrios + "']").empty();
                 jQuery("select[id$='" + selBarrios + "']").append(data);
@@ -126,4 +129,3 @@ echo $output;
             });
     }
     </script>
-

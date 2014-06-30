@@ -83,6 +83,9 @@ $this->set_js_lib($this->default_javascript_path . '/jquery_plugins/config/jquer
                 case 'sinGuardar':
                      ?>
                     <div class='form-button-box'>
+                        <input type='button' value='Actualizar' id="save-and-go-back-button" class="btn btn-large"/>
+                    </div>
+                    <div class='form-button-box'>
                         <input type='button' value='<?php echo $this->l('form_cancel'); ?>' class="btn btn-large" id="cancel-button" />
                     </div>
                     <div class='form-button-box'>

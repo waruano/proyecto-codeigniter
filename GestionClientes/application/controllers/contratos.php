@@ -78,12 +78,12 @@ class Contratos extends CI_Controller {
                         redirect('contratos/titulares/add');
                     }
                 }
-                $crud->set_relation('DOCID', 'documento', 'NUMERO', array('TIPO' => '1', 'ESTADO' => '1'));
+                $crud->set_relation('DOCID', 'DOCUMENTO', 'NUMERO', array('TIPO' => '1', 'ESTADO' => '1'));
 
                 $crud->field_type('ESTADO', 'hidden', '1');
             } else {
                 $crud->buttons_form('sinGuardar');
-                $crud->set_relation('DOCID', 'documento', 'NUMERO', array('TIPO' => '1'));
+                $crud->set_relation('DOCID', 'DOCUMENTO', 'NUMERO', array('TIPO' => '1'));
                 $crud->field_type('ESTADO', 'dropdown', array(0 => 'No', 1 => 'Si'));
                 $crud->unset_add();
                 $crud->unset_edit();
@@ -91,9 +91,9 @@ class Contratos extends CI_Controller {
             }
 
             //configuracion de la tabla
-            $crud->set_table('contrato');
+            $crud->set_table('CONTRATO');
             $crud->set_subject("Contrato");
-            $crud->set_relation('TITID', 'titular', '{NODOCUMENTO} {NOMBRES} {APELLIDOS}', null, 'ID ASC');
+            $crud->set_relation('TITID', 'TITULAR', '{NODOCUMENTO} {NOMBRES} {APELLIDOS}', null, 'ID ASC');
             //Renombrado de los campos
             $crud->display_as('PLANID', 'Plan');
             $crud->display_as('TIPOCONTRATO', 'Tipo de Contrato');
@@ -140,7 +140,7 @@ class Contratos extends CI_Controller {
     }
 
     function direccion_terminar_contrato($primary_key, $row) {
-        return base_url() . 'contratos/terminar_contrato/' . $primary_key;
+        return base_url() . 'index.php/contratos/terminar_contrato/' . $primary_key;
     }
 
     function terminar_contrato($primary_key) {
@@ -149,7 +149,7 @@ class Contratos extends CI_Controller {
         $factual = getdate();
         $valor = $factual['year'] . '-' . $factual['mon'] . '-' . $factual['mday'];
         $_estado = array('ESTADO' => '0', 'FECHAFIN' => $valor);
-        $this->db->update('contrato', $_estado);
+        $this->db->update('CONTRATO', $_estado);
         redirect('contratos');
     }
 
@@ -171,7 +171,7 @@ class Contratos extends CI_Controller {
         $titularId = $post_array['TITID'];
         $data = array('ESTADO' => '2');
         $this->db->where('ID', $post_array['DOCID']);
-        $this->db->update('documento', $data);
+        $this->db->update('DOCUMENTO', $data);
         $_SESSION['_aux_primary_key'] = $titularId;
         $_SESSION['success_contrato'] = true;
         $_SESSION['_aux_var'] = $primary_key;
@@ -184,14 +184,14 @@ class Contratos extends CI_Controller {
         $titularId = $post_array['TITID'];
         if ($titularId != 1) {
             $this->db->where('TITID', $titularId);
-            $contratos = $this->db->get('contrato');
+            $contratos = $this->db->get('CONTRATO');
             list($día, $mes, $año) = split('/', $post_array["FECHAINICIO"]);
             $valor = $año . '-' . $mes . '-' . $día;
             foreach ($contratos->result() as $contrato) {
                 $_estado = array('ESTADO' => '0', 'FECHAFIN' => $valor);
                 $this->db->where('ID', $contrato->ID);
                 $this->db->where('ESTADO', '1');
-                $this->db->update('contrato', $_estado);
+                $this->db->update('CONTRATO', $_estado);
             }
         }
         return $post_array;
@@ -303,7 +303,7 @@ class Contratos extends CI_Controller {
             }
             $crud->where('ID !=', '1');
             //configuracion de la tabla
-            $crud->set_table('titular');
+            $crud->set_table('TITULAR');
             $crud->set_subject("Titulares");
             //definicion de los campos
             //$crud->fields('TIPODOC', 'NODOCUMENTO', 'FECHANACIMIENTO', 'GENERO', 'NOMBRES', 'APELLIDOS','PAIS','CIUDAD', 'COBRODIRECCION', 'COBROBARRIO', 'COBROMUNICIPIO', 'COBRODEPTO', 'DOMIDIRECCION', 'DOMIBARRIO', 'DOMIMUNICIPIO', 'DOMIDEPTO', 'TELDOMICILIO', 'TELOFICINA', 'TELMOVIL', 'EMAIL', 'NOHIJOS', 'NODEPENDIENTES', 'ESTRATO', 'ESTADOCIVIL', 'OCUPACION', 'EPS', 'COMOUBICOSERVICIO','BENEFICIARIO', 'PERMITEUSODATOS');
@@ -362,6 +362,8 @@ class Contratos extends CI_Controller {
             $crud->field_type('COBROBARRIO', 'dropdown', array('' => ''));
             $crud->field_type('DOMIMUNICIPIO', 'dropdown', $this->ObtenerListadoCiudades());
             $crud->field_type('COBROMUNICIPIO', 'dropdown', $this->ObtenerListadoCiudades());
+            $crud->field_type('EPS', 'dropdown', $this->ObtenerListadoEPS());
+            
             
             //definicion de las reglas
             $crud->required_fields('NOMBRES', 'APELLIDOS', 'TIPODOC', 'NODOCUMENTO', 'BENEFICIARIO', 'FECHANACIMIENTO', 'GENERO', 'COBRODIRECCION', 'COBROBARRIO', 'COBROMUNICIPIO', 'COBRODEPTO', 'DOMIDIRECCION', 'DOMIBARRIO', 'DOMIMUNICIPIO', 'DOMIDEPTO', 'NOHIJOS', 'NODEPENDIENTES', 'ESTRATO', 'ESTADOCIVIL', 'OCUPACION', 'EPS', 'COMOUBICOSERVICIO', 'PERMITEUSODATOS');
@@ -376,20 +378,27 @@ class Contratos extends CI_Controller {
             //Rederizacion del CRUD
             $output = $crud->render();
 
-            
-            if (! ($this->uri->segment(4) === FALSE))
+            $valor = $this->uri->segment(4);
+            if($valor != "")
             {
-                $strSQL = 'SELECT DOMIBARRIO, COBROBARRIO FROM TITULAR WHERE ID = ' . $this->uri->segment(4);
-                $qresult = $this->db->query($strSQL);
-                if($qresult->num_rows() > 0)
-                {
-                    $result = $qresult->row(0);
-                    $data['DOMIBARRIO'] = str_replace(" ", "_", $result->DOMIBARRIO);  
-                    $data['COBROBARRIO'] = str_replace(" ", "_", $result->COBROBARRIO);  
-                    
-                }
+                if (! ($this->uri->segment(4) === FALSE))
+                {                
+                    $strSQL = 'SELECT DOMIBARRIO, COBROBARRIO FROM TITULAR WHERE ID = ' . $this->uri->segment(4);
+                    $qresult = $this->db->query($strSQL);
+                    if($qresult->num_rows() > 0)
+                    {
+                        $result = $qresult->row(0);
+                        $data['DOMIBARRIO'] = str_replace(" ", "_", $result->DOMIBARRIO);  
+                        $data['COBROBARRIO'] = str_replace(" ", "_", $result->COBROBARRIO);  
+
+                    }
+                }    
             }
-            
+            else
+            {
+                $data['DOMIBARRIO'] = "";  
+                    $data['COBROBARRIO'] = "";  
+            }
             
             //configuracion de la plantilla
             $this->template->write_view('login', $this->tank_auth->get_login(), $data);
@@ -400,18 +409,19 @@ class Contratos extends CI_Controller {
         } else {
             redirect('');
         }
+        
     }
 
     function direccion_cargos($primary_key, $row) {
-        return base_url() . 'administrador/otroscargos/' . $primary_key;
+        return base_url() . 'index.php/administrador/otroscargos/' . $primary_key;
     }
     
     function direccion_contactos($primary_key, $row) {
-        return base_url() . 'administrador/contactosEdit/' . $primary_key;
+        return base_url() . 'index.php/administrador/contactosEdit/' . $primary_key;
     }
 
     function direccion_beneficiarios($primary_key, $row) {
-        return base_url() . 'contratos/beneficiariosEdit/' . $primary_key;
+        return base_url() . 'index.php/contratos/beneficiariosEdit/' . $primary_key;
     }
 
     function add_field_callback_1() {
@@ -424,7 +434,7 @@ class Contratos extends CI_Controller {
             session_start();
         $data = array('TITID' => $primary_key);
         $this->db->where('ID', $_SESSION['_aux_var']);
-        $this->db->update('contrato', $data);
+        $this->db->update('CONTRATO', $data);
         $_SESSION['success_titular'] = true;
         $_SESSION['_aux_primary_key'] = $_SESSION['_aux_var'];
         $_SESSION['_aux_var'] = $primary_key;
@@ -485,21 +495,21 @@ class Contratos extends CI_Controller {
             $titularId = $_SESSION['_aux_var'];
             $valTitId = $titularId;
             $query = $this->db->query("
-                SELECT NOMBRES, APELLIDOS, NODOCUMENTO, documento.numero, BENEFICIARIO, plan.NUMBENEFICIARIOS,
-                Titular.ESTRATO, Titular.COBRODIRECCION, Titular.COBROBARRIO, Titular.TELDOMICILIO, Titular.COBROMUNICIPIO
-                FROM Titular Left Join CONTRATO on Contrato.TitId = Titular.ID   and contrato.estado = 1
-                left join documento on documento.id = contrato.docId   
-                left join plan on plan.id = contrato.planid 
-                WHERE Titular.ID = " . $valTitId);
+                SELECT NOMBRES, APELLIDOS, NODOCUMENTO, DOCUMENTO.NUMERO, BENEFICIARIO, PLAN.NUMBENEFICIARIOS,
+                TITULAR.ESTRATO, TITULAR.COBRODIRECCION, TITULAR.COBROBARRIO, TITULAR.TELDOMICILIO, TITULAR.COBROMUNICIPIO
+                FROM TITULAR Left Join CONTRATO on CONTRATO.TITID = TITULAR.ID   and CONTRATO.ESTADO = 1
+                left join DOCUMENTO on DOCUMENTO.ID = CONTRATO.DOCID   
+                left join PLAN on PLAN.ID = CONTRATO.PLANID 
+                WHERE TITULAR.ID = " . $valTitId);
             if ($query->num_rows() > 0) {
                 $row = $query->row(0);
                 $data['titularFullName'] = $row->NOMBRES . ' ' . $row->APELLIDOS;
                 $data['titularIdentificacion'] = $row->NODOCUMENTO;
-                if ($row->numero == "") {
+                if ($row->NUMERO == "") {
                     $data['titularContrato'] = "Sin Contrato Activo";
                     $data['plan_beneficiarios'] = FALSE;
                 } else {
-                    $data['titularContrato'] = $row->numero;
+                    $data['titularContrato'] = $row->NUMERO;
                     $data['plan_beneficiarios'] = $row->NUMBENEFICIARIOS;
                 }
                 $data['estrato'] = $row->ESTRATO;
@@ -524,8 +534,10 @@ class Contratos extends CI_Controller {
             //informacion del contrato y del plan
             if (isset($_SESSION['_aux_wizard']) && $_SESSION['_aux_wizard']) {
                 $index_id = 4;
+                $this->load->model('contratosmodel');
+                $crud->buttons_form('sinGuardar');
                 //comprobacion para beneficiarios
-                $_beneficiarios = $this->contratosModel->get_beneficiarios($titularId);
+                $_beneficiarios = $this->contratosmodel->get_beneficiarios($titularId);
                 $row = $query->row(0);
                 if ($row->BENEFICIARIO == 1) {
                     $total_beneficiarios = 1;
@@ -538,8 +550,8 @@ class Contratos extends CI_Controller {
                 $data['total_beneficiarios'] = $total_beneficiarios;
                 //informacion del Contrato y el Plan
                 $contrato_id = $_SESSION['_aux_primary_key'];
-                $this->load->model('contratosModel');
-                $select_contrato = $this->contratosModel->get_contrato($contrato_id);
+                
+                $select_contrato = $this->contratosmodel->get_contrato($contrato_id);
                 if ($select_contrato != null) {
                     $_aux_str = "Tipo de Contrato no Definido";
                     switch ($select_contrato->TIPOCONTRATO) {
@@ -573,7 +585,7 @@ class Contratos extends CI_Controller {
                     $data['contrato_periodicidad'] = $_aux_str;
                     unset($_aux_str);
                     $data['contrato_fechaInicio'] = $select_contrato->FECHAINICIO;
-                    $select_plan = $this->contratosModel->get_plan($select_contrato->PLANID);
+                    $select_plan = $this->contratosmodel->get_plan($select_contrato->PLANID);
                     if ($select_plan != null) {
                         $data['plan_nombre'] = $select_plan->NOMBRE;
                         $data['plan_ilimitado'] = $select_plan->BENEFICIARIOSILIMITADOS;
@@ -594,7 +606,8 @@ class Contratos extends CI_Controller {
                 //vista del wizard para agregar titular
                 $content = 'Administrador/beneficiarios_wizard';
             } else {
-                $_beneficiarios = $this->contratosModel->get_beneficiarios($titularId);
+                $this->load->model('contratosmodel');
+                $_beneficiarios = $this->contratosmodel->get_beneficiarios($titularId);
                 $row = $query->row(0);
                 if ($row->BENEFICIARIO == 1) {
                     $total_beneficiarios = 1;
@@ -619,7 +632,7 @@ class Contratos extends CI_Controller {
             $crud->unset_read();
             $state = $crud->getState();
             //configuracion de la tabla
-            $crud->set_table('beneficiario');
+            $crud->set_table('BENEFICIARIO');
             $crud->set_subject("Beneficiarios");
             $crud->where('TITID', $valTitId);
 
@@ -680,19 +693,30 @@ class Contratos extends CI_Controller {
             $crud->field_type('OCUPACION', 'dropdown', array(1 => 'Empleado', 2 => 'Independiente', 3 => 'Jubilado', 4 => 'Ama de Casa', 5 => 'Estudiante', 6 => 'Desempleado'));
             $crud->field_type('ESTRATODOMICILIO', 'dropdown', array(1 => 1, 2 => 2, 3 => 3, 4 => 4, 5 => 5, 6 => 6));
             $crud->field_type('BARRIO', 'dropdown', array('' => ''));
-
+            $crud->field_type('EPS', 'dropdown', $this->ObtenerListadoEPS());
+            
 //Rederizacion del CRUD
             $output = $crud->render();
-
-            if (! ($this->uri->segment($index_id) === FALSE))
-            {
-                $strSQL = 'SELECT BARRIO FROM BENEFICIARIO WHERE ID = ' . $this->uri->segment($index_id);
-                $qresult = $this->db->query($strSQL);
-                if($qresult->num_rows() > 0)
+            
+            $valor = $this->uri->segment($index_id);
+            
+            if($valor != "")
+            { 
+                if (! ($this->uri->segment($index_id) === FALSE))
                 {
-                    $result = $qresult->row(0);
-                    $data['BARRIO'] = str_replace(" ", "_", $result->BARRIO);                      
+                    $strSQL = 'SELECT BARRIO FROM BENEFICIARIO WHERE ID = ' . $valor;
+                    
+                    $qresult = $this->db->query($strSQL);
+                    if($qresult->num_rows() > 0)
+                    {
+                        $result = $qresult->row(0);
+                        $data['BARRIO'] = str_replace(" ", "_", $result->BARRIO);                      
+                    }
                 }
+            }      
+             else
+            {
+                $data['BARRIO'] = "";  
             }
             
             //configuracion de la plantilla
@@ -714,11 +738,11 @@ class Contratos extends CI_Controller {
             //informacion del titular
             $titularId = $_SESSION['_aux_var'];
             $valTitId = $titularId;
-            $query = $this->db->query("SELECT NOMBRES, APELLIDOS, NODOCUMENTO, documento.numero,  BENEFICIARIO, plan.NUMBENEFICIARIOS
-                                   FROM Titular Left Join CONTRATO on Contrato.TitId = Titular.ID   and contrato.estado = 1
-                                   left join documento on documento.id = contrato.docId   
-                                   left join plan on plan.id = contrato.planid 
-                                   WHERE Titular.ID = " . $valTitId);
+            $query = $this->db->query("SELECT NOMBRES, APELLIDOS, NODOCUMENTO, DOCUMENTO.NUMERO,  BENEFICIARIO, PLAN.NUMBENEFICIARIOS
+                                   FROM TITULAR Left Join CONTRATO on CONTRATO.TITID = TITULAR.ID   and CONTRATO.ESTADO = 1
+                                   left join DOCUMENTO on DOCUMENTO.ID = CONTRATO.DOCID   
+                                   left join PLAN on PLAN.ID = CONTRATO.PLANID 
+                                   WHERE TITULAR.ID = " . $valTitId);
             if ($query->num_rows() > 0) {
                 $row = $query->row(0);
             }
@@ -735,9 +759,9 @@ class Contratos extends CI_Controller {
             $total_beneficiarios;
             //informacion del Contrato y el Plan
             $contrato_id = $_SESSION['_aux_primary_key'];
-            $this->load->model('contratosModel');
-            $select_contrato = $this->contratosModel->get_contrato($contrato_id);
-            $select_plan = $this->contratosModel->get_plan($select_contrato->PLANID);
+            $this->load->model('contratosmodel');
+            $select_contrato = $this->contratosmodel->get_contrato($contrato_id);
+            $select_plan = $this->contratosmodel->get_plan($select_contrato->PLANID);
             if ($select_plan->BENEFICIARIOSILIMITADOS == 1 && $total_beneficiarios < $select_plan->NUMBENEFICIARIOS) {
                 redirect('contratos/beneficiarios');
             }else{
@@ -754,31 +778,31 @@ class Contratos extends CI_Controller {
     }
 
     function actualizar_contador_beneficiarios($titular_id) {
-        $strQuery = "SELECT ID  FROM Contrato WHERE Contrato.TItid = " . $titular_id . " and Contrato.estado = 1 ";
+        $strQuery = "SELECT ID  FROM CONTRATO WHERE CONTRATO.TITID = " . $titular_id . " AND CONTRATO.ESTADO = 1 ";
         $qcontrato = $this->db->query($strQuery);
         if ($qcontrato->num_rows() > 0) {
             $contrato = $qcontrato->row(0);
 
-            $strSQL = "SELECT case when Titular.BENEFICIARIO = 1 then 1 else 0 end + ifnull(subconsulta.contador,0) as totalbeneficiarios
-                        FROM Titular left join (
-                            select count(*) contador, beneficiario.TITID from beneficiario where beneficiario.titID = " . $titular_id . " 
-                            group by beneficiario.titid) subconsulta
-                        on subconsulta.titID = titular.id where titular.id = " . $titular_id;
+            $strSQL = "SELECT case when TITULAR.BENEFICIARIO = 1 then 1 else 0 end + ifnull(subconsulta.contador,0) as totalbeneficiarios
+                        FROM TITULAR left join (
+                            select count(*) contador, BENEFICIARIO.TITID from BENEFICIARIO where BENEFICIARIO.TITID = " . $titular_id . " 
+                            group by BENEFICIARIO.TITID) subconsulta
+                        on subconsulta.TITID = TITULAR.ID where TITULAR.ID = " . $titular_id;
             $qcantidad = $this->db->query($strSQL);
             if ($qcantidad->num_rows() > 0) {
                 $cantidad = $qcantidad->row(0);
-                $strUpdate = "UPDATE contrato SET NUMBENEFICIARIOS = " . $cantidad->totalbeneficiarios . " WHERE ID = " . $contrato->ID;
+                $strUpdate = "UPDATE CONTRATO SET NUMBENEFICIARIOS = " . $cantidad->totalbeneficiarios . " WHERE ID = " . $contrato->ID;
                 $this->db->query($strUpdate);
             }
         }
     }
 
     function direccion_eliminar_beneficiario($primary_key, $row) {
-        return base_url() . 'contratos/eliminar_beneficiario/' . $primary_key;
+        return base_url() . 'index.php/contratos/eliminar_beneficiario/' . $primary_key;
     }
 
     function eliminar_beneficiario($primary_key) {
-        $this->db->delete('beneficiario', array('ID' => $primary_key));
+        $this->db->delete('BENEFICIARIO', array('ID' => $primary_key));
         redirect('contratos/beneficiarios');
     }
 
@@ -851,7 +875,14 @@ class Contratos extends CI_Controller {
     {
         $this->load->library('DireccionUtils');
         $DireccionUtils = new DireccionUtils();        
-        return $DireccionUtils->ObtenerListadoCiudades();;
+        return $DireccionUtils->ObtenerListadoCiudades();
+    }
+    
+    function ObtenerListadoEPS()
+    {
+        $this->load->library('DireccionUtils');
+        $DireccionUtils = new DireccionUtils();        
+        return $DireccionUtils->ObtenerEPS();
     }
         
     

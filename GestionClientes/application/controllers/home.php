@@ -20,6 +20,19 @@ class Home extends CI_Controller {
         $this->template->write_view('content', 'pages/home');
         $this->template->render();
     }
+    
+    function acercade()
+    {
+        $data['user_id'] = $this->tank_auth->get_user_id();
+        $data['username'] = $this->tank_auth->get_username();
+        $data['selectedoption'] = 0;
+        //Configuracion de la Plantilla
+        $this->template->write_view('login', $this->tank_auth->get_login(), $data);
+        $this->template->write('title', 'Previmed');
+        $this->template->write_view('sidebar', $this->tank_auth->get_sidebar());
+        $this->template->write_view('content', 'pages/acercade');
+        $this->template->render();
+    }
 
     public function remap($method,$function) {
         if(!$this->is_session_started())

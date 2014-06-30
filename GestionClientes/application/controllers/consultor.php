@@ -33,27 +33,27 @@ class Consultor extends CI_Controller {
             $data['selectedoption'] = 4;
 
             $crud = new grocery_CRUD();
-            $crud->set_model('Custom_query_model');
-            $crud->set_table('persona'); //Change to your table name
+            $crud->set_model('custom_query_model');
+            $crud->set_table('PERSONA'); //Change to your table name
 
-            $strSQL = "select 'EstadoCartera' as EstadoCartera, documento.Numero as NumeroContrato, 
-                CONCAT(titular.Nombres, ' ', ifnull(titular.Apellidos, '')) as NombreTitular, 
-                titular.NoDocumento as Identificacion, contrato.FechaInicio as FechaAfiliacion, 
-                contrato.id as ID, CASE WHEN contrato.estado = 1 then 'Si' ELSE 'No' END as EstadoContrato
-                from titular 
-                inner join contrato on contrato.TITID = titular.ID 
-                inner join documento on documento.ID = contrato.DOCID ";
+            $strSQL = "select 'EstadoCartera' as EstadoCartera, DOCUMENTO.NUMERO as NumeroContrato, 
+                CONCAT(TITULAR.NOMBRES, ' ', ifnull(TITULAR.APELLIDOS, '')) as NombreTitular, 
+                TITULAR.NODOCUMENTO as Identificacion, CONTRATO.FECHAINICIO as FechaAfiliacion, 
+                CONTRATO.ID as ID, CASE WHEN CONTRATO.ESTADO = 1 then 'Si' ELSE 'No' END as EstadoContrato
+                from TITULAR 
+                inner join CONTRATO on (CONTRATO.TITID = TITULAR.ID AND TITULAR.ID > 1)
+                inner join DOCUMENTO on DOCUMENTO.ID = CONTRATO.DOCID ";
 
             if ($data['valtitular'] != '') {
-                $strSQL = $strSQL . " AND CONCAT(titular.Nombres, ' ', titular.Apellidos) like '%" . $data['valtitular'] . "%' ";
+                $strSQL = $strSQL . " AND CONCAT(TITULAR.NOMBRES, ' ', TITULAR.APELLIDOS) like '%" . $data['valtitular'] . "%' ";
             }
 
             if ($data['validentificacion'] != '') {
-                $strSQL = $strSQL . " AND titular.NoDocumento like '%" . $data['validentificacion'] . "%' ";
+                $strSQL = $strSQL . " AND TITULAR.NODOCUMENTO like '%" . $data['validentificacion'] . "%' ";
             }
 
             if (is_numeric($data['valnocontrato'])) {
-                $strSQL = $strSQL . " AND documento.Numero = " . $data['valnocontrato'] . " ";
+                $strSQL = $strSQL . " AND DOCUMENTO.NUMERO = " . $data['valnocontrato'] . " ";
             }
 
             $crud->basic_model->set_query_str($strSQL); //Query text here
@@ -78,16 +78,32 @@ class Consultor extends CI_Controller {
             $this->template->write_view('login', $this->tank_auth->get_login(), $data);
             $this->template->write('title', 'Búsqueda de Contratos');
             $this->template->write_view('sidebar', $this->tank_auth->get_sidebar());
-            $this->template->write_view('content', 'consultor/consulta', $output);
+            $this->template->write_view('content', 'Consultor/consulta', $output);
             $this->template->render();
         } else {
             redirect('');
         }
     }
     
+    function ObtenerListadoCiudades()
+    {
+        $this->load->library('DireccionUtils');
+        $DireccionUtils = new DireccionUtils();        
+        return $DireccionUtils->ObtenerListadoCiudades();
+    }
+    
+    function ObtenerListadoEPS()
+    {
+        $this->load->library('DireccionUtils');
+        $DireccionUtils = new DireccionUtils();        
+        return $DireccionUtils->ObtenerEPS();
+    }
+    
     function consultaGeneral() {
         $session_rol = $this->tank_auth->get_rol();
         if ($session_rol >= 1 && $session_rol <= 4) {
+            $data['lstCiudades'] = $this->ObtenerListadoCiudades();
+            $data['lstEps'] = $this->ObtenerListadoEPS();
             // se reciben los datos desde el formulario
             $data['validentificacion'] = $this->input->post('identificacion');
             $data['valnocontrato'] = $this->input->post('numeroContrato');
@@ -96,6 +112,7 @@ class Consultor extends CI_Controller {
             $data['valcorreo'] = $this->input->post('correo');
             $data['valgenero'] = $this->input->post('genero');
             $data['valdireccion'] = $this->input->post('direccion');
+            $data['valciudad'] = $this->input->post('ciudad');
             $data['valestrato'] = $this->input->post('estrato');
             $data['valeps'] = $this->input->post('eps');
            /* $data['valafiliaciondesde'] = $this->input->post('afiliaciondesde');
@@ -111,49 +128,54 @@ class Consultor extends CI_Controller {
             $data['selectedoption'] = 9;
 
             $crud = new grocery_CRUD();
-            $crud->set_model('Custom_query_model');
-            $crud->set_table('persona'); //Change to your table name
+            $crud->set_model('custom_query_model');
+            $crud->set_table('PERSONA'); //Change to your table name
             $crud->basic_model->set_estado($data['valestadocartera']);
             $strSQL = "
-                select 'EstadoCartera' as EstadoCartera, documento.Numero as NumeroContrato, 
-                CONCAT(titular.Nombres, ' ', ifnull(titular.Apellidos, '')) as NombreTitular, 
-                titular.NoDocumento as Identificacion, contrato.FechaInicio as FechaAfiliacion, 
-                contrato.id as ID, CASE WHEN contrato.estado = 1 then 'Si' ELSE 'No' END as EstadoContrato
-                from titular 
-                inner join contrato on contrato.TITID = titular.ID 
-                inner join documento on documento.ID = contrato.DOCID 
-                inner join plan on plan.id = contrato.planid
-                inner join persona on documento.empid = persona.id";
+                select 'EstadoCartera' as EstadoCartera, DOCUMENTO.NUMERO as NumeroContrato, 
+                CONCAT(TITULAR.NOMBRES, ' ', ifnull(TITULAR.APELLIDOS, '')) as NombreTitular, 
+                TITULAR.NODOCUMENTO as Identificacion, CONTRATO.FECHAINICIO as FechaAfiliacion, 
+                CONTRATO.ID as ID, CASE WHEN CONTRATO.ESTADO = 1 then 'Si' ELSE 'No' END as EstadoContrato
+                from TITULAR 
+                inner join CONTRATO on (CONTRATO.TITID = TITULAR.ID AND TITULAR.ID > 1)
+                inner join DOCUMENTO on DOCUMENTO.ID = CONTRATO.DOCID 
+                inner join PLAN on PLAN.ID = CONTRATO.PLANID
+                inner join PERSONA on DOCUMENTO.EMPID = PERSONA.ID";
 
             // se crean los filtros a la consulta dependiendo de lo recibido por post
             if ($data['valtitular'] != '') {
-                $strSQL = $strSQL . " AND CONCAT(titular.Nombres, ' ', titular.Apellidos) like '%" . $data['valtitular'] . "%' ";
+                $strSQL = $strSQL . " AND CONCAT(TITULAR.NOMBRES, ' ', TITULAR.APELLIDOS) like '%" . $data['valtitular'] . "%' ";
             }
             if ($data['validentificacion'] != '') {
-                $strSQL = $strSQL . " AND titular.NoDocumento like '%" . $data['validentificacion'] . "%' ";
+                $strSQL = $strSQL . " AND TITULAR.NODOCUMENTO like '%" . $data['validentificacion'] . "%' ";
             }
             if (is_numeric($data['valnocontrato'])) {
-                $strSQL = $strSQL . " AND documento.Numero = " . $data['valnocontrato'] . " ";
+                $strSQL = $strSQL . " AND DOCUMENTO.NUMERO = " . $data['valnocontrato'] . " ";
             }            
             if (is_numeric($data['valtelefono'])) {                
-                $strSQL = $strSQL . " AND  (titular.TELDOMICILIO LIKE'%" .$data['valtelefono'] . "%' OR titular.TELMOVIL LIKE'%" .$data['valtelefono'] . "%' OR titular.TELOFICINA LIKE'%" .$data['valtelefono'] . "%')";
+                $strSQL = $strSQL . " AND  (TITULAR.TELDOMICILIO LIKE'%" .$data['valtelefono'] . "%' OR TITULAR.TELMOVIL LIKE'%" .$data['valtelefono'] . "%' OR TITULAR.TELOFICINA LIKE'%" .$data['valtelefono'] . "%')";
             }            
             if ($data['valcorreo'] != '') {
-                $strSQL = $strSQL . " AND titular.email LIKE'%" .$data['valcorreo'] . "%' ";
+                $strSQL = $strSQL . " AND TITULAR.EMAIL LIKE'%" .$data['valcorreo'] . "%' ";
             }            
             if (is_numeric($data['valgenero'])) {
                 if($data['valgenero'] != 0){
-                    $strSQL = $strSQL . " AND titular.genero = " . $data['valgenero'] . " ";
+                    $strSQL = $strSQL . " AND TITULAR.GENERO = " . $data['valgenero'] . " ";
                 }
             }
+            
+            if ($data['valciudad'] != '') {
+                $strSQL = $strSQL . " AND (TITULAR.COBROMUNICIPIO like '%" . $data['valciudad'] . "%'  or TITULAR.DOMIMUNICIPIO like '%" . $data['valciudad'] . "%' )";                   
+            }
+                    
             if ($data['valdireccion'] != '') {
-                $strSQL = $strSQL . " AND (titular.COBROBARRIO like '%" . $data['valdireccion'] . "%' or titular.COBRODEPTO like '%" . $data['valdireccion'] . "%' or titular.COBRODIRECCION like '%" . $data['valdireccion'] . "%' or titular.COBROMUNICIPIO like '%" . $data['valdireccion'] . "%' or titular.DOMIBARRIO like '%" . $data['valdireccion'] . "%' or titular.DOMIDEPTO like '%" . $data['valdireccion'] . "%' or titular.DOMIDIRECCION like '%" . $data['valdireccion'] . "%' or titular.DOMIMUNICIPIO like '%" . $data['valdireccion'] . "%' )";                   
+                $strSQL = $strSQL . " AND (TITULAR.COBROBARRIO like '%" . $data['valdireccion'] . "%' or TITULAR.COBRODIRECCION like '%" . $data['valdireccion'] . "%' or TITULAR.DOMIBARRIO like '%" . $data['valdireccion'] . "%' or TITULAR.DOMIDIRECCION like '%" . $data['valdireccion'] . "%' )";                   
             }
             if (is_numeric($data['valestrato'])) {
-                $strSQL = $strSQL . " AND TITULAR.estrato = " . $data['valestrato'] . " ";
+                $strSQL = $strSQL . " AND TITULAR.ESTRATO = " . $data['valestrato'] . " ";
             }
             if ($data['valeps'] != '') {
-                $strSQL = $strSQL . " AND titular.eps like '%" . $data['valeps'] . "%' ";
+                $strSQL = $strSQL . " AND TITULAR.EPS like '%" . $data['valeps'] . "%' ";
             }/*
             if ($data['valafiliaciondesde'] !='') {
                 $strSQL = $strSQL . " AND documento.Numero = " . $data['valnocontrato'] . " ";
@@ -162,13 +184,13 @@ class Consultor extends CI_Controller {
                 $strSQL = $strSQL . " AND documento.Numero = " . $data['valnocontrato'] . " ";
             } */
             if ($data['valplan'] != '') {
-                $strSQL = $strSQL . " AND plan.nombre like '%" . $data['valplan'] . "%' ";
+                $strSQL = $strSQL . " AND PLAN.NOMBRE like '%" . $data['valplan'] . "%' ";
             }
             if ($data['valconvenio'] != '') {
-                $strSQL = $strSQL . " AND plan.nombreconvenio like '%" . $data['valconvenio'] . "%' ";
+                $strSQL = $strSQL . " AND PLAN.NOMBRECONVENIO like '%" . $data['valconvenio'] . "%' ";
             }
             if ($data['valasesor'] != '') {
-                $strSQL = $strSQL . " AND CONCAT(persona.Nombres, ' ', persona.Apellidos) like '%" . $data['valasesor'] . "%' ";
+                $strSQL = $strSQL . " AND CONCAT(PERSONA.NOMBRES, ' ', PERSONA.APELLIDOS) like '%" . $data['valasesor'] . "%' ";
             }
             //echo $strSQL;
             // Se define el CRUD
@@ -193,7 +215,7 @@ class Consultor extends CI_Controller {
             $this->template->write_view('login', $this->tank_auth->get_login(), $data);
             $this->template->write('title', 'Búsqueda de General');
             $this->template->write_view('sidebar', $this->tank_auth->get_sidebar());
-            $this->template->write_view('content', 'consultor/consultaGeneral', $output);
+            $this->template->write_view('content', 'Consultor/consultaGeneral', $output);
             $this->template->render();
         } else {
             redirect('');
@@ -205,11 +227,11 @@ class Consultor extends CI_Controller {
     }
         
     function direccion_contratos($primary_key, $row) {
-        return base_url() . 'consultor/detallesContratos/' . $primary_key;
+        return base_url() . 'index.php/consultor/detallesContratos/' . $primary_key;
     }
 
     function direccion_general($primary_key, $row) {
-        return base_url() . 'consultor/detallesGeneral/' . $primary_key;
+        return base_url() . 'index.php/consultor/detallesGeneral/' . $primary_key;
     }
     
     function detallesGeneral($noContrato)
@@ -232,9 +254,9 @@ class Consultor extends CI_Controller {
 
         //$valTitId = $noContrato;
         $query = $this->db->query("
-            SELECT titular.*
-            FROM titular INNER JOIN CONTRATO on Contrato.TitId = titular.ID  
-            INNER JOIN documento on documento.id = contrato.docId   WHERE contrato.id = " . $noContrato);
+            SELECT TITULAR.*
+            FROM TITULAR INNER JOIN CONTRATO on CONTRATO.TITID = TITULAR.ID  
+            INNER JOIN DOCUMENTO on DOCUMENTO.ID = CONTRATO.DOCID   WHERE CONTRATO.ID = " . $noContrato);
         if ($query->num_rows() > 0) {
             $row = $query->row(0);
             $data['titular'] = $row;
@@ -247,7 +269,7 @@ class Consultor extends CI_Controller {
         }
 
         /// Se consultan los BENEFICIARIOS del titular
-        $qbeneficiarios = $this->db->query("SELECT * FROM BENEFICIARIO WHERE titId = " . $valTitId);
+        $qbeneficiarios = $this->db->query("SELECT * FROM BENEFICIARIO WHERE TITID = " . $valTitId);
         if ($qbeneficiarios->num_rows() > 0) {
             $contarbeneficiarios = $contarbeneficiarios + $qbeneficiarios->num_rows();
             $data['beneficiarios'] = $qbeneficiarios->result();
@@ -258,7 +280,7 @@ class Consultor extends CI_Controller {
         $data['numerobeneficiarios'] = $contarbeneficiarios;
 
         /// Se consultan los CONTACTOS del titular
-        $qcontactos = $this->db->query("SELECT * FROM CONTACTO WHERE titId = " . $valTitId);
+        $qcontactos = $this->db->query("SELECT * FROM CONTACTO WHERE TITID = " . $valTitId);
         if ($qcontactos->num_rows() > 0) {
             $data['contactos'] = $qcontactos->result();
             $data['tienecontactos'] = true;
@@ -285,7 +307,7 @@ class Consultor extends CI_Controller {
                 INNER JOIN DOCUMENTO ON DOCUMENTO.ID = CONTRATO.DOCID 
                 INNER JOIN COSTOPLAN ON (COSTOPLAN.PLANID = PLAN.ID AND CURDATE() BETWEEN COSTOPLAN.FECHADESDE AND COSTOPLAN.FECHAHASTA)
                 INNER JOIN COSTOPLAN AS CAfilia ON (CAfilia.PLANID = PLAN.ID AND CONTRATO.FECHAINICIO BETWEEN CAfilia.FECHADESDE AND CAfilia.FECHAHASTA)
-                WHERE contrato.id = " . $noContrato . "
+                WHERE CONTRATO.ID = " . $noContrato . "
             ) AS subconsulta; ");
         
         if ($qcontrato->num_rows() > 0) {
@@ -396,7 +418,7 @@ class Consultor extends CI_Controller {
             $data['acumuladoporpagar'] = $acumulado_por_pagar;
             
             $sqlOtrosConceptos = "
-                SELECT VALOR, FECHA, DESCRIPCION FROM otroscargos 
+                SELECT VALOR, FECHA, DESCRIPCION FROM OTROSCARGOS 
                 WHERE TITID = " . $valTitId . " AND FECHA >= '" . $contrato->FECHAINICIO . "' "; 
             if($contrato->ESTADO == 0)
             {
@@ -485,8 +507,8 @@ class Consultor extends CI_Controller {
         }
         else
         {
-            $strContarBen = "SELECT NUMBENEFICIARIOS FROM Contrato WHERE Contrato.ID IN ( 
-                             SELECT max(contrato.id) ultimo FROM contrato WHERE contrato.TITID = " . $valTitId . " and estado = 0)";
+            $strContarBen = "SELECT NUMBENEFICIARIOS FROM CONTRATO WHERE CONTRATO.ID IN ( 
+                             SELECT max(CONTRATO.ID) ultimo FROM CONTRATO WHERE CONTRATO.TITID = " . $valTitId . " and ESTADO = 0)";
             $qcontarbenef = $this->db->query($strContarBen);
         
             if ($qcontarbenef->num_rows() > 0) {
@@ -518,19 +540,19 @@ class Consultor extends CI_Controller {
         $this->template->write_view('login', $this->tank_auth->get_login(), $data);
         $this->template->write('title', 'Detalles de Titular');
         $this->template->write_view('sidebar', $this->tank_auth->get_sidebar());
-        $this->template->write_view('content', 'consultor/detalleTitulares');
+        $this->template->write_view('content', 'Consultor/detalleTitulares');
         $this->template->render();
     }
         
     /// LOGICA DUPLICADA EN MODELO CUSTOM_QUERY_MODEL
     function ObtenerValorPago($noContrato, $factual, $numbeneficiarios) {
-        $strQuery = "select plan.nombre, costoplan.COSTOAFILIACION,
-            case when contrato.PERIODICIDAD = 1 then costoplan.COSTOPAGOMES
-            when contrato.PERIODICIDAD = 2 then costoplan.COSTOPAGOSEMESTRE
-            else costoplan.COSTOPAGOANIO end as COSTOBENEFICIARIO, plan.NUMBENEFICIARIOS, contrato.PERIODICIDAD
-            from contrato inner join plan on plan.id = contrato.PLANID
-            inner join costoplan on costoplan.planid = plan.id
-            where '" . $factual->format('Y-m-d') . "' between costoplan.fechadesde and costoplan.fechahasta and contrato.id = " . $noContrato;
+        $strQuery = "select PLAN.NOMBRE, COSTOPLAN.COSTOAFILIACION,
+            case when CONTRATO.PERIODICIDAD = 1 then COSTOPLAN.COSTOPAGOMES
+            when CONTRATO.PERIODICIDAD = 2 then COSTOPLAN.COSTOPAGOSEMESTRE
+            else COSTOPLAN.COSTOPAGOANIO end as COSTOBENEFICIARIO, PLAN.NUMBENEFICIARIOS, CONTRATO.PERIODICIDAD
+            from CONTRATO inner join PLAN on PLAN.ID = CONTRATO.PLANID
+            inner join COSTOPLAN on COSTOPLAN.PLANID = PLAN.ID
+            where '" . $factual->format('Y-m-d') . "' between COSTOPLAN.FECHADESDE and COSTOPLAN.FECHAHASTA and CONTRATO.ID = " . $noContrato;
         $qcostonormal = $this->db->query($strQuery);     
         if($qcostonormal->num_rows() <= 0 )
         {
@@ -542,7 +564,8 @@ class Consultor extends CI_Controller {
             $valor_total = $numbeneficiarios * $valnormal->COSTOBENEFICIARIO;
         }
         return $valor_total;
-    }   
+    }  
+    
     
     
     
@@ -564,32 +587,32 @@ class Consultor extends CI_Controller {
             $data['selectedoption'] = 10;
 
             $crud = new grocery_CRUD();
-            $crud->set_model('Custom_query_model');
-            $crud->set_table('persona'); //Change to your table name
+            $crud->set_model('custom_document_model');
+            $crud->set_table('DOCUMENTO'); //Change to your table name
 
             $strSQL = " SELECT CONCAT(PERSONA.NOMBRES, ' ' , PERSONA.APELLIDOS) AS ASESOR, 
                         DOCUMENTO.NUMERO, DOCUMENTO.ESTADO, DOCUMENTO.TIPO, DOCUMENTO.ID
                         FROM DOCUMENTO
                         INNER JOIN PERSONA ON DOCUMENTO.EMPID = PERSONA.ID  ";
             if ($data['asesor'] != '') {
-                $strSQL = $strSQL . " AND CONCAT(PERSONA.Nombres, ' ', PERSONA.Apellidos) like '%" . $data['asesor'] . "%' ";
+                $strSQL = $strSQL . " AND CONCAT(PERSONA.NOMBRES, ' ', PERSONA.APELLIDOS) like '%" . $data['asesor'] . "%' ";
             }
             if (is_numeric($data['estado'])) {
                 if($data['estado'] > 0)
-                    $strSQL = $strSQL . " AND documento.ESTADO = " . $data['estado'] . " ";
+                    $strSQL = $strSQL . " AND DOCUMENTO.ESTADO = " . $data['estado'] . " ";
             }
             if (is_numeric($data['nodocumento'])) {
-                $strSQL = $strSQL . " AND documento.Numero = " . $data['nodocumento'] . " ";
+                $strSQL = $strSQL . " AND DOCUMENTO.NUMERO = " . $data['nodocumento'] . " ";
             }
             if (is_numeric($data['rangoinicio'])) {
-                $strSQL = $strSQL . " AND documento.Numero >= " . $data['rangoinicio'] . " ";
+                $strSQL = $strSQL . " AND DOCUMENTO.NUMERO >= " . $data['rangoinicio'] . " ";
             }
             if (is_numeric($data['rangofin'])) {
-                $strSQL = $strSQL . " AND documento.Numero <= " . $data['rangofin'] . " ";
+                $strSQL = $strSQL . " AND DOCUMENTO.NUMERO <= " . $data['rangofin'] . " ";
             }
             if (is_numeric($data['tipo'])) {
                 if($data['tipo'] > 0)
-                    $strSQL = $strSQL . " AND documento.tipo = " . $data['tipo'] . " ";
+                    $strSQL = $strSQL . " AND DOCUMENTO.TIPO = " . $data['tipo'] . " ";
             }
             $strSQL = $strSQL . " ORDER BY DOCUMENTO.NUMERO";
             $crud->basic_model->set_query_str($strSQL); //Query text here
@@ -614,7 +637,7 @@ class Consultor extends CI_Controller {
             $this->template->write_view('login', $this->tank_auth->get_login(), $data);
             $this->template->write('title', 'Búsqueda de Documentos');
             $this->template->write_view('sidebar', $this->tank_auth->get_sidebar());
-            $this->template->write_view('content', 'consultor/consultaDocumentos', $output);
+            $this->template->write_view('content', 'Consultor/consultaDocumentos', $output);
             $this->template->render();
         } else {
             redirect('');
@@ -627,7 +650,7 @@ class Consultor extends CI_Controller {
     }
     
     public function callback_column_tipo_documento($value, $row) {    
-        $estados=array('1' => 'Asignado', '2' => 'Reportado', '3' => 'Anulado');
+        $estados=array('1' => 'Contrato', '2' => 'Recibo de Caja');
         return $estados[$row->TIPO];
     }
     

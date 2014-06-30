@@ -379,5 +379,5 @@ alter table users add constraint fk_users_persona foreign key (perID)
       references PERSONA (ID) on delete restrict on update restrict;
 
 
-INSERT INTO  `previmed`.`titular` (`ID` ,`NOMBRES` ,`APELLIDOS`)
-VALUES ('1',  'Nuevo',  'Titular');
+INSERT INTO  `previmed`.`titular` (`NOMBRES` ,`APELLIDOS`)
+VALUES ( 'Nuevo',  'Titular');

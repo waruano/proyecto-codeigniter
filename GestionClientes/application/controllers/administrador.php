@@ -95,7 +95,7 @@ class Administrador extends CI_Controller {
         }
 
         $output = $crud->render();
-
+        $crud->unset_read();
         //Configuracion de la Plantilla
         $this->template->write_view('login', $this->tank_auth->get_login(), $data);
         $this->template->write('title', 'Usuarios');
@@ -108,14 +108,14 @@ class Administrador extends CI_Controller {
     }
 
     function direccion_nueva_contraseña($primary_key, $row) {
-        return base_url() . 'administrador/changePassword/' . $primary_key;
+        return base_url() . 'index.php/administrador/changePassword/' . $primary_key;
     }
 
     function changePassword($primary_key) {
         if (!$this->is_session_started())
             session_start();
         $_SESSION['_aux_primary_key'] = $primary_key;
-        redirect(base_url() . 'administrador/Usuarios/edit/' . $primary_key);
+        redirect(base_url() . 'index.php/administrador/Usuarios/edit/' . $primary_key);
     }
 
     function field_password_callback($value, $prymary_key) {
@@ -193,15 +193,15 @@ class Administrador extends CI_Controller {
     }
 
     function direccion_contratosWizard($primary_key, $row) {
-        return base_url() . 'contratos/contratosWizard/' . $primary_key;
+        return base_url() . 'index.php/contratos/contratosWizard/' . $primary_key;
     }
 
     function direccion_contratos($primary_key, $row) {
-        return base_url() . 'contratos/contratosEdit/' . $primary_key;
+        return base_url() . 'index.php/contratos/contratosEdit/' . $primary_key;
     }
 
     function direccion_planes($primary_key, $row) {
-        return base_url() . 'administrador/costosplan/' . $primary_key;
+        return base_url() . 'index.php/administrador/costosplan/' . $primary_key;
     }
 
     function contactosEdit($titularId) {
@@ -233,8 +233,8 @@ class Administrador extends CI_Controller {
             if (isset($_SESSION['_aux_wizard']) && $_SESSION['_aux_wizard']) {
                 //informacion del Contrato y el Plan
                 $contrato_id = $_SESSION['_aux_primary_key'];
-                $this->load->model('contratosModel');
-                $select_contrato = $this->contratosModel->get_contrato($contrato_id);
+                $this->load->model('contratosmodel');
+                $select_contrato = $this->contratosmodel->get_contrato($contrato_id);
                 if ($select_contrato != null) {
                     $_aux_str = "Tipo de Contrato no Definido";
                     switch ($select_contrato->TIPOCONTRATO) {
@@ -268,7 +268,7 @@ class Administrador extends CI_Controller {
                     $data['contrato_periodicidad'] = $_aux_str;
                     unset($_aux_str);
                     $data['contrato_fechaInicio'] = $select_contrato->FECHAINICIO;
-                    $select_plan = $this->contratosModel->get_plan($select_contrato->PLANID);
+                    $select_plan = $this->contratosmodel->get_plan($select_contrato->PLANID);
                     if ($select_plan != null) {
                         $data['plan_nombre'] = $select_plan->NOMBRE;
                         $data['plan_beneficiarios'] = $select_plan->NUMBENEFICIARIOS;
@@ -295,14 +295,14 @@ class Administrador extends CI_Controller {
             $data['step_wizard'] = 0;
 
             $valTitId = $titularId;
-            $query = $this->db->query("SELECT NOMBRES, APELLIDOS, NODOCUMENTO, documento.numero 
-                                   FROM Titular Left Join CONTRATO on Contrato.TitId = Titular.ID   and contrato.estado = 1
-                                   left join documento on documento.id = contrato.docId   WHERE Titular.ID = " . $valTitId);
+            $query = $this->db->query("SELECT NOMBRES, APELLIDOS, NODOCUMENTO, DOCUMENTO.NUMERO 
+                                   FROM TITULAR Left Join CONTRATO on CONTRATO.TITID = TITULAR.ID   and CONTRATO.ESTADO = 1
+                                   left join DOCUMENTO on DOCUMENTO.ID = CONTRATO.DOCID   WHERE TITULAR.ID = " . $valTitId);
             if ($query->num_rows() > 0) {
                 $row = $query->row(0);
                 $data['titularFullName'] = $row->NOMBRES . ' ' . $row->APELLIDOS;
                 $data['titularIdentificacion'] = $row->NODOCUMENTO;
-                $data['titularContrato'] = $row->numero;
+                $data['titularContrato'] = $row->NUMERO;
             } else {
                 $data['titularFullName'] = 'Titular sin definir o no existe';
                 $data['titularIdentificacion'] = '';
@@ -315,7 +315,7 @@ class Administrador extends CI_Controller {
                 $crud->unset_edit();
                 $crud->unset_delete();
             }
-            $crud->set_table('contacto');
+            $crud->set_table('CONTACTO');
             $crud->where('TITID', $valTitId);
             $crud->set_subject("Contactos");
             $crud->columns('NOMBRECOMPLETO', 'PARENTESCO', 'TELDOMICILIO', 'TELMOVIL');
@@ -365,7 +365,7 @@ class Administrador extends CI_Controller {
 
         //Configuracion Grocery_CRUD listado de usuarios
         $crud = new Grocery_CRUD();
-        $crud->set_table('costoplan');
+        $crud->set_table('COSTOPLAN');
         $crud->where('PLANID', $planid);
         $crud->set_subject("Tarifa");
         
@@ -420,7 +420,7 @@ class Administrador extends CI_Controller {
         $data['selectedoption'] = 7;
         //Configuracion Grocery_CRUD listado de usuarios
         $crud = new Grocery_CRUD();
-        $crud->set_table('persona');
+        $crud->set_table('PERSONA');
         $crud->where('TIPOPERSONA', '2');
         $crud->set_subject("Empleados");
         $crud->columns('NOMBRES', 'APELLIDOS', 'TIPODOC', 'NODOCUMENTO', 'TELMOVIL', 'EMAIL','CODIGOASESOR');
@@ -474,7 +474,7 @@ class Administrador extends CI_Controller {
             
         //Configuracion Grocery_CRUD listado de usuarios
         $crud = new Grocery_CRUD();
-        $crud->set_table('otroscargos');
+        $crud->set_table('OTROSCARGOS');
         $crud->where('TITID', $titularid);
         $crud->set_subject("Cargos Adicionales");
         

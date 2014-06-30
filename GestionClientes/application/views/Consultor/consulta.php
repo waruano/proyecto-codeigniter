@@ -7,7 +7,7 @@
     <script src="<?php echo $file; ?>"></script>
 <?php endforeach; ?>
 <div>
-    <?php $this->load->view('consultor/filtrosconsulta');       
+    <?php $this->load->view('Consultor/filtrosconsulta');       
     echo $output;
     ?>
 </div>

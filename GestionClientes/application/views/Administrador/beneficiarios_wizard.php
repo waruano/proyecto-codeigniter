@@ -105,10 +105,10 @@
         ?>
 
         <?php if (isset($_SESSION['_aux_wizard']) && $_SESSION['_aux_wizard'] == true) { ?>
-            <input type="button" class="btn btn-large" onclick="window.location = '<?php echo base_url() . "contratos/finalizar_wizard"; ?>'" value="Terminar "/>  
+            <input type="button" class="btn btn-large" onclick="window.location = '<?php echo base_url() . "index.php/contratos/finalizar_wizard"; ?>'" value="Terminar "/>  
         <?php } else {
             ?>
-            <input type="button" class="btn btn-large"  onclick="window.location = '<?php echo base_url() . "contratos/titulares"; ?>'" value="Regresar a Titulares"/>  
+            <input type="button" class="btn btn-large"  onclick="window.location = '<?php echo base_url() . "index.php/contratos/titulares"; ?>'" value="Regresar a Titulares"/>  
     <?php } ?>
 </div>
 <script language="javascript" type="text/javascript">
@@ -174,7 +174,7 @@
     function loadBarrios(selCiudades, selBarrios, sSeleccionado)
     {        
         jQuery.ajax({
-            'url': '<?php echo base_url()."administrador/listadobarrios/"; ?>' + jQuery("select[id$='" + selCiudades + "']").val() + "/" + sSeleccionado ,
+            'url': '<?php echo base_url()."index.php/administrador/listadobarrios/"; ?>' + jQuery("select[id$='" + selCiudades + "']").val() + "/" + sSeleccionado ,
             'success':function(data){                        
                 jQuery("select[id$='" + selBarrios + "']").empty();
                 jQuery("select[id$='" + selBarrios + "']").append(data);
