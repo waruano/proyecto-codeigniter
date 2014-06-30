@@ -52,10 +52,12 @@
     <?php
     echo $output;
     ?>
-</div>
     <script language="javascript" type="text/javascript">
+        
     jQuery(document).ready(function()
-    {                
+    {   
+        
+    
         jQuery("div[id$='COBROMUNICIPIO_field_box']").css('height','50px');            
         jQuery("div[id$='COBRODIRECCION_field_box']").css('height','50px');
         
@@ -84,8 +86,9 @@
     
     function loadBarrios(selCiudades, selBarrios, sSeleccionado)
     {        
+        if(sSeleccionado == '') sSeleccionado = -1;
         jQuery.ajax({
-            'url': '<?php echo base_url()."administrador/listadobarrios/"; ?>' + jQuery("select[id$='" + selCiudades + "']").val() + "/" + sSeleccionado ,
+            'url': '<?php echo base_url()."index.php/administrador/listadobarrios/"; ?>' + jQuery("select[id$='" + selCiudades + "']").val() + "/" + sSeleccionado ,
             'success':function(data){                        
                 jQuery("select[id$='" + selBarrios + "']").empty();
                 jQuery("select[id$='" + selBarrios + "']").append(data);
@@ -106,6 +109,8 @@
         
         jQuery("select[id$='field-COBROMUNICIPIO']").css('display', 'block');
         jQuery("div[id$='field_COBROMUNICIPIO_chzn']").css('display', 'none');
+        
+        
     }
     
     function copiardireccion()
@@ -146,3 +151,5 @@
         return str.replace(new RegExp(find, 'g'), replace);
       }
     </script>
+    
+</div>

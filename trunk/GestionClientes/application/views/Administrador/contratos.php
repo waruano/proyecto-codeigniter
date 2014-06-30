@@ -70,7 +70,7 @@
     echo $output;
     if (!isset($_SESSION['_aux_wizard']) || !$_SESSION['_aux_wizard'] == true) {
         ?>
-        <input type="button" class="btn btn-large"  onclick="window.location = '<?php echo base_url() . "administrador/planes"; ?>'" value="Regresar a Planes"/>  
+        <input type="button" class="btn btn-large"  onclick="window.location = '<?php echo base_url() . "index.php/administrador/planes"; ?>'" value="Regresar a Planes"/>  
     <?php } ?>
 </div>
     <script language="javascript" type="text/javascript">

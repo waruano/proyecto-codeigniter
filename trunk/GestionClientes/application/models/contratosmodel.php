@@ -1,0 +1,96 @@
+<?php
+
+if (!defined('BASEPATH'))
+    exit('No direct script access allowed');
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+
+/**
+ * Description of contratosModel
+ *
+ * @author waruano
+ */
+class contratosmodel extends CI_Model {
+
+    public function __construct() {
+        parent::__construct();
+    }
+
+    public function get_persona($identificador) {
+        $this->db->where('ID', $identificador);
+        $this->db->limit(1);
+        $result = $this->db->get('PERSONA');
+        if ($result->num_rows() > 0)
+            return $result->row();
+        else
+            return null;
+    }
+
+    public function add_persona($data) {
+        $this->db->insert('PERSONA', $data);
+        $id = $this->db->insert_id();
+        return $id;
+    }
+
+    public function add_titular($data) {
+        $this->db->insert('TITULAR', $data);
+        $id = $this->db->insert_id();
+        return $id;
+    }
+    public function add_beneficiario($data) {
+        $this->db->insert('BENEFICIARIO', $data);
+        $id = $this->db->insert_id();
+        return $id;
+    }
+
+    public function update_persona($data, $primaryKey) {
+        return $this->db->update('PERSONA', $data, array('ID' => $primaryKey));
+    }
+
+    public function update_titular($data, $primaryKey) {
+        return $this->db->update('TITULAR', $data, array('ID' => $primaryKey));
+    }
+    public function update_beneficiario($data, $primaryKey) {
+        return $this->db->update('BENEFICIARIO', $data, array('ID' => $primaryKey));
+    }
+    public function delete_persona($primaryKey){
+        //echo'<script>alert("borrando persona"'.$primaryKey.');</script>';
+        $this->db->where('ID',$prymaryKey);
+        return $this->db->delete('PERSONA');
+    }
+    public function delete_titular($primaryKey){
+        //echo'<script>alert("borrando titular"'.$primaryKey.');</script>';
+        $this->db->where('ID',$prymaryKey);
+        return $this->db->delete('TITULAR');
+    }
+    public function get_plan($primary_key){
+        $this->db->where('ID', $primary_key);
+        $this->db->limit(1);
+        $result = $this->db->get('PLAN');
+        if ($result->num_rows() > 0)
+            return $result->row();
+        else
+            return null;
+    }
+    public function get_contrato($primary_key){
+        $this->db->where('ID', $primary_key);
+        $this->db->limit(1);
+        $result = $this->db->get('CONTRATO');
+        if ($result->num_rows() > 0)
+            return $result->row();
+        else
+            return null;
+    }
+    public function get_beneficiarios($titular_id){
+        $this->db->where('TITID',$titular_id);
+        $query=  $this->db->get('BENEFICIARIO');
+        if($query->num_rows()>0)
+            return $query;
+        else
+            return null;
+    }
+}
+
+?>

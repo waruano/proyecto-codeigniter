@@ -16,7 +16,7 @@ class DireccionUtils
       }
       else
       {
-          $result = $result . '<option value="' . $clave . '">' . $clave . '</option>';
+          $result = $result . '<option value="' . $clave . '" >' . $clave . '</option>';
       }
   
   }
@@ -841,7 +841,7 @@ $result = array(
 );
 return $result;
   }
-  else if($ciudad == 'Ibagué')
+  else if($ciudad == 'Ibague')
   {
 $result = array(
  ' Altamira',
@@ -2244,10 +2244,84 @@ return $result;
  'Ipiales' => 'Ipiales', 
  'Neiva' => 'Neiva',
  'Villavicencio' => 'Villavicencio',
- 'Popayán' => 'Popayán', 
- 'Ibagué'  => 'Ibagué'  
+ 'Popayan' => 'Popayán', 
+ 'Ibague'  => 'Ibagué'  
   );
   return $lstCiudades;
+  }
+  
+  function ObtenerEPS()
+  {
+      $lstEPS = array(
+ '' => '', 
+ 'COMFAMILIAR CAMACOL ' => 'COMFAMILIAR CAMACOL ',
+'COMFAMA' => 'COMFAMA',
+'COMFAMILIAR CARTAGENA' => 'COMFAMILIAR CARTAGENA',
+'COMFABOY' => 'COMFABOY',
+'COMFACOR' => 'COMFACOR',
+'CAFAM' => 'CAFAM',
+'C. COMP FLIAR GUAJIRA ' => 'C. COMP FLIAR GUAJIRA ',
+'COMFAMILIAR HUILA' => 'COMFAMILIAR HUILA',
+'C. COMP FLIAR  NARIÑO ' => 'C. COMP FLIAR  NARIÑO ',
+'COMFENALCO QUINDÍO' => 'COMFENALCO QUINDÍO',
+'CAJASAN' => 'CAJASAN',
+'FENALCO SECCIONAL SANTANDER' => 'FENALCO SECCIONAL SANTANDER',
+'COMFASUCRE' => 'COMFASUCRE',
+'CAFABA ' => 'CAFABA ',
+'COMFENALCO' => 'COMFENALCO',
+'FAMISALUD COMFANORTE A.R.S.' => 'FAMISALUD COMFANORTE A.R.S.',
+'COMFAORIENTE' => 'COMFAORIENTE',
+'ARS UNICAJAS COMFACUNDI ' => 'ARS UNICAJAS COMFACUNDI ',
+'CAJACOPI ATLÁNTICO ' => 'CAJACOPI ATLÁNTICO ',
+'COLSUBSIDIO ' => 'COLSUBSIDIO ',
+'C. COMP FLIAR CHOCO ' => 'C. COMP FLIAR CHOCO ',
+'C. COMP FLIAR CAQUETA ' => 'C. COMP FLIAR CAQUETA ',
+'EPM DEPTO ANTIOQUIA MEDELLIN' => 'EPM DEPTO ANTIOQUIA MEDELLIN',
+'FERROCARRILES NALES DE COLOMBIA.' => 'FERROCARRILES NALES DE COLOMBIA.',
+'COLMEDICA E.P.S. ' => 'COLMEDICA E.P.S. ',
+'SALUD TOTAL S.A. ' => 'SALUD TOTAL S.A. ',
+'CAFÉSALUD EPS' => 'CAFÉSALUD EPS',
+'SANITAS S.A. E.P.S. ' => 'SANITAS S.A. E.P.S. ',
+'COMPENSAR E.P.S.' => 'COMPENSAR E.P.S.',
+'COMFENALCO ANTIOQUIA' => 'COMFENALCO ANTIOQUIA',
+'SUSALUD EPS ' => 'SUSALUD EPS ',
+'COMFENALCO VALLE E.P.S. ' => 'COMFENALCO VALLE E.P.S. ',
+'SALUDCOOP EPS' => 'SALUDCOOP EPS',
+'HUMANA VIVIR EPS' => 'HUMANA VIVIR EPS',
+'SALUD COLPATRIA E.P.S. ' => 'SALUD COLPATRIA E.P.S. ',
+'COOMEVA E.P.S. S.A.' => 'COOMEVA E.P.S. S.A.',
+'EPS FAMISANAR LTDA ' => 'EPS FAMISANAR LTDA ',
+'SOS EPS' => 'SOS EPS',
+'CAPRECOM' => 'CAPRECOM',
+'A.R.S. CONVIDA' => 'A.R.S. CONVIDA',
+'CRUZ BLANCA EPS S.A. ' => 'CRUZ BLANCA EPS S.A. ',
+'CAPRESOCA - E.P.S.' => 'CAPRESOCA - E.P.S.',
+'SOLSALUD' => 'SOLSALUD',
+'CALISALUD' => 'CALISALUD',
+'SALUD CONDOR S.A.' => 'SALUD CONDOR S.A.',
+'SELVASALUD S.A. EPS ARS ' => 'SELVASALUD S.A. EPS ARS ',
+'SALUDVIDA E.P.S. S.A. ' => 'SALUDVIDA E.P.S. S.A. ',
+'SALUDCOLOMBIA ' => 'SALUDCOLOMBIA ',
+'RED SALUD E.P.S. S.A. ' => 'RED SALUD E.P.S. S.A. ',
+'NUEVA EPS' => 'NUEVA EPS',
+'MULTIMEDICA EPS' => 'MULTIMEDICA EPS',
+'GOLDEN GROUP EPS' => 'GOLDEN GROUP EPS',
+'DUSAKAWI A.R.S.I.' => 'DUSAKAWI A.R.S.I.',
+'MANEXKA  EPS INDIGENA' => 'MANEXKA  EPS INDIGENA',
+'AIC-EPS-I ' => 'AIC-EPS-I ',
+'ANAS WAYUU EPS INDIGENA ' => 'ANAS WAYUU EPS INDIGENA ',
+'MALLAMAS EPSI ' => 'MALLAMAS EPSI ',
+'PIJAOS SALUD EPSI ' => 'PIJAOS SALUD EPSI ',
+'EMDISALUD' => 'EMDISALUD',
+'COOSALUD E.S.S.' => 'COOSALUD E.S.S.',
+'ASMET SALUD' => 'ASMET SALUD',
+'AMBUQ ARS ' => 'AMBUQ ARS ',
+'ECOOPSOS' => 'ECOOPSOS',
+'EMSSANAR ESS ' => 'EMSSANAR ESS ',
+'ESS COMPARTA' => 'ESS COMPARTA',
+'ASOCIACIÓN MUTUAL SER' => 'ASOCIACIÓN MUTUAL SER'
+  );
+  return $lstEPS;
   }
   
   

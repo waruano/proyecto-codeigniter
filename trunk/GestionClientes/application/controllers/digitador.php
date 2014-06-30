@@ -32,7 +32,7 @@ class digitador extends CI_Controller {
             }
             $crud->unset_read();
             
-            $crud->set_table('documento');
+            $crud->set_table('DOCUMENTO');
             $crud->set_subject("Documentos");
             $crud->columns('EMPID', 'NUMERO', 'TIPO', 'ESTADO');
             $crud->display_as('EMPID', 'Asignado a');
@@ -40,7 +40,7 @@ class digitador extends CI_Controller {
             $crud->display_as('TIPO', 'Tipo');
              $crud->display_as('ESTADO', 'Estado');
 
-            $crud->set_relation('EMPID', 'Persona', '{NODOCUMENTO} {Nombres} {Apellidos}', array('TIPOPERSONA' => '2'));
+            $crud->set_relation('EMPID', 'PERSONA', '{NODOCUMENTO} {NOMBRES} {APELLIDOS}', array('TIPOPERSONA' => '2'));
             $crud->unset_back_to_list();
             $crud->edit_fields('EMPID', 'NUMERO', 'TIPO', 'ESTADO');
             $crud->required_fields('NUMERO', 'TIPO', 'ESTADO','EMPID');
@@ -56,7 +56,7 @@ class digitador extends CI_Controller {
             $this->template->write_view('login', $this->tank_auth->get_login(), $data);
             $this->template->write('title', 'Documentos');
             $this->template->write_view('sidebar', $this->tank_auth->get_sidebar());
-            $this->template->write_view('content', 'digitador/documentos', $output);
+            $this->template->write_view('content', 'Digitador/documentos', $output);
             $this->template->render();
         } else {
             redirect('');
@@ -70,13 +70,13 @@ class digitador extends CI_Controller {
             list($desde, $hasta) = split('-', $numero);
             for ($i = $desde; $i <= $hasta; $i++) {
                 $post_array["NUMERO"] = $i;
-                $this->db->insert('documento', $post_array);
+                $this->db->insert('DOCUMENTO', $post_array);
             }
         } else {
 
             if (is_numeric($numero)) {
                 $post_array["NUMERO"] = $numero;
-                $this->db->insert('documento', $post_array);
+                $this->db->insert('DOCUMENTO', $post_array);
             }else
                 return false;
         }
@@ -100,7 +100,7 @@ class digitador extends CI_Controller {
             }
             $crud->unset_read();
             
-            $crud->set_table('pago');
+            $crud->set_table('PAGO');
             $crud->set_subject("Pagos");
             $crud->columns('RECID', 'TITID', 'VALOR', 'FECHA', 'TIPOCONCEPTO');
             $crud->display_as('RECID', 'Recibo de caja');
@@ -109,8 +109,8 @@ class digitador extends CI_Controller {
             $crud->display_as('FECHA', 'Fecha de pago');
             $crud->display_as('TIPOCONCEPTO', 'Por Concepto de');
 
-            $crud->set_relation('RECID', 'Documento', '{Numero}', array('TIPO' => '2', 'ESTADO' => '1'));            
-            $crud->set_relation('TITID', 'Titular', '{NoDocumento} - {Nombres} {Apellidos}',array('ID !='=> 1));
+            $crud->set_relation('RECID', 'DOCUMENTO', '{NUMERO}', array('TIPO' => '2', 'ESTADO' => '1'));            
+            $crud->set_relation('TITID', 'TITULAR', '{NODOCUMENTO} - {NOMBRES} {APELLIDOS}',array('ID !='=> 1));
 
             $crud->edit_fields('VALOR', 'FECHA', 'TIPOCONCEPTO');
             //definicion de las reglas
@@ -130,18 +130,18 @@ class digitador extends CI_Controller {
             $this->template->write_view('login', $this->tank_auth->get_login(), $data);
             $this->template->write('title', 'Pagos');
             $this->template->write_view('sidebar', $this->tank_auth->get_sidebar());
-            $this->template->write_view('content', 'digitador/pagos', $output);
+            $this->template->write_view('content', 'Digitador/pagos', $output);
             $this->template->render();
         } else {
-            echo $session_rol;
-            //redirect('');
+            //echo $session_rol;
+            redirect('');
         }
     }
 
     function _callback_after_insert_pago($post_array) {
         $data = array('ESTADO' => '2');
         $this->db->where('ID', $post_array['RECID']);
-        $this->db->update('documento', $data);
+        $this->db->update('DOCUMENTO', $data);
         return true;
     }
 

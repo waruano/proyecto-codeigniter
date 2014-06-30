@@ -30,10 +30,10 @@
  */
 class CI_DB_driver {
 
-	var $username;
-	var $password;
-	var $hostname;
-	var $database;
+	var $username           = 'root';
+	var $password           = 'MySQL4';
+	var $hostname           = 'localhost';
+	var $database           = 'previmed';
 	var $dbdriver		= 'mysql';
 	var $dbprefix		= '';
 	var $char_set		= 'utf8';

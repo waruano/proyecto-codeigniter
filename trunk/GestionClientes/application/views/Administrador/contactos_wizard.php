@@ -80,9 +80,9 @@
     ?>
 
     <?php if (isset($_SESSION['_aux_wizard']) && $_SESSION['_aux_wizard'] == true) { ?>
-        <input type="button" class="btn btn-large" onclick="window.location = '<?php echo base_url() . "home/remap/administrador/planes"; ?>'" value="Terminar "/>  
+        <input type="button" class="btn btn-large" onclick="window.location = '<?php echo base_url() . "index.php/home/remap/administrador/planes"; ?>'" value="Terminar "/>  
           <?php
         }else{ ?>
-             <input type="button" class="btn btn-large"  onclick="window.location='<?php echo base_url()."contratos/titulares"; ?>'" value="Regresar a Titulares"/>  
+             <input type="button" class="btn btn-large"  onclick="window.location='<?php echo base_url()."index.php/contratos/titulares"; ?>'" value="Regresar a Titulares"/>  
         <?php }?>
 </div>

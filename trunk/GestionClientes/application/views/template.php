@@ -32,7 +32,7 @@
             </div>
             <div class="footer" style="font-size: 10px;">
                 <br/><br/>
-                2014 &copy; Ruano'Soft    
+                2014 &copy; <a href="<?php echo base_url() . "index.php/home/acercade"; ?>" >SmartSoft Systems</img> </a>              
             </div>
         </div>
     </body>

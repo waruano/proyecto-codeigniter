@@ -815,7 +815,7 @@ class grocery_CRUD_Model_Driver extends grocery_CRUD_Field_Types {
                     return false;
                 }else{
                     
-                 echo "<script>alert('RESULTADO".$callback_return."');</script>";
+                 //echo "<script>alert('RESULTADO".$callback_return."');</script>";
                     return $callback_return;
                 }
             }
