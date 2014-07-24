@@ -381,3 +381,15 @@ alter table users add constraint fk_users_persona foreign key (perID)
 
 INSERT INTO  `previmed`.`titular` (`NOMBRES` ,`APELLIDOS`)
 VALUES ( 'Nuevo',  'Titular');
+
+
+/*==============================================================*/
+/* Table: BARRIO                                               */
+/*==============================================================*/
+create table BARRIO
+(
+   ID                bigint not null AUTO_INCREMENT,
+   CIUDAD            varchar(50),
+   NOMBRE            varchar(50)
+   primary key (ID)
+) ENGINE=InnoDB ;

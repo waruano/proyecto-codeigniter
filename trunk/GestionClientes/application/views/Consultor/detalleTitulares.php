@@ -116,7 +116,7 @@
                             <tr>
                                 <td>Tipo de documento:</td>
                                 <td><?php 
-                                $valor = array(1 => 'Cédula de Ciudadanía', 2 => 'Tarjeta de Identidad', 3 => 'Cedula Extrangera', NULL => '');
+                                $valor = array(1 => 'Cédula de Ciudadanía', 2 => 'Tarjeta de Identidad', 3 => 'Cedula Extrangera',4 => 'Registro Civil', NULL => '');
                                 echo $valor[$benefic->TIPODOC] ?></td>
                                 <td>Número de documento:</td>
                                 <td><?php echo $benefic->NODOCUMENTO ?></td>

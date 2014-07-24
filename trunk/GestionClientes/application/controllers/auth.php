@@ -12,9 +12,12 @@ class Auth extends CI_Controller {
 
     function index() {
         if ($message = $this->session->flashdata('message')) {
-            $data['message'] = $message;
-            $data['auth'] = 'auth/general_message';
-            $this->load->view('masterPage', $data);
+            $data['message'] = $message;  
+            $this->template->write_view('login', 'auth/login_form', $data);
+            $this->template->write('title', 'Previmed');
+            $this->template->write_view('sidebar', 'pages/sidebar_home');
+            $this->template->write_view('content', 'auth/general_message',$data);
+            $this->template->render();
             //$this->load->view('auth/general_message', array('message' => $message));
         } else {
             redirect('/auth/login/');

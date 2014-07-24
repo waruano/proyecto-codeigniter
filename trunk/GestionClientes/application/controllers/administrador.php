@@ -507,8 +507,59 @@ class Administrador extends CI_Controller {
         $this->load->library('DireccionUtils');
         $varUtils = new DireccionUtils();
         $this->output->enable_profiler(FALSE);
-        echo $varUtils->getOptions($parametro, $seleccionado);
+              
+        $qbarrios = $this->db->query("SELECT NOMBRE FROM BARRIO WHERE CIUDAD = '" . $parametro . "' ORDER BY NOMBRE " );
+        $pila = array();
+        
+        for($idx = 0; $idx < $qbarrios->num_rows(); $idx++ )
+        {
+            $barrio = $qbarrios->row($idx);
+            array_push($pila, $barrio->NOMBRE);
+        }
+        echo $varUtils->getSelectOptions($seleccionado, $pila);
     } 
+    
+    function barrios() {
+        //informacion de Usuario
+        $session_rol=  $this->tank_auth->get_rol();
+        if($session_rol==1){
+            $data['user_id'] = $this->tank_auth->get_user_id();
+            $data['username'] = $this->tank_auth->get_username();
+            $data['selectedoption'] = 11;
+            //Configuracion Grocery_CRUD listado de usuarios
+            $crud = new Grocery_CRUD();
+            $crud->set_table('BARRIO');
+
+            $crud->set_subject("Barrio");
+            $crud->columns('CIUDAD', 'NOMBRE');
+            $crud->display_as('CIUDAD', 'Ciudad');
+            $crud->display_as('NOMBRE', 'Nombre');
+
+            $crud->edit_fields('CIUDAD', 'NOMBRE');
+            //Configuracion de las Reglas
+            $crud->required_fields('CIUDAD', 'NOMBRE');
+
+            $crud->add_fields('CIUDAD', 'NOMBRE');
+            $crud->unset_read();
+
+            $this->load->library('DireccionUtils');
+            $varUtils = new DireccionUtils();
+
+            $crud->field_type('CIUDAD', 'dropdown', $varUtils->ObtenerListadoCiudades());
+            $output = $crud->render();
+
+            //Configuracion de la Plantilla
+            $this->template->write_view('login', $this->tank_auth->get_login(), $data);
+            $this->template->write('title', 'Empleados');
+            $this->template->write_view('sidebar', $this->tank_auth->get_sidebar());
+            $this->template->write_view('content', 'Administrador/barrios', $output);
+            $this->template->render();
+        }  else {
+            redirect('');
+        }
+    }
+    
+   
     
 }
 

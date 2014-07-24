@@ -26,8 +26,7 @@ class digitador extends CI_Controller {
             //Configuracion Grocery_CRUD listado de usuarios
             $crud = new Grocery_CRUD();
             //restriccion de acciones
-            if ($session_rol == 2) {
-                $crud->unset_edit();
+            if ($session_rol == 2) {                
                 $crud->unset_delete();
             }
             $crud->unset_read();
@@ -40,7 +39,7 @@ class digitador extends CI_Controller {
             $crud->display_as('TIPO', 'Tipo');
              $crud->display_as('ESTADO', 'Estado');
 
-            $crud->set_relation('EMPID', 'PERSONA', '{NODOCUMENTO} {NOMBRES} {APELLIDOS}', array('TIPOPERSONA' => '2'));
+            $crud->set_relation('EMPID', 'PERSONA', '{CODIGOASESOR} {NOMBRES} {APELLIDOS}', array('TIPOPERSONA' => '2'));
             $crud->unset_back_to_list();
             $crud->edit_fields('EMPID', 'NUMERO', 'TIPO', 'ESTADO');
             $crud->required_fields('NUMERO', 'TIPO', 'ESTADO','EMPID');

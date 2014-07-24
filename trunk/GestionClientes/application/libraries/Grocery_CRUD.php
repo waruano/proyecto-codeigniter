@@ -1312,7 +1312,7 @@ class grocery_CRUD_Layout extends grocery_CRUD_Model_Driver {
     protected function exportToExcel($state_info = null) {
         $data = $this->get_common_data();
 
-        $data->order_by = $this->order_by;
+        //$data->order_by = $this->order_by;
         $data->types = $this->get_field_types();
 
         $data->list = $this->get_list();
@@ -2747,8 +2747,8 @@ class grocery_CRUD_States extends grocery_CRUD_Layout {
                     $state_info->page = 1;
                     $state_info->per_page = 1000000; //a big number
                 }
-                if (!empty($_POST['order_by'][0])) {
-                    $state_info->order_by = $_POST['order_by'];
+                if ( !empty($_POST['order_by'][0]) ) {
+                    //$state_info->order_by = $_POST['order_by'];
                 }
                 if (!empty($_POST['search_text'])) {
                     if (empty($_POST['search_field'])) {

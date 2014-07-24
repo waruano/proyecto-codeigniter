@@ -39,7 +39,8 @@ class Consultor extends CI_Controller {
             $strSQL = "select 'EstadoCartera' as EstadoCartera, DOCUMENTO.NUMERO as NumeroContrato, 
                 CONCAT(TITULAR.NOMBRES, ' ', ifnull(TITULAR.APELLIDOS, '')) as NombreTitular, 
                 TITULAR.NODOCUMENTO as Identificacion, CONTRATO.FECHAINICIO as FechaAfiliacion, 
-                CONTRATO.ID as ID, CASE WHEN CONTRATO.ESTADO = 1 then 'Si' ELSE 'No' END as EstadoContrato
+                CONTRATO.ID as ID, CASE WHEN CONTRATO.ESTADO = 1 then 'Si' ELSE 'No' END as EstadoContrato,
+                TITULAR.TELMOVIL
                 from TITULAR 
                 inner join CONTRATO on (CONTRATO.TITID = TITULAR.ID AND TITULAR.ID > 1)
                 inner join DOCUMENTO on DOCUMENTO.ID = CONTRATO.DOCID ";
@@ -57,11 +58,12 @@ class Consultor extends CI_Controller {
             }
 
             $crud->basic_model->set_query_str($strSQL); //Query text here
-            $crud->columns('EstadoCartera', 'NumeroContrato', 'NombreTitular', 'Identificacion', 'FechaAfiliacion',  'EstadoContrato');
+            $crud->columns('EstadoCartera', 'NumeroContrato', 'NombreTitular', 'Identificacion', 'TELMOVIL', 'FechaAfiliacion',  'EstadoContrato');
             $crud->display_as('EstadoCartera', 'Estado Cartera');
             $crud->display_as('EstadoContrato', '¿Contrato Activo?');
-            $crud->display_as('NumeroContrato', 'Numero Contrato');
+            $crud->display_as('NumeroContrato', 'No Contrato');
             $crud->display_as('NombreTitular', 'Titular');
+            $crud->display_as('TELMOVIL', 'Tel.Móvil');
             $crud->display_as('FechaAfiliacion', 'Fecha Afiliacion');
             
             $crud->unset_add();
@@ -121,6 +123,7 @@ class Consultor extends CI_Controller {
             $data['valconvenio'] = $this->input->post('convenio');
             $data['valasesor'] = $this->input->post('asesor');            
             $data['valestadocartera'] = $this->input->post('estadocartera');            
+            $data['valestadocontrato'] = $this->input->post('estadocontrato');
             
             //informacion de Usuario
             $data['user_id'] = $this->tank_auth->get_user_id();
@@ -135,7 +138,8 @@ class Consultor extends CI_Controller {
                 select 'EstadoCartera' as EstadoCartera, DOCUMENTO.NUMERO as NumeroContrato, 
                 CONCAT(TITULAR.NOMBRES, ' ', ifnull(TITULAR.APELLIDOS, '')) as NombreTitular, 
                 TITULAR.NODOCUMENTO as Identificacion, CONTRATO.FECHAINICIO as FechaAfiliacion, 
-                CONTRATO.ID as ID, CASE WHEN CONTRATO.ESTADO = 1 then 'Si' ELSE 'No' END as EstadoContrato
+                CONTRATO.ID as ID, CASE WHEN CONTRATO.ESTADO = 1 then 'Si' ELSE 'No' END as EstadoContrato,
+                TITULAR.TELMOVIL
                 from TITULAR 
                 inner join CONTRATO on (CONTRATO.TITID = TITULAR.ID AND TITULAR.ID > 1)
                 inner join DOCUMENTO on DOCUMENTO.ID = CONTRATO.DOCID 
@@ -192,14 +196,26 @@ class Consultor extends CI_Controller {
             if ($data['valasesor'] != '') {
                 $strSQL = $strSQL . " AND CONCAT(PERSONA.NOMBRES, ' ', PERSONA.APELLIDOS) like '%" . $data['valasesor'] . "%' ";
             }
+            if ($data['valestadocontrato'] != '') {
+                if($data['valestadocontrato'] == 'ACTIVO')
+                {
+                    $strSQL = $strSQL . " AND CONTRATO.ESTADO = 1 ";    
+                }
+                else
+                {
+                    $strSQL = $strSQL . " AND CONTRATO.ESTADO = 0 ";    
+                }
+            }
+            
             //echo $strSQL;
             // Se define el CRUD
             $crud->basic_model->set_query_str($strSQL); //Query text here
-            $crud->columns('EstadoCartera', 'NumeroContrato', 'NombreTitular', 'Identificacion', 'FechaAfiliacion',  'EstadoContrato');
+            $crud->columns('EstadoCartera', 'NumeroContrato', 'NombreTitular', 'Identificacion','TELMOVIL', 'FechaAfiliacion',  'EstadoContrato');
             $crud->display_as('EstadoCartera', 'Estado Cartera');
             $crud->display_as('EstadoContrato', '¿Contrato Activo?');
             $crud->display_as('NumeroContrato', 'Numero Contrato');
             $crud->display_as('NombreTitular', 'Titular');
+            $crud->display_as('TELMOVIL', 'Tel.Móvil');
             $crud->display_as('FechaAfiliacion', 'Fecha Afiliacion');
             $crud->unset_add();
             $crud->unset_edit();

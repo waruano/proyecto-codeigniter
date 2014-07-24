@@ -102,6 +102,14 @@ $estadocartera = array(
         'options' => array('' => '', 'OK' => 'OK', 'EN MORA' => 'EN MORA')
 );
 
+$estadocontrato = array(
+	'name'	=> 'estadocontrato',
+	'id'	=> 'estadocontrato',	
+        'value' => $valestadocontrato,
+	'size'	=> 30,
+        'options' => array('' => '', 'ACTIVO' => 'ACTIVO', 'INACTIVO' => 'INACTIVO')
+);
+
 ?>
 
 <?php echo form_open('consultor/consultageneral') ?>
@@ -223,6 +231,19 @@ $estadocartera = array(
         ?>
         <div style="color: red;"><?php echo form_error($estrato['name']); ?><?php echo isset($errors[$estrato['name']]) ? $errors[$estrato['name']] : ''; ?>        </div>
     </div>   
+</div>
+
+<div class="row" style="padding-top: 5px; padding-bottom: 5px;" >
+    <div class="col-md-1">         
+        <?php echo form_label('Estado contrato', $estadocontrato['id']); ?> 
+    </div> 
+    <div class="col-md-3"> 
+        <?php
+        echo form_dropdown($estadocontrato['name'], $estadocontrato['options'], $estadocontrato['value'], 'style="width:215px; height: 26px; "');
+        ?>
+        <div style="color: red;"><?php echo form_error($estadocontrato['name']); ?><?php echo isset($errors[$estadocontrato['name']]) ? $errors[$estadocontrato['name']] : ''; ?>        </div>
+    </div> 
+    
 </div>
 <center>
     <input type="submit" value="Consultar" />       
