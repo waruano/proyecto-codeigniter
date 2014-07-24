@@ -26,24 +26,28 @@ class digitador extends CI_Controller {
             //Configuracion Grocery_CRUD listado de usuarios
             $crud = new Grocery_CRUD();
             //restriccion de acciones
-            if ($session_rol == 2) {                
+            if ($session_rol == 2) {
                 $crud->unset_delete();
             }
             $crud->unset_read();
-            
+
             $crud->set_table('DOCUMENTO');
             $crud->set_subject("Documentos");
-            $crud->columns('EMPID', 'NUMERO', 'TIPO', 'ESTADO');
-            $crud->display_as('EMPID', 'Asignado a');
-            $crud->display_as('NUMERO', 'Número(s)');
+            $crud->columns('EMPID', 'TIPO', 'NUMERO', 'ESTADO');
+            $crud->display_as('EMPID', 'Asignado a');            
             $crud->display_as('TIPO', 'Tipo');
-             $crud->display_as('ESTADO', 'Estado');
+            $crud->display_as('NUMERO', 'Número(s)');
+            $crud->display_as('ESTADO', 'Estado');
 
             $crud->set_relation('EMPID', 'PERSONA', '{CODIGOASESOR} {NOMBRES} {APELLIDOS}', array('TIPOPERSONA' => '2'));
             $crud->unset_back_to_list();
-            $crud->edit_fields('EMPID', 'NUMERO', 'TIPO', 'ESTADO');
-            $crud->required_fields('NUMERO', 'TIPO', 'ESTADO','EMPID');
-            $crud->add_fields('EMPID', 'NUMERO', 'TIPO', 'ESTADO');
+            $crud->edit_fields('EMPID', 'TIPO', 'NUMERO', 'ESTADO');
+            $crud->required_fields('TIPO','NUMERO','ESTADO', 'EMPID');
+
+            $crud->set_rules('TIPO', 'Tipo', 'callback_tipo_check');
+            $crud->set_rules('NUMERO', 'Numero', 'callback_numero_check');
+
+            $crud->add_fields('EMPID', 'TIPO', 'NUMERO', 'ESTADO');
             $crud->field_type('TIPO', 'dropdown', array('1' => 'Contrato', '2' => 'Recibo de Caja'));
             $crud->field_type('ESTADO', 'dropdown', array('1' => 'Asignado', '2' => 'Reportado', '3' => 'Anulado'));
 
@@ -59,6 +63,71 @@ class digitador extends CI_Controller {
             $this->template->render();
         } else {
             redirect('');
+        }
+    }
+
+    public function tipo_check($str) {
+        if (trim($str) == '') {
+            $this->form_validation->set_message('tipo_check', 'El campo %s Es Obligatorio');
+            return FALSE;
+        } else {
+            if ($this->is_session_started() === FALSE)
+                session_start();
+            $_SESSION['_aux_var'] = $str;
+            return TRUE;
+        }
+    }
+
+    public function numero_check($str) {
+        if ($this->is_session_started() === FALSE)
+            session_start();
+     
+        if (trim($str) == '') {
+            $this->form_validation->set_message('numero_check', 'El campo %s es Obligatorio');
+            return FALSE;
+        }
+        $this->load->model('contratosmodel');
+        $numero = $str;
+        if(isset($_SESSION['_aux_var'])){
+            $tipo = $_SESSION['_aux_var'];
+            unset($_SESSION['_aux_var']);
+        }else {
+            $this->form_validation->set_message('numero_check', 'se debe seleccionar un tipo para comprobar los documentos');
+            return FALSE;
+        }
+        
+        $pos = strpos($numero, "-");
+        $ban = TRUE;
+        $mensaje = 'los siguientes documentos de Tipo ';
+        if($tipo==1){
+            $mensaje=$mensaje.'Contrato ya se han asignado: ';
+        }else{
+            $mensaje=$mensaje.'Recibo de Caja Ya se han asignado: ';
+        }
+        if ($pos != FALSE) {
+            list($desde, $hasta) = split('-', $numero);
+            for ($i = $desde; $i <= $hasta; $i++) {
+                if ($this->contratosmodel->existe_documento($i, $tipo)) {
+                    $ban = FALSE;
+                    $mensaje = $mensaje . ' ' . $i.' ';
+                }
+            }
+        } else {
+            if (is_numeric($numero)) {
+                if($this->contratosmodel->existe_documento($numero, $tipo)) {
+                    $ban = FALSE;
+                    $mensaje = $mensaje . ' ' . $numero.' ';
+                }
+            } else {
+                $this->form_validation->set_message('numero_check', 'El campo %s debe ser de tipo numerico'.$tipo);
+                return FALSE;
+            }
+        }        
+        if (!$ban) {
+            $this->form_validation->set_message('numero_check', $mensaje);
+            return FALSE;
+        } else {
+            return TRUE;
         }
     }
 
@@ -98,7 +167,7 @@ class digitador extends CI_Controller {
                 $crud->unset_delete();
             }
             $crud->unset_read();
-            
+
             $crud->set_table('PAGO');
             $crud->set_subject("Pagos");
             $crud->columns('RECID', 'TITID', 'VALOR', 'FECHA', 'TIPOCONCEPTO');
@@ -108,14 +177,14 @@ class digitador extends CI_Controller {
             $crud->display_as('FECHA', 'Fecha de pago');
             $crud->display_as('TIPOCONCEPTO', 'Por Concepto de');
 
-            $crud->set_relation('RECID', 'DOCUMENTO', '{NUMERO}', array('TIPO' => '2', 'ESTADO' => '1'));            
-            $crud->set_relation('TITID', 'TITULAR', '{NODOCUMENTO} - {NOMBRES} {APELLIDOS}',array('ID !='=> 1));
+            $crud->set_relation('RECID', 'DOCUMENTO', '{NUMERO}', array('TIPO' => '2', 'ESTADO' => '1'));
+            $crud->set_relation('TITID', 'TITULAR', '{NODOCUMENTO} - {NOMBRES} {APELLIDOS}', array('ID !=' => 1));
 
             $crud->edit_fields('VALOR', 'FECHA', 'TIPOCONCEPTO');
             //definicion de las reglas
             $crud->required_fields('RECID', 'TITID', 'VALOR', 'FECHA', 'TIPOCONCEPTO');
             $crud->set_rules('VALOR', 'Valor Pagado', 'required|trim|xss_clean|max_length[20]|numeric');
-            $crud->add_fields('RECID', 'TITID', 'TIPOCONCEPTO','VALOR', 'FECHA');
+            $crud->add_fields('RECID', 'TITID', 'TIPOCONCEPTO', 'VALOR', 'FECHA');
 
             $crud->field_type('TIPOCONCEPTO', 'dropdown', array('1' => 'Pago mensualidad', '2' => 'Pago afiliación', '3' => 'Otros conceptos'));
             $crud->field_type('FECHAHASTA', 'date');
@@ -142,6 +211,17 @@ class digitador extends CI_Controller {
         $this->db->where('ID', $post_array['RECID']);
         $this->db->update('DOCUMENTO', $data);
         return true;
+    }
+
+    function is_session_started() {
+        if (php_sapi_name() !== 'cli') {
+            if (version_compare(phpversion(), '5.4.0', '>=')) {
+                return session_status() === PHP_SESSION_ACTIVE ? TRUE : FALSE;
+            } else {
+                return session_id() === '' ? FALSE : TRUE;
+            }
+        }
+        return FALSE;
     }
 
 }

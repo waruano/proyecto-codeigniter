@@ -91,6 +91,12 @@ class contratosmodel extends CI_Model {
         else
             return null;
     }
+    public function existe_documento($numero,$tipo) {
+        $where=array('NUMERO'=>  trim($numero), 'TIPO'=>trim($tipo));
+        $this->db->where($where);
+        $query=$this->db->get('DOCUMENTO');
+        return $query->num_rows()>0;
+    }
 }
 
 ?>
