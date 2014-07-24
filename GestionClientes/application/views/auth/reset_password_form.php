@@ -14,17 +14,25 @@ $confirm_new_password = array(
 );
 ?>
 <?php echo form_open($this->uri->uri_string()); ?>
-<table>
-	<tr>
-		<td><?php echo form_label('New Password', $new_password['id']); ?></td>
-		<td><?php echo form_password($new_password); ?></td>
-		<td style="color: red;"><?php echo form_error($new_password['name']); ?><?php echo isset($errors[$new_password['name']])?$errors[$new_password['name']]:''; ?></td>
-	</tr>
-	<tr>
-		<td><?php echo form_label('Confirm New Password', $confirm_new_password['id']); ?></td>
-		<td><?php echo form_password($confirm_new_password); ?></td>
-		<td style="color: red;"><?php echo form_error($confirm_new_password['name']); ?><?php echo isset($errors[$confirm_new_password['name']])?$errors[$confirm_new_password['name']]:''; ?></td>
-	</tr>
-</table>
-<?php echo form_submit('change', 'Cambiar Contraseña'); ?>
+<div>
+	<div>
+		<div><?php echo form_label('Nueva Contraseña', $new_password['id']); ?></div>
+		<div><?php echo form_password($new_password); ?></div>
+		<div style="color: red;"><?php echo form_error($new_password['name']); ?><?php echo isset($errors[$new_password['name']])?$errors[$new_password['name']]:''; ?></div>
+	</div>
+	<div>
+		<div><?php echo form_label('Confirmar Nueva Contraseña', $confirm_new_password['id']); ?></div>
+		<div><?php echo form_password($confirm_new_password); ?></div>
+		<div style="color: red;"><?php echo form_error($confirm_new_password['name']); ?><?php echo isset($errors[$confirm_new_password['name']])?$errors[$confirm_new_password['name']]:''; ?></div>
+	</div>
+</div>
+<br/>
+<?php 
+$submit = array(
+	'name'	=> 'change',
+	'id'	=> 'change',
+	'value' => 'Cambiar Contraseña',
+        'class'=>'btn btn-default'
+);
+echo form_submit($submit); ?>
 <?php echo form_close(); ?>

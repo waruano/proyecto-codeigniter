@@ -32,7 +32,7 @@
             </div>
             <div class="footer" style="font-size: 10px;">
                 <br/><br/>
-                2014 &copy; <a href="<?php echo base_url() . "index.php/home/acercade"; ?>" >SmartSoft Systems</img> </a>              
+                Copyright &copy; 2014 <a href="<?php echo base_url() . "index.php/home/acercade"; ?>" >SmartApps</img> </a>              
             </div>
         </div>
     </body>

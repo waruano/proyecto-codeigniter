@@ -45,14 +45,14 @@ class Contratos extends CI_Controller {
 
             //creacion  del crud
             $crud = new Grocery_CRUD();
-
+            $crud->where("PLANID", $plan_id);
             //restriccion de acciones
             if ($session_rol == 2) {
-                $crud->unset_edit();
+                //$crud->unset_edit();
                 $crud->unset_delete();
             }
             if ($session_rol == 1) {
-                $crud->add_action(' Terminar Contrato', base_url() . 'images/close.png', 'Terminar Contrato', 'personalizada', array($this, 'direccion_terminar_contrato'));
+                $crud->add_action(' Terminar Contrato', base_url() . 'images/stop.png', 'Terminar Contrato', 'personalizada', array($this, 'direccion_terminar_contrato'));
             }
             $state = $crud->getState();
 
@@ -86,14 +86,15 @@ class Contratos extends CI_Controller {
                 $crud->set_relation('DOCID', 'DOCUMENTO', 'NUMERO', array('TIPO' => '1'));
                 $crud->field_type('ESTADO', 'dropdown', array(0 => 'No', 1 => 'Si'));
                 $crud->unset_add();
-                $crud->unset_edit();
-                $crud->unset_delete();
+                //$crud->unset_edit();
+                //$crud->unset_delete();
             }
 
             //configuracion de la tabla
             $crud->set_table('CONTRATO');
             $crud->set_subject("Contrato");
             $crud->set_relation('TITID', 'TITULAR', '{NODOCUMENTO} {NOMBRES} {APELLIDOS}', null, 'ID ASC');
+            $crud->set_relation('PLANID', 'PLAN', 'NOMBRE');
             //Renombrado de los campos
             $crud->display_as('PLANID', 'Plan');
             $crud->display_as('TIPOCONTRATO', 'Tipo de Contrato');
@@ -109,7 +110,7 @@ class Contratos extends CI_Controller {
             //campos en formulario para agregar
             $crud->add_fields('PLANID', 'TITID', 'TIPOCONTRATO', 'PERIODICIDAD', 'FECHAINICIO', 'DOCID', 'ESTADO');
             //campos en formaulario para editar
-            $crud->edit_fields('PLANID', 'TIPOCONTRATO', 'PERIODICIDAD', 'FECHAINICIO', 'DOCID', 'ESTADO');
+            $crud->edit_fields('PLANID', 'TIPOCONTRATO', 'PERIODICIDAD', 'FECHAINICIO', 'ESTADO');
 
             //tipos de los campos
             $crud->field_type('TIPOCONTRATO', 'dropdown', array(1 => 'Nuevo', 2 => 'Adición', 3 => 'Reactivación', 4 => 'Reemplazo'));
@@ -118,7 +119,7 @@ class Contratos extends CI_Controller {
             else {
                 $crud->field_type('PERIODICIDAD', 'dropdown', array(1 => 'Mensual'));
             }
-            $crud->field_type('PLANID', 'hidden', $plan_id);
+            //$crud->field_type('PLANID', 'hidden', $plan_id);
 
             //callback
             $crud->callback_after_insert(array($this, '_callback_after_insert_contrato'));
@@ -366,7 +367,7 @@ class Contratos extends CI_Controller {
             
             
             //definicion de las reglas
-            $crud->required_fields('NOMBRES', 'APELLIDOS', 'TIPODOC', 'NODOCUMENTO', 'BENEFICIARIO', 'FECHANACIMIENTO', 'GENERO', 'COBRODIRECCION', 'COBROBARRIO', 'COBROMUNICIPIO', 'COBRODEPTO', 'DOMIDIRECCION', 'DOMIBARRIO', 'DOMIMUNICIPIO', 'DOMIDEPTO', 'NOHIJOS', 'NODEPENDIENTES', 'ESTRATO', 'ESTADOCIVIL', 'OCUPACION', 'EPS', 'COMOUBICOSERVICIO', 'PERMITEUSODATOS');
+            $crud->required_fields('NOMBRES', 'APELLIDOS', 'TIPODOC', 'NODOCUMENTO', 'BENEFICIARIO', 'FECHANACIMIENTO', 'GENERO', 'COBRODIRECCION', 'COBROBARRIO', 'COBROMUNICIPIO', 'COBRODEPTO', 'DOMIDIRECCION', 'DOMIBARRIO', 'DOMIMUNICIPIO', 'DOMIDEPTO', 'NOHIJOS', 'NODEPENDIENTES', 'ESTRATO', 'ESTADOCIVIL', 'OCUPACION', 'EPS', 'COMOUBICOSERVICIO', 'PERMITEUSODATOS','TELMOVIL');
             $crud->set_rules('EMAIL', 'E-mail', 'trim|xss_clean|valid_email|max_length[100]');
 
 //acciones desde el crud
@@ -496,7 +497,7 @@ class Contratos extends CI_Controller {
             $valTitId = $titularId;
             $query = $this->db->query("
                 SELECT NOMBRES, APELLIDOS, NODOCUMENTO, DOCUMENTO.NUMERO, BENEFICIARIO, PLAN.NUMBENEFICIARIOS,
-                TITULAR.ESTRATO, TITULAR.COBRODIRECCION, TITULAR.COBROBARRIO, TITULAR.TELDOMICILIO, TITULAR.COBROMUNICIPIO
+                TITULAR.ESTRATO, TITULAR.DOMIDIRECCION, TITULAR.DOMIBARRIO, TITULAR.TELDOMICILIO, TITULAR.DOMIMUNICIPIO
                 FROM TITULAR Left Join CONTRATO on CONTRATO.TITID = TITULAR.ID   and CONTRATO.ESTADO = 1
                 left join DOCUMENTO on DOCUMENTO.ID = CONTRATO.DOCID   
                 left join PLAN on PLAN.ID = CONTRATO.PLANID 
@@ -513,10 +514,10 @@ class Contratos extends CI_Controller {
                     $data['plan_beneficiarios'] = $row->NUMBENEFICIARIOS;
                 }
                 $data['estrato'] = $row->ESTRATO;
-                $data['cobrodireccion'] = $row->COBRODIRECCION;
-                $data['cobrobarrio'] = $row->COBROBARRIO;
+                $data['cobrodireccion'] = $row->DOMIDIRECCION;
+                $data['cobrobarrio'] = $row->DOMIBARRIO;
                 $data['teldomicilio'] = $row->TELDOMICILIO;
-                $data['cobromunicipio'] = $row->COBROMUNICIPIO;
+                $data['cobromunicipio'] = $row->DOMIMUNICIPIO;
             } else {
                 $data['titularFullName'] = 'Titular sin definir o no existe';
                 $data['titularIdentificacion'] = '';
@@ -619,9 +620,14 @@ class Contratos extends CI_Controller {
                 }
                 $data['total_beneficiarios'] = $total_beneficiarios;
                 $content = 'Administrador/beneficiarios';
-                $crud->unset_add();
+                
+                if(! ($data['plan_beneficiarios'] > $total_beneficiarios && $session_rol == 1) ){ 
+                    $crud->unset_add();                     
+                }
             }
             $crud->unset_delete();
+            $crud->unset_read();
+            
             //restringir acciones
             if ($session_rol == 2) {
                 $crud->unset_edit();
@@ -629,7 +635,7 @@ class Contratos extends CI_Controller {
             } else if (isset($_SESSION['_aux_wizard']) && $_SESSION['_aux_wizard']) {
                 $crud->add_action('Eliminar Beneficiario', base_url() . 'images/close.png', 'Eliminar Beneficiario', 'personalizada', array($this, 'direccion_eliminar_beneficiario'));
             }
-            $crud->unset_read();
+            
             $state = $crud->getState();
             //configuracion de la tabla
             $crud->set_table('BENEFICIARIO');

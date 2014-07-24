@@ -54,11 +54,11 @@ echo $output;
 ?>
 
 <?php if (isset($_SESSION['_aux_wizard']) && $_SESSION['_aux_wizard'] == true) { ?>
-        <input type="button" class="btn btn-large" onclick="window.location = '<?php echo base_url() . "contratos/index"; ?>'" value="Continuar "/>   
-        <input type="button" class="btn btn-large" onclick="window.location = '<?php echo base_url() . "administrador/contactos"; ?>'" value="Regresar a Contactos "/>   
+        <input type="button" class="btn btn-large" onclick="window.location = '<?php echo base_url() . "index.php/contratos/index"; ?>'" value="Continuar "/>   
+        <input type="button" class="btn btn-large" onclick="window.location = '<?php echo base_url() . "index.php/administrador/contactos"; ?>'" value="Regresar a Contactos "/>   
 <?php } else {
     ?>
-        <input type="button" class="btn btn-large"  onclick="window.location = '<?php echo base_url() . "contratos/titulares"; ?>'" value="Regresar a Titulares"/>  
+        <input type="button" class="btn btn-large"  onclick="window.location = '<?php echo base_url() . "index.php/contratos/titulares"; ?>'" value="Regresar a Titulares"/>  
 <?php } ?>
 </div>
     

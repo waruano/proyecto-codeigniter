@@ -17,13 +17,30 @@ class DireccionUtils
       else
       {
           $result = $result . '<option value="' . $clave . '" >' . $clave . '</option>';
-      }
-  
+      }  
   }
-  
   return $result;
   }
   
+  function getSelectOptions($seleccionado, $lstBarrios)
+  {
+    $seleccionado = str_replace("_", " ", $seleccionado);
+    $result = "";
+    foreach($lstBarrios as $clave)
+    { 
+      if($clave == $seleccionado)
+      {
+          $result = $result . '<option value="' . $clave . '" selected="selected">' . $clave . '</option>';
+      }
+      else
+      {
+          $result = $result . '<option value="' . $clave . '" >' . $clave . '</option>';
+      }  
+    }
+  
+  return $result;
+  }
+ /* 
   function getListadoBarrios($ciudad)
   {
   
@@ -2233,7 +2250,7 @@ $result = array(
 );
 return $result;
   }
-  }
+  } */
 
   function ObtenerListadoCiudades()
   {
@@ -2319,7 +2336,9 @@ return $result;
 'ECOOPSOS' => 'ECOOPSOS',
 'EMSSANAR ESS ' => 'EMSSANAR ESS ',
 'ESS COMPARTA' => 'ESS COMPARTA',
-'ASOCIACIÓN MUTUAL SER' => 'ASOCIACIÓN MUTUAL SER'
+'ASOCIACIÓN MUTUAL SER' => 'ASOCIACIÓN MUTUAL SER',
+'OTRAS' => 'OTRAS',
+'NINGUNA' => 'NINGUNA'
   );
   return $lstEPS;
   }
